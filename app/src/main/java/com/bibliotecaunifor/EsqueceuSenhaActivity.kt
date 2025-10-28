@@ -85,7 +85,7 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                // Label de instrução
+                
                 Text(
                     text = "Esqueceu a senha? Digite seu email institucional para recuperar",
                     fontSize = 14.sp,
@@ -175,7 +175,7 @@ fun EsqueceuSenhaHeader() {
                 .background(Color.White)
         )
 
-       
+        
         Image(
             painter = painterResource(id = R.drawable.logo2
             ),
@@ -221,7 +221,7 @@ fun EmailRecoveryTextField(
             singleLine = true
         )
 
-       
+        
         if (isError && errorMessage != null) {
             Text(
                 text = errorMessage,
