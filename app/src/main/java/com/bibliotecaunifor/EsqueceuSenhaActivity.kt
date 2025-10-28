@@ -175,7 +175,7 @@ fun EsqueceuSenhaHeader() {
                 .background(Color.White)
         )
 
-        //
+       
         Image(
             painter = painterResource(id = R.drawable.logo2
             ),
@@ -221,7 +221,7 @@ fun EmailRecoveryTextField(
             singleLine = true
         )
 
-        // Exibir a mensagem de erro (substitui o `editEmail.error = "..."`)
+       
         if (isError && errorMessage != null) {
             Text(
                 text = errorMessage,
