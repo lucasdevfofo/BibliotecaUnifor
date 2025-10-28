@@ -42,18 +42,38 @@ fun TelaCadastro(navController: NavController) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        IconButton(
-            onClick = { navController.popBackStack() },
+        
+        Box(
             modifier = Modifier
-                .padding(start = 8.dp, top = 8.dp)
-                .size(36.dp)
+                .fillMaxWidth()
+                .height(56.dp)
+                .padding(horizontal = 8.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Voltar",
-                tint = Color.Black
+         
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier
+                    .size(48.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Voltar",
+                    tint = Color.Black
+                )
+            }
+
+
+            Image(
+                painter = painterResource(id = R.drawable.logo2),
+                contentDescription = "Logo Unifor",
+                modifier = Modifier
+                    .height(36.dp)
+                    .align(Alignment.Center)
             )
         }
+
+
 
         Box(
             modifier = Modifier
@@ -73,14 +93,7 @@ fun TelaCadastro(navController: NavController) {
                     .padding(top = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo2),
-                    contentDescription = "Logo Biblioteca Unifor",
-                    modifier = Modifier
-                        .height(54.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+
                 Text(
                     text = "Reserve sua sala\nBiblioteca Unifor",
                     color = Color.White,
@@ -137,7 +150,7 @@ fun TelaCadastro(navController: NavController) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
-                onClick = { /* TODO: cadastrar */ },
+                onClick = { },
                 colors = ButtonDefaults.buttonColors(containerColor = azulBotao),
                 modifier = Modifier
                     .fillMaxWidth()
