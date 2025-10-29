@@ -1,5 +1,6 @@
 package com.bibliotecaunifor
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+
+
+import com.bibliotecaunifor.TelaLogin
+import com.bibliotecaunifor.EsqueceuSenhaScreen
+// 🚩 CORREÇÃO 1: Adicionar a importação de TelaCadastro
+import com.bibliotecaunifor.TelaCadastro
+
 
 class TelaInicialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,16 +54,34 @@ fun AppNavigation() {
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) }
             )
         }
+
         composable(Route.Login.path) {
-            TelaLogin()
+            // Chamada com todos os 3 parâmetros
+            TelaLogin(
+                onNavigateUp = { navController.popBackStack() },
+                onCadastroClick = { navController.navigate(Route.Cadastro.path) },
+                onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) }
+            )
         }
+
         composable(Route.Cadastro.path) {
-            TelaCadastro(navController)
+            // 🚩 CORREÇÃO 2: Chama TelaCadastro e passa o NavController (como exige a sua função)
+            TelaCadastro(navController = navController)
         }
 
+        composable(Route.EsqueceuSenha.path) {
 
+            EsqueceuSenhaScreen(
+                onNavigateUp = { navController.popBackStack() },
+
+                onEnviarClick = { email ->
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
+            )
+        }
+        }
     }
-}
+
 
 @Composable
 fun TelaInicial(onLoginClick: () -> Unit,
