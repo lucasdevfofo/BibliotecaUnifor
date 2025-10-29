@@ -1,6 +1,5 @@
 package com.bibliotecaunifor
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,11 +21,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-
-import com.bibliotecaunifor.TelaLogin
-import com.bibliotecaunifor.EsqueceuSenhaScreen
-// 🚩 CORREÇÃO 1: Adicionar a importação de TelaCadastro
-import com.bibliotecaunifor.TelaCadastro
+// Importações dos Composable, se estiverem em arquivos separados
+// import com.bibliotecaunifor.TelaLogin
+// import com.bibliotecaunifor.EsqueceuSenhaScreen
+// import com.bibliotecaunifor.TelaCadastro
+// import com.bibliotecaunifor.EmailRedefinicaoScreen
 
 
 class TelaInicialActivity : ComponentActivity() {
@@ -49,6 +48,7 @@ fun AppNavigation() {
         startDestination = Route.TelaInicial.path
     ) {
         composable(Route.TelaInicial.path) {
+            // Chamando a tela inicial completa
             TelaInicial(
                 onLoginClick = { navController.navigate(Route.Login.path) },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) }
@@ -57,6 +57,7 @@ fun AppNavigation() {
 
         composable(Route.Login.path) {
             TelaLogin(
+                // onNavigateUp aqui significa voltar para TelaInicial
                 onNavigateUp = { navController.popBackStack() },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) },
                 onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) }
@@ -64,7 +65,13 @@ fun AppNavigation() {
         }
 
         composable(Route.Cadastro.path) {
-            TelaCadastro(navController = navController)
+            TelaCadastro(
+                onNavigateUp = { navController.popBackStack() },
+                onCadastrarClick = {
+                    // Após cadastro bem-sucedido, volta para a tela de Login
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
+            )
         }
 
         composable(Route.EsqueceuSenha.path) {
@@ -76,16 +83,23 @@ fun AppNavigation() {
             )
         }
 
-
+        composable(Route.EmailRedefinicao.path) {
+            EmailRedefinicaoScreen(
+                onNavigateBackToLogin = {
+                    // Limpa a pilha e volta para o Login
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
+            )
+        }
     }
 }
 
-
+// 🚀 FUNÇÃO TELA INICIAL COMPLETA (que estava faltando)
 @Composable
 fun TelaInicial(onLoginClick: () -> Unit,
                 onCadastroClick: () -> Unit
 ) {
-    val azulUnifor = Color(0xFF004AF5)
+    val azulUnifor = Color(0xFF084cf4)
     val cinzaBotao = Color(0xFFD0D0D0)
 
     Column(

@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -18,14 +20,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
 
 @Composable
-fun TelaCadastro(navController: NavController) {
+fun TelaCadastro(
+    onNavigateUp: () -> Unit,
+    onCadastrarClick: () -> Unit
+) {
     val cinzaCampo = Color(0xFFF2F2F2)
     val azulBotao = Color(0xFF2E4C93)
 
@@ -41,70 +44,78 @@ fun TelaCadastro(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
     ) {
-        
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(horizontal = 8.dp)
-        ) {
-         
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Voltar",
-                    tint = Color.Black
-                )
-            }
 
-
-            Image(
-                painter = painterResource(id = R.drawable.logo2),
-                contentDescription = "Logo Unifor",
-                modifier = Modifier
-                    .height(36.dp)
-                    .align(Alignment.Center)
-            )
-        }
-
-
-
+        // --- 1. CABEÇALHO IDÊNTICO AO EMAILREDEFINICAO (Top Bar Branca + Banner) ---
+        // Usamos um Box para alinhar o Banner e os Textos DENTRO da área total de 180dp
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
+            // Imagem do Banner (Cobre toda a área de 180dp)
             Image(
                 painter = painterResource(id = R.drawable.livros),
-                contentDescription = "Imagem da biblioteca",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
+                contentDescription = "Nova imagem de fundo",
+                modifier = Modifier.matchParentSize(), // Ocupa os 180dp completos
+                contentScale = ContentScale.Crop
             )
 
-            Column(
+            // 🚀 TOP BAR BRANCA FLUTUANTE (Camada superior para seta e logo)
+            Row(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(top = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(Color.White) // Fundo branco da Top Bar
+                    .align(Alignment.TopCenter), // Alinhada no topo do Box
+                verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Text(
-                    text = "Reserve sua sala\nBiblioteca Unifor",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    lineHeight = 22.sp
+                IconButton(
+                    onClick = onNavigateUp,
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Voltar",
+                        tint = Color.Black
+                    )
+                }
+                // Spacers para centralizar a logo
+                Spacer(modifier = Modifier.weight(0.67f))
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.size(40.dp)
                 )
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            // 🚀 TEXTOS (Centralizados na área visível da imagem)
+            // Usamos um Box aninhado para delimitar a área onde o texto deve centralizar:
+            // Começa em 56dp (fim da Top Bar) e tem 124dp de altura (180 - 56)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(124.dp) // Altura da área visível da imagem
+                    .align(Alignment.BottomCenter), // Alinhado abaixo da Top Bar (56dp + 124dp = 180dp)
+                contentAlignment = Alignment.Center // Centraliza o texto nesta nova área
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Reserve sua sala\nBiblioteca Unifor",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp
+                    )
+                }
             }
         }
+        // --- FIM CABEÇALHO IDÊNTICO ---
 
-        Spacer(modifier = Modifier.height(14.dp))
 
         Spacer(modifier = Modifier.height(14.dp))
 
@@ -120,6 +131,7 @@ fun TelaCadastro(navController: NavController) {
 
             Text(text = "Nome Completo", fontSize = 12.sp, color = Color.Gray)
             CampoCinza("Nome Completo", nome) { nome = it }
+            // ... (restante do formulário) ...
 
             Text(text = "Senha", fontSize = 12.sp, color = Color.Gray)
             CampoCinza("Senha", senha) { senha = it }
@@ -150,7 +162,7 @@ fun TelaCadastro(navController: NavController) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
-                onClick = { },
+                onClick = onCadastrarClick,
                 colors = ButtonDefaults.buttonColors(containerColor = azulBotao),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,9 +176,12 @@ fun TelaCadastro(navController: NavController) {
                     fontSize = 15.sp
                 )
             }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
+
+// ... (Restante do Composable CampoCinza e Preview permanece o mesmo) ...
 
 @Composable
 fun CampoCinza(
@@ -213,7 +228,6 @@ fun CampoCinza(
 @Composable
 fun TelaCadastroPreview() {
     BibliotecaUniforTheme {
-        val mockNavController = rememberNavController()
-        TelaCadastro(navController = mockNavController)
+        TelaCadastro(onNavigateUp = {}, onCadastrarClick = {})
     }
 }

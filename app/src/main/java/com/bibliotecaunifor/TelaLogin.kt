@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun TelaLogin(
-   
     onNavigateUp: () -> Unit,
     onCadastroClick: () -> Unit,
     onEsqueceuSenhaClick: () -> Unit
 ) {
-   
-    val azulUnifor = Color(0xFF0052CC)
+    // O corpo da função começa aqui. A assinatura anterior estava duplicada e incompleta.
+
+    val azulUnifor = Color(0xFF084cf4)
     val cinzaCampo = Color(0xFFD0D0D0)   // blocos dos inputs
     val cinzaBotao = Color(0xFF3A3A3A)   // botão Entrar
     val branco = Color(0xFFFFFFFF)
@@ -45,19 +45,12 @@ fun TelaLogin(
             .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp),
         horizontalAlignment = Alignment.Start
     ) {
-       
-        Image(
-            painter = painterResource(id = R.drawable.logo_unifor),
-            contentDescription = "Unifor Mobile",
-            modifier = Modifier
-                .height(36.dp)
-                .fillMaxWidth(),
-            contentScale = ContentScale.Fit
-        )
+
+
 
         Spacer(modifier = Modifier.height(12.dp))
 
-     
+
         Text(
             text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
             color = branco,
@@ -80,7 +73,7 @@ fun TelaLogin(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-  
+
         Text(text = "Matrícula", color = branco, fontSize = 13.sp)
         CampoCinza(
             value = matricula,
@@ -93,7 +86,7 @@ fun TelaLogin(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-     
+
         Text(text = "Senha", color = branco, fontSize = 13.sp)
         CampoCinza(
             value = senha,
@@ -134,7 +127,7 @@ fun TelaLogin(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onEsqueceuSenhaClick() }
+                .clickable { onEsqueceuSenhaClick() } // Chama o callback do NavHost
         )
 
         // Texto "Não tem Cadastro? Cadastre-se"
@@ -145,8 +138,7 @@ fun TelaLogin(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-               
-                .clickable { onCadastroClick() }
+                .clickable { onCadastroClick() } // Chama o callback do NavHost
         )
     }
 }

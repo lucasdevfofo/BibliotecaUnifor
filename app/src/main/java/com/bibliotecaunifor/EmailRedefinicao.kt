@@ -38,7 +38,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             BibliotecaUniforTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    EmailRedefinicaoScreen(Modifier.padding(innerPadding))
+                    // 🚨 No Preview/Activity de teste, precisamos passar uma função vazia
+                    EmailRedefinicaoScreen(
+                        onNavigateBackToLogin = {},
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
@@ -47,7 +51,11 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun EmailRedefinicaoScreen(modifier: Modifier = Modifier) {
+// 🚨 MUDANÇA 1: Adicionar o parâmetro de navegação
+fun EmailRedefinicaoScreen(
+    onNavigateBackToLogin: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -60,15 +68,18 @@ fun EmailRedefinicaoScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .height(180.dp)
             ) {
+                // Conteúdo da Top Bar (Seta e Logo)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
+                        // Note que você está usando uma Row branca separada
                         .background(Color.White),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = {},
+                        // 🚨 MUDANÇA 2: Ligar a seta ao evento de navegação
+                        onClick = onNavigateBackToLogin,
                         modifier = Modifier
                             .size(60.dp)
                             .pointerHoverIcon(PointerIcon.Hand)
@@ -87,6 +98,7 @@ fun EmailRedefinicaoScreen(modifier: Modifier = Modifier) {
                     )
                     Spacer(modifier = Modifier.weight(1f))
                 }
+                // Imagem do Banner
                 Image(
                     painter = painterResource(id = R.drawable.noca_imagem_fundo),
                     contentDescription = "Nova imagem de fundo",
@@ -117,8 +129,8 @@ fun EmailRedefinicaoScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(100.dp))
         Button(
-            onClick = {
-            },
+            // 🚨 MUDANÇA 3: Ligar o botão "Voltar" ao evento de navegação
+            onClick = onNavigateBackToLogin,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(57.dp)
@@ -136,6 +148,7 @@ fun EmailRedefinicaoScreen(modifier: Modifier = Modifier) {
 @Composable
 fun EmailRedefinicaoScreenPreview() {
     BibliotecaUniforTheme {
-        EmailRedefinicaoScreen()
+        // 🚨 No Preview, passamos uma função vazia {}
+        EmailRedefinicaoScreen(onNavigateBackToLogin = {})
     }
 }
