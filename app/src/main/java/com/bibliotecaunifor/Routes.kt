@@ -6,5 +6,7 @@ sealed class Route(val path: String) {
     data object Cadastro : Route("tela_cadastro")
 
     data object EsqueceuSenha : Route("esqueceu_senha")
+
+    data object  EmailRedefinicao : Route("email-rede")
 }
 

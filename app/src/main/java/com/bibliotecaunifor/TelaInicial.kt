@@ -56,7 +56,6 @@ fun AppNavigation() {
         }
 
         composable(Route.Login.path) {
-            // Chamada com todos os 3 parâmetros
             TelaLogin(
                 onNavigateUp = { navController.popBackStack() },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) },
@@ -65,22 +64,21 @@ fun AppNavigation() {
         }
 
         composable(Route.Cadastro.path) {
-            // 🚩 CORREÇÃO 2: Chama TelaCadastro e passa o NavController (como exige a sua função)
             TelaCadastro(navController = navController)
         }
 
         composable(Route.EsqueceuSenha.path) {
-
             EsqueceuSenhaScreen(
                 onNavigateUp = { navController.popBackStack() },
-
                 onEnviarClick = { email ->
-                    navController.popBackStack(Route.Login.path, inclusive = false)
+                    navController.navigate(Route.EmailRedefinicao.path)
                 }
             )
         }
-        }
+
+
     }
+}
 
 
 @Composable
