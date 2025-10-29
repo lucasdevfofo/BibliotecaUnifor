@@ -10,5 +10,9 @@ sealed class Route(val path: String) {
     data object  EmailRedefinicao : Route("email-redefinicao")
 
     data object  MenuLateral : Route("menu-lateral")
+
+    data object  ReservasRealizadas : Route("reservar-realizadas")
+
+    data object  Notificacoes : Route("notificacoes")
 }
 
