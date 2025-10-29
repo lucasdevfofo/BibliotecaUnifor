@@ -2,6 +2,7 @@ package com.bibliotecaunifor
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,8 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun TelaLogin() {
-    // cores do protótipo
+fun TelaLogin(
+   
+    onNavigateUp: () -> Unit,
+    onCadastroClick: () -> Unit,
+    onEsqueceuSenhaClick: () -> Unit
+) {
+   
     val azulUnifor = Color(0xFF0052CC)
     val cinzaCampo = Color(0xFFD0D0D0)   // blocos dos inputs
     val cinzaBotao = Color(0xFF3A3A3A)   // botão Entrar
@@ -39,7 +45,7 @@ fun TelaLogin() {
             .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        // Logo "Unifor Mobile" no topo
+       
         Image(
             painter = painterResource(id = R.drawable.logo_unifor),
             contentDescription = "Unifor Mobile",
@@ -51,7 +57,7 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Título (duas linhas, alinhado à esquerda)
+     
         Text(
             text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
             color = branco,
@@ -62,7 +68,7 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Mascote centralizado (mesma proporção do protótipo)
+        // Mascote
         Image(
             painter = painterResource(id = R.drawable.mascote_mesa),
             contentDescription = "Mascote",
@@ -74,7 +80,7 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // --- Campo Matrícula (rótulo + bloco cinza sem borda) ---
+  
         Text(text = "Matrícula", color = branco, fontSize = 13.sp)
         CampoCinza(
             value = matricula,
@@ -87,7 +93,7 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // --- Campo Senha ---
+     
         Text(text = "Senha", color = branco, fontSize = 13.sp)
         CampoCinza(
             value = senha,
@@ -101,7 +107,7 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Botão Entrar (retangular, cinza escuro)
+        // Botão Entrar
         Button(
             onClick = { /* TODO: autenticar */ },
             colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
@@ -120,28 +126,32 @@ fun TelaLogin() {
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Textos inferiores — alinhados à esquerda, tamanho pequeno
+        // Texto "Esqueceu a Senha?"
         Text(
             text = "Esqueceu a Senha?",
             color = branco,
             fontSize = 12.sp,
             textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onEsqueceuSenhaClick() }
         )
+
+        // Texto "Não tem Cadastro? Cadastre-se"
         Text(
             text = "Não tem Cadastro? Cadastre-se",
             color = branco,
             fontSize = 12.sp,
             textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+               
+                .clickable { onCadastroClick() }
         )
     }
 }
 
-/**
- * Caixa cinza “chapada” igual ao protótipo, com texto sem borda.
- * Usa BasicTextField para não herdar estilo de Outlined/FilledTextField.
- */
+
 @Composable
 private fun CampoCinza(
     value: String,
