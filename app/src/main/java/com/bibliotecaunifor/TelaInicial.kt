@@ -99,7 +99,7 @@ fun AppNavigation() {
 fun TelaInicial(onLoginClick: () -> Unit,
                 onCadastroClick: () -> Unit
 ) {
-    val azulUnifor = Color(0xFF084cf4)
+    val azulUnifor = Color(0xFF004AF5)
     val cinzaBotao = Color(0xFFD0D0D0)
 
     Column(
@@ -109,10 +109,10 @@ fun TelaInicial(onLoginClick: () -> Unit,
             .padding(20.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logo_unifor),
+            painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
             contentDescription = "Unifor Mobile",
             modifier = Modifier
-                .height(36.dp)
+                .height(40.dp)
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
