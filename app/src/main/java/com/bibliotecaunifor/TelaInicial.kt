@@ -21,13 +21,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-// Importações dos Composable, se estiverem em arquivos separados
-// import com.bibliotecaunifor.TelaLogin
-// import com.bibliotecaunifor.EsqueceuSenhaScreen
-// import com.bibliotecaunifor.TelaCadastro
-// import com.bibliotecaunifor.EmailRedefinicaoScreen
-
-
 class TelaInicialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +41,6 @@ fun AppNavigation() {
         startDestination = Route.TelaInicial.path
     ) {
         composable(Route.TelaInicial.path) {
-            // Chamando a tela inicial completa
             TelaInicial(
                 onLoginClick = { navController.navigate(Route.Login.path) },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) }
@@ -57,18 +49,24 @@ fun AppNavigation() {
 
         composable(Route.Login.path) {
             TelaLogin(
-                // onNavigateUp aqui significa voltar para TelaInicial
                 onNavigateUp = { navController.popBackStack() },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) },
-                onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) }
+                onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
+                onEntrarClick = { navController.navigate(Route.SalasDisponiveis.path) } // 👈 aqui está a navegação
             )
+
         }
+        composable(Route.Notificacoes.path) {
+            TelaNotificacoes(navController)
+        }
+
+
+
 
         composable(Route.Cadastro.path) {
             TelaCadastro(
                 onNavigateUp = { navController.popBackStack() },
                 onCadastrarClick = {
-                    // Após cadastro bem-sucedido, volta para a tela de Login
                     navController.popBackStack(Route.Login.path, inclusive = false)
                 }
             )
@@ -86,18 +84,28 @@ fun AppNavigation() {
         composable(Route.EmailRedefinicao.path) {
             EmailRedefinicaoScreen(
                 onNavigateBackToLogin = {
-                    // Limpa a pilha e volta para o Login
                     navController.popBackStack(Route.Login.path, inclusive = false)
                 }
             )
         }
+
+        // 🚀 NOVA ROTA — Tela Home / Salas Disponíveis
+        composable(Route.SalasDisponiveis.path) {
+            TelaSalasDisponiveis(
+                navController = navController, // ✅ parâmetro adicionado
+                onVoltarClick = { navController.popBackStack() },
+                onSalaClick = { sala ->
+                    // futuro: abrir_detalhes_da_sala
+                })
+        }
     }
 }
 
-// 🚀 FUNÇÃO TELA INICIAL COMPLETA (que estava faltando)
+// 🚀 Tela Inicial (sem mudanças)
 @Composable
-fun TelaInicial(onLoginClick: () -> Unit,
-                onCadastroClick: () -> Unit
+fun TelaInicial(
+    onLoginClick: () -> Unit,
+    onCadastroClick: () -> Unit
 ) {
     val azulUnifor = Color(0xFF004AF5)
     val cinzaBotao = Color(0xFFD0D0D0)
@@ -106,44 +114,64 @@ fun TelaInicial(onLoginClick: () -> Unit,
         modifier = Modifier
             .fillMaxSize()
             .background(azulUnifor)
-            .padding(20.dp)
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.Start
     ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 🔹 Logo ajustada (igual à TelaLogin)
         Image(
             painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
-            contentDescription = "Unifor Mobile",
+            contentDescription = "Logo Unifor",
             modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth(),
+                .height(70.dp)
+                .width(220.dp)
+                .align(Alignment.Start),
             contentScale = ContentScale.Fit
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
+        // 🔹 Texto de boas-vindas alinhado à esquerda
         Text(
             text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
-            lineHeight = 28.sp
+            lineHeight = 28.sp,
+            modifier = Modifier.align(Alignment.Start)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Image(
-            painter = painterResource(id = R.drawable.mascote_mesa),
-            contentDescription = "Mascote Unifor",
-            modifier = Modifier.height(150.dp).fillMaxWidth(),
-            contentScale = ContentScale.Fit
-        )
+        // 🔹 Mascote centralizado
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.mascote_mesa),
+                contentDescription = "Mascote Unifor",
+                modifier = Modifier
+                    .height(160.dp)
+                    .fillMaxWidth(0.8f),
+                contentScale = ContentScale.Fit
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
+        // 🔹 Botões “Login” e “Cadastre-se”
         Button(
             onClick = onLoginClick,
             colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
-            modifier = Modifier.fillMaxWidth().height(48.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
         ) {
-            Text("Login", color = Color.Black)
+            Text("Login", color = Color.Black, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -155,8 +183,10 @@ fun TelaInicial(onLoginClick: () -> Unit,
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            Text("Cadastre-se", color = Color.Black)
+            Text("Cadastre-se", color = Color.Black, fontWeight = FontWeight.Bold)
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
+

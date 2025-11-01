@@ -1,29 +1,15 @@
 package com.bibliotecaunifor
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,66 +23,57 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-class NotificacoesActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BibliotecaUniforTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NotificacaoScreen(Modifier.padding(innerPadding))
-                }
-            }
-        }
-    }
-}
-
 @Composable
-fun NotificacaoScreen(modifier: Modifier = Modifier) {
+fun TelaNotificacoes(navController: NavController) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.White),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .background(Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
+
+        // 🔹 TopBar
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp)
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(56.dp)
+                    .background(Color.White),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
+                IconButton(
+                    onClick = { navController.popBackStack() }, // ✅ agora volta pra tela anterior
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .background(Color.White),
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(60.dp)
+                        .pointerHoverIcon(PointerIcon.Hand)
                 ) {
-                    IconButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .size(60.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = Color.Black
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(0.67f))
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(40.dp)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Voltar",
+                        tint = Color.Black
                     )
-                    Spacer(modifier = Modifier.weight(1f))
                 }
+
+                Spacer(modifier = Modifier.weight(0.67f))
+
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo UNIFOR",
+                    modifier = Modifier.size(40.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
 
+        // 🔹 Título
         Text(
             text = "Notificações",
             fontSize = 28.sp,
@@ -107,7 +84,7 @@ fun NotificacaoScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-
+        // 🔹 Exemplo de lista de notificações
         val notificacoes = listOf(
             Pair("Usuário 1", "Mensagem de notificação 1"),
             Pair("Usuário 2", "Mensagem de notificação 2"),
@@ -116,24 +93,21 @@ fun NotificacaoScreen(modifier: Modifier = Modifier) {
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
         ) {
             notificacoes.forEach { (nome, mensagem) ->
                 Column(
                     modifier = Modifier
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black.copy(alpha = 0.2f),
-                        )
-                        .fillMaxWidth()
+                        .border(1.dp, Color.Black.copy(alpha = 0.2f))
                         .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
                         .padding(12.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(id = R.drawable.ft_user),
+                            painter = painterResource(id = R.drawable.ic_user),
                             contentDescription = "Foto do usuário",
                             modifier = Modifier
                                 .size(48.dp)
