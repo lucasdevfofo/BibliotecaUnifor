@@ -141,7 +141,7 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             // --- Ícone central ---
             Image(
-                painter = painterResource(id = R.drawable.emaconfirmada),
+                painter = painterResource(id = R.drawable.imagem_principal),
                 contentDescription = "Reserva confirmada",
                 modifier = Modifier.size(150.dp)
             )
