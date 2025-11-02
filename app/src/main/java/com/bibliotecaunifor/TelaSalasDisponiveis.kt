@@ -203,7 +203,13 @@ fun TelaSalasDisponiveis(
                 Icon(painterResource(id = R.drawable.ic_home), "Home", tint = Color.Black)
                 Icon(painterResource(id = R.drawable.ic_calendar), "Reservas", tint = Color.Gray)
                 Icon(painterResource(id = R.drawable.ic_list), "Listas", tint = Color.Gray)
-                Icon(painterResource(id = R.drawable.ic_user), "Perfil", tint = Color.Gray)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_user),
+                    contentDescription = "Perfil",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .clickable { navController.navigate(Route.PerfilAluno.path) }
+                )
             }
         }
 
@@ -263,7 +269,7 @@ fun ChatBotPopup(onFechar: () -> Unit) {
     }
 
     val respostas = mapOf(
-        "horario" to "A biblioteca funciona de segunda a sexta, das 8h às 20h.",
+        "horario" to "A biblioteca funciona de segunda a sexta, das 7h às 20h.",
         "livro" to "Você pode reservar livros pelo app ou no balcão de atendimento.",
         "mesa" to "As mesas disponíveis estão listadas acima! Basta clicar em uma para reservar.",
         "reserva" to "Para reservar, selecione uma sala e confirme sua escolha.",

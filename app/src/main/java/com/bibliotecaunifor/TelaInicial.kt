@@ -107,13 +107,15 @@ fun AppNavigation() {
             arguments = listOf(navArgument("salaNome") { defaultValue = "Sala" })
         ) { backStackEntry ->
             val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala"
-
-            // ✅ Recompõe a tela toda vez que o nome da sala mudar
-            key(salaNome) {
-                TelaReservaSala(navController = navController, salaNome = salaNome)
-            }
+            TelaReservaSala(navController = navController, salaNome = salaNome)
         }
 
+        composable(Route.ReservaConfirmada.path) {
+            TelaReservaConfirmada(navController = navController)
+        }
+        composable(Route.PerfilAluno.path) {
+            TelaPerfilAluno(navController)
+        }
 
 
     }
