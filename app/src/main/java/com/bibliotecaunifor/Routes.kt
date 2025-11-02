@@ -11,6 +11,7 @@ sealed class Route(val path: String) {
     data object SalasDisponiveis : Route("tela_salas_disponiveis")
     data object Notificacoes : Route("tela_notificacoes")
 
+    data object ReservaSala : Route("reserva_sala/{salaNome}")
 
 }
 

@@ -175,7 +175,7 @@ fun TelaSalasDisponiveis(
                             .fillMaxWidth()
                             .background(bgColor, RoundedCornerShape(4.dp))
                             .padding(vertical = 12.dp)
-                            .clickable { onSalaClick(sala) }
+                            .clickable { navController.navigate("reserva_sala/$sala") }
                     ) {
                         Text(
                             text = sala,

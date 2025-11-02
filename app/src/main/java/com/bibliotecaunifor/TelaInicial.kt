@@ -19,7 +19,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import androidx.compose.runtime.key
+
 
 class TelaInicialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,9 +98,24 @@ fun AppNavigation() {
                 navController = navController, // ✅ parâmetro adicionado
                 onVoltarClick = { navController.popBackStack() },
                 onSalaClick = { sala ->
-                    // futuro: abrir_detalhes_da_sala
+                    // ✅ Abre a tela de reserva com o nome da sala
+                    navController.navigate("reserva_sala/$sala")
                 })
         }
+        composable(
+            route = "reserva_sala/{salaNome}",
+            arguments = listOf(navArgument("salaNome") { defaultValue = "Sala" })
+        ) { backStackEntry ->
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala"
+
+            // ✅ Recompõe a tela toda vez que o nome da sala mudar
+            key(salaNome) {
+                TelaReservaSala(navController = navController, salaNome = salaNome)
+            }
+        }
+
+
+
     }
 }
 
