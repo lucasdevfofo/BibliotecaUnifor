@@ -1,8 +1,10 @@
 package com.bibliotecaunifor
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,10 +23,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import androidx.compose.runtime.key
 
 
 class TelaInicialActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -35,6 +37,7 @@ class TelaInicialActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -115,6 +118,9 @@ fun AppNavigation() {
         }
         composable(Route.PerfilAluno.path) {
             TelaPerfilAluno(navController)
+        }
+        composable(Route.AlugarLivros.path) {
+            AlugarLivros(navController = navController)
         }
 
 

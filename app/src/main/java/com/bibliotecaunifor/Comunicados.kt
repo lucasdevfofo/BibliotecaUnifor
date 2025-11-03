@@ -25,7 +25,7 @@ import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
 val azulUifrBotao = Color(0xFF044EE7)
 val laranjaBloco = Color(0xFFFFE066)
-val cinzaBordaHeadr = Color(0xFFCCCCCC).copy(alpha = 0.5f)
+val cinzaBordaHeader = Color(0xFFE0E0E0)
 
 @Composable
 fun ComunicadosScreen(

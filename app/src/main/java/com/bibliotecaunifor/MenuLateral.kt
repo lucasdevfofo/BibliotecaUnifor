@@ -1,25 +1,12 @@
 package com.bibliotecaunifor
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,24 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-
-class MenuLateralActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BibliotecaUniforTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MenuLateral(Modifier.padding(innerPadding))
-                }
-            }
-        }
-    }
-}
+import androidx.navigation.NavController
 
 @Composable
-fun MenuLateral(modifier: Modifier = Modifier) {
+fun MenuLateral(
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     Box(
         modifier = modifier
             .padding(0.dp)
@@ -59,6 +35,7 @@ fun MenuLateral(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
+            // 🔹 Imagem do topo
             Image(
                 painter = painterResource(id = R.drawable.logo_menu_lateral),
                 contentDescription = "Imagem topo",
@@ -68,6 +45,7 @@ fun MenuLateral(modifier: Modifier = Modifier) {
                     .align(Alignment.Start)
             )
 
+            // 🔹 Links do menu
             val links = listOf(
                 "Perfil",
                 "Catálogo de Livros",
@@ -78,9 +56,7 @@ fun MenuLateral(modifier: Modifier = Modifier) {
             )
 
             links.forEachIndexed { index, link ->
-                val shape = when (index) {
-                    else -> androidx.compose.foundation.shape.RoundedCornerShape(0.dp)
-                }
+                val shape = RoundedCornerShape(0.dp)
 
                 Box(
                     modifier = Modifier
@@ -90,7 +66,14 @@ fun MenuLateral(modifier: Modifier = Modifier) {
                             color = Color.Black.copy(alpha = 0.4f),
                             shape = shape
                         )
-                        .clickable { }
+                        .clickable {
+                            when (link) {
+                                "Perfil" -> navController.navigate(Route.PerfilAluno.path)
+                                "Alugar um Livro" -> navController.navigate(Route.AlugarLivros.path)
+                                "Lista de Salas" -> navController.navigate(Route.SalasDisponiveis.path)
+                                // os outros ficam para depois (admin etc.)
+                            }
+                        }
                         .padding(vertical = 12.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {

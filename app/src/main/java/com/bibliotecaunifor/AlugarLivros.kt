@@ -9,7 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -35,11 +35,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlugarLivros(
-    navController: NavController,
-    onVoltarClick: () -> Unit,
-    onSalaClick: (String) -> Unit
-) {
+fun AlugarLivros(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
     var dataInicial by remember { mutableStateOf<LocalDate?>(null) }
     var dataFinal by remember { mutableStateOf<LocalDate?>(null) }
@@ -50,6 +46,7 @@ fun AlugarLivros(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            // --- Cabeçalho padrão ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -71,10 +68,14 @@ fun AlugarLivros(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = onVoltarClick,
+                        onClick = { navController.popBackStack() }, // ✅ volta pra tela anterior
                         modifier = Modifier.size(60.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Voltar",
+                            tint = Color.Black
+                        )
                     }
 
                     Spacer(modifier = Modifier.weight(0.63f))
@@ -95,7 +96,7 @@ fun AlugarLivros(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     IconButton(
-                        onClick = { navController.navigate("notificacoes") },
+                        onClick = { navController.navigate(Route.Notificacoes.path) },
                         modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
@@ -127,7 +128,7 @@ fun AlugarLivros(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Reserve sua sala", color = Color.White, fontSize = 18.sp)
+                        Text("Alugue seu livro", color = Color.White, fontSize = 18.sp)
                         Text(
                             "Biblioteca Unifor",
                             color = Color.White,
@@ -138,6 +139,7 @@ fun AlugarLivros(
                 }
             }
 
+            // --- Corpo da tela ---
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
@@ -166,27 +168,40 @@ fun AlugarLivros(
                 CalendarField("Data Inicial", dataInicial) { dataInicial = it }
                 CalendarField("Data Final", dataFinal) { dataFinal = it }
             }
-        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(Color.White)
-                .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            Spacer(modifier = Modifier.height(30.dp))
+
             Button(
-                onClick = { },
+                onClick = {
+                    // futuro: confirmar aluguel
+                    navController.popBackStack() // volta pra tela anterior
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(50.dp)
                     .pointerHoverIcon(PointerIcon.Hand),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7))
             ) {
-                Text(text = "Alugar", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Alugar", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
+        }
+
+        // --- Menu lateral ---
+        if (menuAberto) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clickable { menuAberto = false }
+            )
+            MenuLateral(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                navController = navController
+            )
+
         }
     }
 }
@@ -221,12 +236,9 @@ fun CalendarField(label: String, selectedDate: LocalDate?, onDateSelected: (Loca
 @Preview(showBackground = true)
 @Composable
 fun AlugarLivrosPreview() {
-    val fakeNavController = androidx.navigation.testing.TestNavHostController(LocalContext.current)
+    val fakeNavController =
+        androidx.navigation.testing.TestNavHostController(LocalContext.current)
     BibliotecaUniforTheme {
-        AlugarLivros(
-            navController = fakeNavController,
-            onVoltarClick = {},
-            onSalaClick = {}
-        )
+        AlugarLivros(navController = fakeNavController)
     }
 }

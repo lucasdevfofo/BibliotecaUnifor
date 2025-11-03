@@ -233,7 +233,8 @@ fun TelaSalasDisponiveis(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .zIndex(1f)
-                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                navController = navController
             )
         }
 

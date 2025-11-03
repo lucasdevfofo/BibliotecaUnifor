@@ -328,8 +328,10 @@ fun TelaPerfilAluno(
             MenuLateral(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
+                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                navController = navController
             )
+
         }
     }
 }
