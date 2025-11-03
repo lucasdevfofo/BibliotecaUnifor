@@ -119,10 +119,21 @@ fun AppNavigation() {
         composable(Route.PerfilAluno.path) {
             TelaPerfilAluno(navController)
         }
-        composable(Route.AlugarLivros.path) {
-            AlugarLivros(navController = navController)
-        }
 
+        composable(Route.CatalogoLivros.path) {
+            TelaCatalogoLivros(navController)
+        }
+        composable("alugar_livro/{livroNome}") { backStackEntry ->
+            val livroNome = backStackEntry.arguments?.getString("livroNome") ?: ""
+            AlugarLivros(navController, livroNome)
+        }
+        composable(Route.ReservasRealizadas.path) {
+            TelaReservasRealizadas(navController)
+        }
+        composable(Route.EditarReserva.path) { backStackEntry ->
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala 01"
+            EditarReserva(navController = navController, salaNome = salaNome)
+        }
 
     }
 }

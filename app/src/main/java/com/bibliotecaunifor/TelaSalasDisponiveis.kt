@@ -202,7 +202,12 @@ fun TelaSalasDisponiveis(
             ) {
                 Icon(painterResource(id = R.drawable.ic_home), "Home", tint = Color.Black)
                 Icon(painterResource(id = R.drawable.ic_calendar), "Reservas", tint = Color.Gray)
-                Icon(painterResource(id = R.drawable.ic_list), "Listas", tint = Color.Gray)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_list),
+                    contentDescription = "Listas",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
+                )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_user),
                     contentDescription = "Perfil",

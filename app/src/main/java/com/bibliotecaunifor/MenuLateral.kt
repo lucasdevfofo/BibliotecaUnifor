@@ -49,29 +49,26 @@ fun MenuLateral(
             val links = listOf(
                 "Perfil",
                 "Catálogo de Livros",
-                "Alugar um Livro",
                 "Acessibilidade",
                 "Lista de Salas",
                 "Reservar Mesa"
             )
 
-            links.forEachIndexed { index, link ->
-                val shape = RoundedCornerShape(0.dp)
-
+            links.forEach { link ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(
                             width = 1.dp,
                             color = Color.Black.copy(alpha = 0.4f),
-                            shape = shape
+                            shape = RoundedCornerShape(0.dp)
                         )
                         .clickable {
                             when (link) {
                                 "Perfil" -> navController.navigate(Route.PerfilAluno.path)
-                                "Alugar um Livro" -> navController.navigate(Route.AlugarLivros.path)
+                                "Catálogo de Livros" -> navController.navigate(Route.CatalogoLivros.path)
                                 "Lista de Salas" -> navController.navigate(Route.SalasDisponiveis.path)
-                                // os outros ficam para depois (admin etc.)
+                                // "Acessibilidade" e "Reservar Mesa" serão configurados depois
                             }
                         }
                         .padding(vertical = 12.dp),

@@ -1,12 +1,11 @@
 package com.bibliotecaunifor
 
-import android.app.DatePickerDialog
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,40 +20,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.testing.TestNavHostController
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import java.time.LocalDate
-import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlugarLivros(
-    navController: NavController,
-    livroNome: String
-) {
+fun TelaCatalogoLivros(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
-    var dataInicial by remember { mutableStateOf<LocalDate?>(null) }
-    var dataFinal by remember { mutableStateOf<LocalDate?>(null) }
+    var pesquisa by remember { mutableStateOf("") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
+    val livros = List(100) { "Livro ${it + 1}" }
+
+
+    val livrosFiltrados = remember(pesquisa) {
+        if (pesquisa.isBlank()) livros
+        else livros.filter { it.contains(pesquisa, ignoreCase = true) }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Cabeçalho ---
+            // ==== Cabeçalho ====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,15 +68,9 @@ fun AlugarLivros(
                 ) {
                     IconButton(
                         onClick = { navController.popBackStack() },
-                        modifier = Modifier
-                            .size(60.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier.size(60.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = Color.Black
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
                     }
 
                     Spacer(modifier = Modifier.weight(0.63f))
@@ -107,9 +92,7 @@ fun AlugarLivros(
                 ) {
                     IconButton(
                         onClick = { navController.navigate(Route.Notificacoes.path) },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
@@ -121,9 +104,7 @@ fun AlugarLivros(
 
                     IconButton(
                         onClick = { menuAberto = !menuAberto },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
@@ -142,7 +123,7 @@ fun AlugarLivros(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Alugue seu livro", color = Color.White, fontSize = 18.sp)
+                        Text("Catálogo de Livros", color = Color.White, fontSize = 18.sp)
                         Text(
                             "Biblioteca Unifor",
                             color = Color.White,
@@ -153,54 +134,72 @@ fun AlugarLivros(
                 }
             }
 
-            // --- Corpo ---
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = livroNome,
-                fontSize = 34.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF044EE7),
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
-            Text(
-                text = "Tempo de Permanência",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF333333),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            Column(
+            // ==== Título + Barra de pesquisa ====
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .padding(vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                CalendarField("Data Inicial", dataInicial) { dataInicial = it }
-                CalendarField("Data Final", dataFinal) { dataFinal = it }
+                Text(
+                    text = "RESERVE UM LIVRO",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                OutlinedTextField(
+                    value = pesquisa,
+                    onValueChange = { pesquisa = it },
+                    placeholder = { Text("Pesquise um livro...") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(10.dp)),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color(0xFFF5F5F5),
+                        focusedIndicatorColor = Color(0xFF044EE7),
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
             }
 
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = {
-                    navController.popBackStack()
-                },
+            // ==== Lista de Livros ====
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(50.dp)
-                    .pointerHoverIcon(PointerIcon.Hand),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7))
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
             ) {
-                Text("Alugar", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                items(livrosFiltrados) { livro ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
+                            .padding(vertical = 12.dp)
+                            .clickable { navController.navigate("alugar_livro/${livro}") }
+                    ) {
+                        Text(
+                            text = livro,
+                            color = Color(0xFF044EE7),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
 
-        // --- Menu lateral ---
+        // ==== Menu lateral ====
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -215,44 +214,5 @@ fun AlugarLivros(
                 navController = navController
             )
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun CalendarField(label: String, selectedDate: LocalDate?, onDateSelected: (LocalDate) -> Unit) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    val year = selectedDate?.year ?: calendar.get(Calendar.YEAR)
-    val month = selectedDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH)
-    val day = selectedDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
-
-    OutlinedTextField(
-        value = selectedDate?.toString() ?: "",
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(label, fontWeight = FontWeight.Medium) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .clickable {
-                DatePickerDialog(context, { _, y, m, d ->
-                    onDateSelected(LocalDate.of(y, m + 1, d))
-                }, year, month, day).show()
-            }
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun AlugarLivrosPreview() {
-    val fakeNavController = TestNavHostController(LocalContext.current)
-    BibliotecaUniforTheme {
-        AlugarLivros(
-            navController = fakeNavController,
-            livroNome = "Pequeno Príncipe"
-        )
     }
 }
