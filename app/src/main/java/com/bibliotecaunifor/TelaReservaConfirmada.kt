@@ -181,7 +181,7 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- Barra inferior ---
+            // --- Barra inferior com navegação funcional ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,13 +190,42 @@ fun TelaReservaConfirmada(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painterResource(id = R.drawable.ic_home), "Home", tint = Color.Black)
-                Icon(painterResource(id = R.drawable.ic_calendar), "Reservas", tint = Color.Gray)
-                Icon(painterResource(id = R.drawable.ic_list), "Listas", tint = Color.Gray)
-                Icon(painterResource(id = R.drawable.ic_user), "Perfil", tint = Color.Gray)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_home),
+                    contentDescription = "Home",
+                    tint = Color.Black,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.SalasDisponiveis.path)
+                    }
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_calendar),
+                    contentDescription = "Reservas",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.ReservasRealizadas.path)
+                    }
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_list),
+                    contentDescription = "Catálogo",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.CatalogoLivros.path)
+                    }
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_user),
+                    contentDescription = "Perfil",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.PerfilAluno.path)
+                    }
+                )
             }
         }
 
+        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -211,7 +240,6 @@ fun TelaReservaConfirmada(navController: NavController) {
                     .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
                 navController = navController
             )
-
         }
     }
 }
