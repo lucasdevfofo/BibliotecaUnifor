@@ -25,6 +25,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import android.net.Uri
+
+// Modelo dos livros
+data class Livro(
+    val titulo: String,
+    val descricao: String,
+    val genero: String,
+    val autor: String,
+    val disponibilidade: String
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,12 +42,84 @@ fun TelaCatalogoLivros(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
     var pesquisa by remember { mutableStateOf("") }
 
-    val livros = List(100) { "Livro ${it + 1}" }
+    // --- Lista fixa com 10 livros de exemplo ---
+    val livros = listOf(
+        Livro(
+            "O Pequeno Príncipe",
+            "Uma fábula poética sobre amor, amizade e a essência da vida, acompanhando um jovem príncipe em sua jornada por diferentes planetas.",
+            "Fábula filosófica / Literatura infantojuvenil",
+            "Antoine de Saint-Exupéry",
+            "Disponível"
+        ),
+        Livro(
+            "Noites Brancas",
+            "Um jovem sonhador conhece uma mulher em São Petersburgo e vive quatro noites intensas que marcam sua vida para sempre.",
+            "Romance psicológico",
+            "Fiódor Dostoiévski",
+            "Disponível"
+        ),
+        Livro(
+            "Código Limpo",
+            "Um guia essencial para desenvolvedores que buscam escrever código legível, eficiente e fácil de manter.",
+            "Tecnologia / Programação",
+            "Robert C. Martin",
+            "Disponível"
+        ),
+        Livro(
+            "Entendendo Algoritmos",
+            "Uma introdução visual e prática ao mundo dos algoritmos e estruturas de dados, perfeita para iniciantes em programação.",
+            "Tecnologia / Computação",
+            "Aditya Bhargava",
+            "Disponível"
+        ),
+        Livro(
+            "JavaScript: O Guia Definitivo",
+            "A obra mais completa sobre JavaScript, cobrindo desde os fundamentos até conceitos avançados da linguagem.",
+            "Tecnologia / Desenvolvimento Web",
+            "David Flanagan",
+            "Disponível"
+        ),
+        Livro(
+            "Dom Casmurro",
+            "A clássica história de amor e ciúmes entre Bentinho e Capitu, escrita com maestria por Machado de Assis.",
+            "Romance realista / Literatura brasileira",
+            "Machado de Assis",
+            "Indisponível"
+        ),
+        Livro(
+            "O Hobbit",
+            "Bilbo Bolseiro embarca em uma inesperada aventura ao lado de anões e do mago Gandalf em busca de um tesouro guardado por um dragão.",
+            "Fantasia / Aventura",
+            "J. R. R. Tolkien",
+            "Disponível"
+        ),
+        Livro(
+            "1984",
+            "Um retrato distópico de um futuro controlado por um regime totalitário, onde o Grande Irmão tudo vê.",
+            "Distopia / Política / Ficção científica",
+            "George Orwell",
+            "Disponível"
+        ),
+        Livro(
+            "O Cortiço",
+            "Um retrato vívido da vida em um cortiço carioca, explorando desigualdade social, miséria e ambição.",
+            "Naturalismo / Literatura brasileira",
+            "Aluísio Azevedo",
+            "Disponível"
+        ),
+        Livro(
+            "Orgulho e Preconceito",
+            "A história envolvente entre Elizabeth Bennet e o sr. Darcy, marcada por ironia, amor e críticas sociais sutis.",
+            "Romance clássico / Literatura inglesa",
+            "Jane Austen",
+            "Disponível"
+        )
+    )
 
-
+    // Filtro de pesquisa
     val livrosFiltrados = remember(pesquisa) {
         if (pesquisa.isBlank()) livros
-        else livros.filter { it.contains(pesquisa, ignoreCase = true) }
+        else livros.filter { it.titulo.contains(pesquisa, ignoreCase = true) }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -45,6 +127,7 @@ fun TelaCatalogoLivros(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             // ==== Cabeçalho ====
             Box(
                 modifier = Modifier
@@ -70,7 +153,11 @@ fun TelaCatalogoLivros(navController: NavController) {
                         onClick = { navController.popBackStack() },
                         modifier = Modifier.size(60.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Voltar",
+                            tint = Color.Black
+                        )
                     }
 
                     Spacer(modifier = Modifier.weight(0.63f))
@@ -184,10 +271,20 @@ fun TelaCatalogoLivros(navController: NavController) {
                             .fillMaxWidth()
                             .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
                             .padding(vertical = 12.dp)
-                            .clickable { navController.navigate("alugar_livro/${livro}") }
+                            .clickable {
+                                val tituloEncoded = Uri.encode(livro.titulo)
+                                val descricaoEncoded = Uri.encode(livro.descricao)
+                                val generoEncoded = Uri.encode(livro.genero)
+                                val autorEncoded = Uri.encode(livro.autor)
+                                val disponivelEncoded = Uri.encode(livro.disponibilidade)
+                                navController.navigate(
+                                    "descricaoLivro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
+                                )
+                            }
+
                     ) {
                         Text(
-                            text = livro,
+                            text = livro.titulo,
                             color = Color(0xFF044EE7),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,

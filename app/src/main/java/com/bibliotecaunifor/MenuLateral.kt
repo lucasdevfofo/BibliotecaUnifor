@@ -7,6 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -25,64 +29,101 @@ fun MenuLateral(
 ) {
     Box(
         modifier = modifier
-            .padding(0.dp)
             .fillMaxHeight()
-            .fillMaxWidth(0.6f)
+            .fillMaxWidth(0.7f)
             .background(Color.White)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start
         ) {
-            // 🔹 Imagem do topo
-            Image(
-                painter = painterResource(id = R.drawable.logo_menu_lateral),
-                contentDescription = "Imagem topo",
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                // 🔹 Imagem do topo
+                Image(
+                    painter = painterResource(id = R.drawable.logo_menu_lateral),
+                    contentDescription = "Imagem topo",
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(CircleShape)
+                        .align(Alignment.Start)
+                )
+
+                // 🔹 Links do menu
+                val links = listOf(
+                    "Perfil",
+                    "Catálogo de Livros",
+                    "Acessibilidade",
+                    "Lista de Salas",
+                    "Reservar Mesa"
+                )
+
+                links.forEach { link ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = Color.Black.copy(alpha = 0.4f),
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                            .clickable {
+                                when (link) {
+                                    "Perfil" -> navController.navigate(Route.PerfilAluno.path)
+                                    "Catálogo de Livros" -> navController.navigate(Route.CatalogoLivros.path)
+                                    "Lista de Salas" -> navController.navigate(Route.SalasDisponiveis.path)
+                                }
+                            }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = link,
+                            fontSize = 18.sp,
+                            color = Color.Black.copy(alpha = 0.8f),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+
+            // 🔻 Botão “Sair” fixado no rodapé
+            Column(
                 modifier = Modifier
-                    .size(180.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.Start)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Divider(
+                    color = Color.Black.copy(alpha = 0.15f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
 
-            // 🔹 Links do menu
-            val links = listOf(
-                "Perfil",
-                "Catálogo de Livros",
-                "Acessibilidade",
-                "Lista de Salas",
-                "Reservar Mesa"
-            )
-
-            links.forEach { link ->
-                Box(
+                Button(
+                    onClick = {
+                        navController.navigate(Route.Login.path) {
+                            popUpTo(0)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black.copy(alpha = 0.4f),
-                            shape = RoundedCornerShape(0.dp)
-                        )
-                        .clickable {
-                            when (link) {
-                                "Perfil" -> navController.navigate(Route.PerfilAluno.path)
-                                "Catálogo de Livros" -> navController.navigate(Route.CatalogoLivros.path)
-                                "Lista de Salas" -> navController.navigate(Route.SalasDisponiveis.path)
-                                // "Acessibilidade" e "Reservar Mesa" serão configurados depois
-                            }
-                        }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.CenterStart
+                        .height(48.dp)
                 ) {
                     Text(
-                        text = link,
-                        fontSize = 18.sp,
-                        color = Color.Black.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(start = 16.dp)
+                        text = "Sair",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 }
-
-                Spacer(modifier = Modifier.height(0.dp))
             }
         }
     }

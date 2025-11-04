@@ -134,6 +134,25 @@ fun AppNavigation() {
             val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala 01"
             EditarReserva(navController = navController, salaNome = salaNome)
         }
+        composable(
+            route = "descricaoLivro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
+        ) { backStackEntry ->
+            val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
+            val descricao = backStackEntry.arguments?.getString("descricao")
+            val genero = backStackEntry.arguments?.getString("genero")
+            val autor = backStackEntry.arguments?.getString("autor")
+            val disponibilidade = backStackEntry.arguments?.getString("disponibilidade")
+
+            TelaDescricaoLivro(
+                navController,
+                tituloLivro = titulo,
+                descricao = descricao,
+                genero = genero,
+                autor = autor,
+                disponibilidade = disponibilidade
+            )
+        }
+
 
     }
 }

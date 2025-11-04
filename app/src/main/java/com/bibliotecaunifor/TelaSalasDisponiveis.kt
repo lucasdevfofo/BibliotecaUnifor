@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -38,10 +37,14 @@ fun TelaSalasDisponiveis(
     navController: NavController,
     onVoltarClick: () -> Unit,
     onSalaClick: (String) -> Unit
-)
- {
+) {
     var menuAberto by remember { mutableStateOf(false) }
     var chatAberto by remember { mutableStateOf(false) }
+
+    // ✅ Fecha o chat automaticamente ao abrir o menu
+    LaunchedEffect(menuAberto) {
+        if (menuAberto) chatAberto = false
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
 
@@ -62,6 +65,7 @@ fun TelaSalasDisponiveis(
                     contentScale = ContentScale.Crop
                 )
 
+                // 🔹 Cabeçalho sem botão de voltar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -70,14 +74,7 @@ fun TelaSalasDisponiveis(
                         .align(Alignment.TopCenter),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = onVoltarClick,
-                        modifier = Modifier.size(60.dp).pointerHoverIcon(PointerIcon.Hand)
-                    ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.Black)
-                    }
-
-                    Spacer(modifier = Modifier.weight(0.63f))
+                    Spacer(modifier = Modifier.weight(1f))
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
@@ -107,7 +104,6 @@ fun TelaSalasDisponiveis(
                             modifier = Modifier.size(28.dp)
                         )
                     }
-
 
                     IconButton(
                         onClick = { menuAberto = !menuAberto },
@@ -212,15 +208,13 @@ fun TelaSalasDisponiveis(
                     painter = painterResource(id = R.drawable.ic_user),
                     contentDescription = "Perfil",
                     tint = Color.Black,
-                    modifier = Modifier
-                        .clickable { navController.navigate(Route.PerfilAluno.path) }
+                    modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
                 )
             }
         }
 
         // --- Menu lateral ---
         if (menuAberto) {
-            // Fundo escurecido clicável
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -233,7 +227,6 @@ fun TelaSalasDisponiveis(
                     )
             )
 
-            // O próprio menu lateral
             MenuLateral(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -243,25 +236,26 @@ fun TelaSalasDisponiveis(
             )
         }
 
-
         // --- Botão flutuante do chat ---
-        FloatingActionButton(
-            onClick = { chatAberto = !chatAberto },
-            containerColor = Color(0xFF044EE7),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 80.dp)
-                .zIndex(2f)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chat),
-                contentDescription = "Chatbot",
-                tint = Color.White
-            )
+        if (!menuAberto) {
+            FloatingActionButton(
+                onClick = { chatAberto = !chatAberto },
+                containerColor = Color(0xFF044EE7),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 20.dp, bottom = 80.dp)
+                    .zIndex(2f)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_chat),
+                    contentDescription = "Chatbot",
+                    tint = Color.White
+                )
+            }
         }
 
         // --- Caixa do Chat (com envio) ---
-        if (chatAberto) {
+        if (chatAberto && !menuAberto) {
             ChatBotPopup(onFechar = { chatAberto = false })
         }
     }
@@ -308,7 +302,6 @@ fun ChatBotPopup(onFechar: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 🗨️ Histórico de mensagens
             LazyColumn(modifier = Modifier.weight(1f)) {
                 itemsIndexed(mensagens) { _, msg ->
                     Text(
@@ -322,10 +315,7 @@ fun ChatBotPopup(onFechar: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ✏️ Campo de digitação + botão Enviar
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 TextField(
                     value = inputText,
                     onValueChange = { inputText = it },
@@ -348,8 +338,9 @@ fun ChatBotPopup(onFechar: () -> Unit) {
                         val textoUsuario = inputText.text.trim()
                         if (textoUsuario.isNotEmpty()) {
                             mensagens = mensagens + "Você: $textoUsuario"
-                            val resposta = respostas.entries.find { textoUsuario.contains(it.key, ignoreCase = true) }?.value
-                                ?: "Desculpe, não entendi. Tente perguntar sobre horários, livros ou reservas."
+                            val resposta = respostas.entries.find {
+                                textoUsuario.contains(it.key, ignoreCase = true)
+                            }?.value ?: "Desculpe, não entendi. Tente perguntar sobre horários, livros ou reservas."
                             mensagens = mensagens + "🤖 $resposta"
                             inputText = TextFieldValue("")
                         }
@@ -362,7 +353,6 @@ fun ChatBotPopup(onFechar: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ❌ Botão de Fechar
             Button(
                 onClick = onFechar,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)),
@@ -374,11 +364,11 @@ fun ChatBotPopup(onFechar: () -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun TelaSalasDisponiveisPreview() {
-    val fakeNavController = androidx.navigation.testing.TestNavHostController(androidx.compose.ui.platform.LocalContext.current)
+    val fakeNavController =
+        androidx.navigation.testing.TestNavHostController(androidx.compose.ui.platform.LocalContext.current)
     BibliotecaUniforTheme {
         TelaSalasDisponiveis(
             navController = fakeNavController,
@@ -387,4 +377,3 @@ fun TelaSalasDisponiveisPreview() {
         )
     }
 }
-

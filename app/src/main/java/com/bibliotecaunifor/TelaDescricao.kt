@@ -1,8 +1,5 @@
 package com.bibliotecaunifor
 
-import android.app.DatePickerDialog
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,22 +26,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.time.LocalDate
-import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlugarLivros(
+fun TelaDescricaoLivro(
     navController: NavController,
-    livroNome: String
+    tituloLivro: String,
+    descricao: String? = null,
+    genero: String? = null,
+    autor: String? = null,
+    disponibilidade: String? = null
 ) {
-    // ✅ Corrige o bug dos "+" e decodifica caracteres especiais
-    val livroNomeDecoded = URLDecoder.decode(livroNome, StandardCharsets.UTF_8.toString())
-
     var menuAberto by remember { mutableStateOf(false) }
-    var dataInicial by remember { mutableStateOf<LocalDate?>(null) }
-    var dataFinal by remember { mutableStateOf<LocalDate?>(null) }
+
+    // decodifica caso venha com %20 ou acentos
+    val tituloDecoded = URLDecoder.decode(tituloLivro, StandardCharsets.UTF_8.toString())
 
     Box(
         modifier = Modifier
@@ -56,7 +50,6 @@ fun AlugarLivros(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             // --- Cabeçalho ---
             Box(
                 modifier = Modifier
@@ -110,9 +103,7 @@ fun AlugarLivros(
                 ) {
                     IconButton(
                         onClick = { navController.navigate(Route.Notificacoes.path) },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
@@ -124,9 +115,7 @@ fun AlugarLivros(
 
                     IconButton(
                         onClick = { menuAberto = !menuAberto },
-                        modifier = Modifier
-                            .size(40.dp)
-                            .pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
@@ -145,9 +134,13 @@ fun AlugarLivros(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Alugue seu livro", color = Color.White, fontSize = 18.sp)
                         Text(
-                            "Biblioteca Unifor",
+                            text = "Reserve seu livro",
+                            color = Color.White,
+                            fontSize = 18.sp
+                        )
+                        Text(
+                            text = "Biblioteca Unifor",
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -156,59 +149,97 @@ fun AlugarLivros(
                 }
             }
 
-            // --- Corpo ---
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Título ---
             Text(
-                text = livroNomeDecoded.ifBlank { "Livro não identificado" },
-                fontSize = 26.sp,
-                fontWeight = FontWeight.ExtraBold,
+                text = tituloDecoded.uppercase(),
                 color = Color(0xFF044EE7),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "Tempo de Permanência",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF333333),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Caixa central com sombra e bordas suaves
-            Card(
+            // --- Descrição ---
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .padding(vertical = 10.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FBFF)),
-                elevation = CardDefaults.cardElevation(6.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFFF3F7FF))
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
-                ) {
-                    CalendarField("Data Inicial", dataInicial) { dataInicial = it }
-                    CalendarField("Data Final", dataFinal) { dataFinal = it }
+                Column {
+                    Text(
+                        text = descricao ?: "Descrição não disponível.",
+                        color = Color.Black,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Start
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text("Gênero: ${genero ?: "N/A"}", color = Color.Black, fontSize = 14.sp)
+                    Text("Autor: ${autor ?: "N/A"}", color = Color.Black, fontSize = 14.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // --- Disponibilidade ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Disponibilidade:",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = disponibilidade?.uppercase() ?: "INDISPONÍVEL",
+                    color = if (disponibilidade?.contains("Disponível", true) == true)
+                        Color(0xFF00A86B)
+                    else Color.Red,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            // --- Botões ---
+            Button(
+                onClick = {
+                    val encodedName = java.net.URLEncoder.encode(tituloDecoded, StandardCharsets.UTF_8.toString())
+                    navController.navigate("alugar_livro/$encodedName")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E4C93)),
+                shape = RoundedCornerShape(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp)
+                    .height(48.dp)
+            ) {
+                Text("Alugar", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555)),
+                shape = RoundedCornerShape(6.dp),
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7))
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp)
+                    .height(48.dp)
             ) {
-                Text("Alugar", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Voltar", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -218,6 +249,7 @@ fun AlugarLivros(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.4f))
+                    .pointerHoverIcon(PointerIcon.Hand)
                     .clickable { menuAberto = false }
             )
             MenuLateral(
@@ -228,35 +260,4 @@ fun AlugarLivros(
             )
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun CalendarField(label: String, selectedDate: LocalDate?, onDateSelected: (LocalDate) -> Unit) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    val year = selectedDate?.year ?: calendar.get(Calendar.YEAR)
-    val month = selectedDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH)
-    val day = selectedDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
-
-    OutlinedTextField(
-        value = selectedDate?.toString() ?: "",
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(label, fontWeight = FontWeight.Medium, color = Color(0xFF044EE7)) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable {
-                DatePickerDialog(context, { _, y, m, d ->
-                    onDateSelected(LocalDate.of(y, m + 1, d))
-                }, year, month, day).show()
-            },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF044EE7),
-            unfocusedBorderColor = Color(0xFFCBD5E1),
-            focusedLabelColor = Color(0xFF044EE7)
-        )
-    )
 }
