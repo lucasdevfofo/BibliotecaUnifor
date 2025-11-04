@@ -247,7 +247,7 @@ fun TelaPerfilAluno(
             SectionCard(
                 titulo = "LIVROS ALUGADOS",
                 content = {
-                    livrosAlugados.forEachIndexed { i, titulo ->
+                    livrosAlugados.forEachIndexed { i, tituloELivro ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -263,7 +263,7 @@ fun TelaPerfilAluno(
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
                                 Text(
-                                    text = titulo,
+                                    text = tituloELivro,
                                     color = azulUnifor,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -274,7 +274,7 @@ fun TelaPerfilAluno(
 
                             Button(
                                 onClick = {
-                                    Toast.makeText(ctx, "Solicitado renovação", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(Route.TelaRenovarLivro.path)
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = roxoBotao),
                                 shape = RoundedCornerShape(6.dp)

@@ -4,17 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -23,12 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,8 +32,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
+
 @Composable
-fun AppHeaderEditarUsuario(
+fun AppHeaderRenovarLivro(
     navController: NavController,
     menuAberto: MutableState<Boolean>
 ) {
@@ -81,7 +77,7 @@ fun AppHeaderEditarUsuario(
                 )
             }
 
-            Spacer(modifier = Modifier.width(56.dp))
+            Spacer(modifier = Modifier.width(40.dp))
         }
 
         Row(
@@ -92,9 +88,7 @@ fun AppHeaderEditarUsuario(
         ) {
             IconButton(
                 onClick = { navController.navigate(Route.Notificacoes.path) },
-                modifier = Modifier
-                    .size(40.dp)
-                    .pointerHoverIcon(PointerIcon.Hand)
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
@@ -106,9 +100,7 @@ fun AppHeaderEditarUsuario(
 
             IconButton(
                 onClick = { menuAberto.value = !menuAberto.value },
-                modifier = Modifier
-                    .size(40.dp)
-                    .pointerHoverIcon(PointerIcon.Hand)
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Menu,
@@ -140,7 +132,7 @@ fun AppHeaderEditarUsuario(
 }
 
 @Composable
-fun AppBottomNavEditarUsuario(navController: NavController) {
+fun AppBottomNavRenovarLivro(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,7 +150,7 @@ fun AppBottomNavEditarUsuario(navController: NavController) {
         Icon(Icons.Filled.List, "Catálogo", tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.CatalogoLivros.path) }
         )
-        Icon(Icons.Filled.Person, "Perfil", tint = Color.Black,
+        Icon(Icons.Filled.Person, "Perfil", tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
         )
     }
@@ -166,29 +158,20 @@ fun AppBottomNavEditarUsuario(navController: NavController) {
 
 
 @Composable
-fun TelaEditarUsuario(
+fun TelaRenovarLivro(
     navController: NavController
 ) {
     val menuAberto = remember { mutableStateOf(false) }
-
-    // Valores iniciais atualizados para corresponder à imagem mais completa
-    var nome by remember { mutableStateOf("Analice Castro") }
-    var matricula by remember { mutableStateOf("2345989") }
-    var email by remember { mutableStateOf("analicecastro@gmail.com") }
-    var telefone by remember { mutableStateOf("82 9 8273-9280") }
-    var cpf by remember { mutableStateOf("888.222.444-99") }
-    var curso by remember { mutableStateOf("Cienc. da Comp.") } // Novo campo 'Curso'
-
-    val scrollState = rememberScrollState()
+    var tempoPermanencia by remember { mutableStateOf("12/09 - 20/09") }
 
     Scaffold(
         topBar = {
-            AppHeaderEditarUsuario(
+            AppHeaderRenovarLivro(
                 navController = navController,
                 menuAberto = menuAberto
             )
         },
-        bottomBar = { AppBottomNavEditarUsuario(navController = navController) }
+        bottomBar = { AppBottomNavRenovarLivro(navController = navController) }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -196,110 +179,54 @@ fun TelaEditarUsuario(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .background(Color.White)
-                    .padding(horizontal = 20.dp)
-                    .verticalScroll(scrollState), // Adiciona rolagem para garantir visibilidade
+                    .padding(horizontal = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Editar Usuário",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.DarkGray,
+                    text = "PEQUENO PRÍNCIPE",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF044EE7),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = 20.dp),
+                    textAlign = TextAlign.Center
                 )
 
-                Icon(
-                    imageVector = Icons.Filled.PersonOutline,
-                    contentDescription = "Ícone de Perfil",
-                    modifier = Modifier.size(80.dp),
-                    tint = Color.LightGray
+                Text(
+                    text = "TEMPO DE PERMANÊNCIA",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
                 )
-                Spacer(modifier = Modifier.height(5.dp))
 
                 OutlinedTextField(
-                    value = nome,
-                    onValueChange = { nome = it },
-                    label = { Text("Nome", fontSize = 14.sp) },
-                    singleLine = true,
+                    value = tempoPermanencia,
+                    onValueChange = { tempoPermanencia = it },
+                    readOnly = true,
+                    trailingIcon = {
+                        Icon(
+                            Icons.Filled.KeyboardArrowDown,
+                            contentDescription = "Selecionar Data",
+                            modifier = Modifier.clickable { }
+                        )
+                    },
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-                OutlinedTextField(
-                    value = matricula,
-                    onValueChange = { matricula = it },
-                    label = { Text("Matrícula", fontSize = 14.sp) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email", fontSize = 14.sp) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-                OutlinedTextField(
-                    value = telefone,
-                    onValueChange = { telefone = it },
-                    label = { Text("Telefone", fontSize = 14.sp) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-                OutlinedTextField(
-                    value = cpf,
-                    onValueChange = { cpf = it },
-                    label = { Text("CPF", fontSize = 14.sp) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
+                        focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray
                     )
                 )
 
-                // NOVO CAMPO: CURSO
-                OutlinedTextField(
-                    value = curso,
-                    onValueChange = { curso = it },
-                    label = { Text("Curso", fontSize = 14.sp) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF044EE7),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(140.dp))
 
                 Button(
                     onClick = { navController.popBackStack() },
@@ -310,14 +237,14 @@ fun TelaEditarUsuario(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        "CONFIRMAR",
+                        "RENOVAR",
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.weight(1f))
             }
 
             if (menuAberto.value) {
@@ -342,9 +269,9 @@ fun TelaEditarUsuario(
 
 @Preview(showBackground = true)
 @Composable
-fun TelaEditarUsuarioPreview() {
+fun TelaRenovarLivroPreview() {
     val navController = rememberNavController()
     BibliotecaUniforTheme {
-        TelaEditarUsuario(navController)
+        TelaRenovarLivro(navController)
     }
 }

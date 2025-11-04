@@ -1,11 +1,14 @@
 package com.bibliotecaunifor
 
 sealed class Route(val path: String) {
+    // --- Rotas de Autenticação / Início ---
     data object TelaInicial : Route("tela_inicial")
     data object Login : Route("tela_login")
     data object Cadastro : Route("tela_cadastro")
     data object EsqueceuSenha : Route("esqueceu_senha")
     data object EmailRedefinicao : Route("email_redefinicao")
+
+    // --- Rotas Comuns / Aluno ---
     data object SalasDisponiveis : Route("tela_salas_disponiveis")
     data object Notificacoes : Route("tela_notificacoes")
     data object MenuLateral : Route("menu_lateral")
@@ -19,13 +22,11 @@ sealed class Route(val path: String) {
     data object EditarUsuario : Route("tela_editar_usuario")
     data object EditarReserva : Route("tela_editar_reserva/{salaNome}")
     data object DescricaoLivro : Route("descricao_livro/{tituloLivro}")
-
     data object Acessibilidade : Route("acessibilidade")
-
     data object ComunicadoEnviado : Route("comunicado_enviado")
-
-
+    data object TelaRenovarLivro : Route("tela_renovar_livro")
     data object RegrasDoSistema : Route("regras_do_sistema")
-
     data object RenovarLivros : Route("renovar_livros")
+
+    // --- NOVAS ROTAS DO ADMINISTRADOR ---
 }
