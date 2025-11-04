@@ -23,7 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-
+import androidx.navigation.NavType
 
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -58,7 +58,7 @@ fun AppNavigation() {
                 onNavigateUp = { navController.popBackStack() },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) },
                 onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
-                onEntrarClick = { navController.navigate(Route.SalasDisponiveis.path) } // 👈 aqui está a navegação
+                onEntrarClick = { navController.navigate(Route.SalasDisponiveis.path) }
             )
 
         }
@@ -66,7 +66,13 @@ fun AppNavigation() {
             TelaNotificacoes(navController)
         }
 
+        composable(Route.MenuLateral.path) {
+            MenuLateral(navController = navController)
+        }
 
+        composable(Route.Acessibilidade.path) {
+            TelaAcessibilidade(navController = navController)
+        }
 
 
         composable(Route.Cadastro.path) {
@@ -95,15 +101,24 @@ fun AppNavigation() {
             )
         }
 
-        // 🚀 NOVA ROTA — Tela Home / Salas Disponíveis
         composable(Route.SalasDisponiveis.path) {
             TelaSalasDisponiveis(
-                navController = navController, // ✅ parâmetro adicionado
+                navController = navController,
                 onVoltarClick = { navController.popBackStack() },
                 onSalaClick = { sala ->
-                    // ✅ Abre a tela de reserva com o nome da sala
                     navController.navigate("reserva_sala/$sala")
                 })
+        }
+        composable(
+            Route.Comunicados.path,
+            arguments = listOf(
+                navArgument("titulo") { type = NavType.StringType },
+                navArgument("mensagem") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val titulo = backStackEntry.arguments?.getString("titulo")
+            val mensagem = backStackEntry.arguments?.getString("mensagem")
+            TelaComunicados(navController, titulo, mensagem)
         }
         composable(
             route = "reserva_sala/{salaNome}",
@@ -118,6 +133,9 @@ fun AppNavigation() {
         }
         composable(Route.PerfilAluno.path) {
             TelaPerfilAluno(navController)
+        }
+        composable(Route.EditarUsuario.path) {
+            TelaEditarUsuario(navController)
         }
 
         composable(Route.CatalogoLivros.path) {
@@ -157,7 +175,6 @@ fun AppNavigation() {
     }
 }
 
-// 🚀 Tela Inicial (sem mudanças)
 @Composable
 fun TelaInicial(
     onLoginClick: () -> Unit,
@@ -175,7 +192,6 @@ fun TelaInicial(
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
-        // 🔹 Logo ajustada (igual à TelaLogin)
         Image(
             painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
             contentDescription = "Logo Unifor",
@@ -188,7 +204,6 @@ fun TelaInicial(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 🔹 Texto de boas-vindas alinhado à esquerda
         Text(
             text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
             fontSize = 22.sp,
@@ -200,7 +215,6 @@ fun TelaInicial(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Mascote centralizado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,7 +233,6 @@ fun TelaInicial(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 🔹 Botões “Login” e “Cadastre-se”
         Button(
             onClick = onLoginClick,
             colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
@@ -245,4 +258,3 @@ fun TelaInicial(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
-

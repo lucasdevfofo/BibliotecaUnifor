@@ -177,7 +177,7 @@ fun TelaPerfilAluno(
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
-                onClick = { Toast.makeText(ctx, "Editar Perfil (em breve)", Toast.LENGTH_SHORT).show() },
+                onClick = { navController.navigate(Route.EditarUsuario.path) },
                 colors = ButtonDefaults.buttonColors(containerColor = roxoBotao),
                 shape = RoundedCornerShape(6.dp),
                 modifier = Modifier

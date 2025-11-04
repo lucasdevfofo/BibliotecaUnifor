@@ -4,36 +4,28 @@ sealed class Route(val path: String) {
     data object TelaInicial : Route("tela_inicial")
     data object Login : Route("tela_login")
     data object Cadastro : Route("tela_cadastro")
-
     data object EsqueceuSenha : Route("esqueceu_senha")
-
-    data object  EmailRedefinicao : Route("email-rede")
+    data object EmailRedefinicao : Route("email_redefinicao")
     data object SalasDisponiveis : Route("tela_salas_disponiveis")
     data object Notificacoes : Route("tela_notificacoes")
-
+    data object MenuLateral : Route("menu_lateral")
     data object ReservaSala : Route("reserva_sala/{salaNome}")
-
     data object ReservaConfirmada : Route("tela_reserva_confirmada")
-
     data object PerfilAluno : Route("tela_perfil_aluno")
-
     data object AlugarLivros : Route("alugar_livro/{livroNome}")
-
+    data object Comunicados : Route("comunicados/{titulo}/{mensagem}")
     data object CatalogoLivros : Route("tela_catalogo_livros")
-
     data object ReservasRealizadas : Route("tela_reservas_realizadas")
-
+    data object EditarUsuario : Route("tela_editar_usuario")
     data object EditarReserva : Route("tela_editar_reserva/{salaNome}")
+    data object DescricaoLivro : Route("descricao_livro/{tituloLivro}")
 
-    data object DescricaoLivro : Route("descricaoLivro/{tituloLivro}")
+    data object Acessibilidade : Route("acessibilidade")
 
-
-
-
-
+    data object ComunicadoEnviado : Route("comunicado_enviado")
 
 
+    data object RegrasDoSistema : Route("regras_do_sistema")
 
-
+    data object RenovarLivros : Route("renovar_livros")
 }
-

@@ -44,7 +44,6 @@ fun MenuLateral(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start
             ) {
-                // 🔹 Imagem do topo
                 Image(
                     painter = painterResource(id = R.drawable.logo_menu_lateral),
                     contentDescription = "Imagem topo",
@@ -54,7 +53,6 @@ fun MenuLateral(
                         .align(Alignment.Start)
                 )
 
-                // 🔹 Links do menu
                 val links = listOf(
                     "Perfil",
                     "Catálogo de Livros",
@@ -76,7 +74,9 @@ fun MenuLateral(
                                 when (link) {
                                     "Perfil" -> navController.navigate(Route.PerfilAluno.path)
                                     "Catálogo de Livros" -> navController.navigate(Route.CatalogoLivros.path)
-                                    "Lista de Salas" -> navController.navigate(Route.SalasDisponiveis.path)
+                                    "Acessibilidade" -> navController.navigate(Route.Acessibilidade.path)
+                                    "Lista de Salas" -> navController.navigate(Route.ReservasRealizadas.path)
+                                    "Reservar Mesa" -> navController.navigate(Route.SalasDisponiveis.path)
                                 }
                             }
                             .padding(vertical = 12.dp),
@@ -92,7 +92,6 @@ fun MenuLateral(
                 }
             }
 
-            // 🔻 Botão “Sair” fixado no rodapé
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
