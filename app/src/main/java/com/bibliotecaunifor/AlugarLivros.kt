@@ -40,7 +40,6 @@ fun AlugarLivros(
     navController: NavController,
     livroNome: String
 ) {
-    // ✅ Corrige o bug dos "+" e decodifica caracteres especiais
     val livroNomeDecoded = URLDecoder.decode(livroNome, StandardCharsets.UTF_8.toString())
 
     var menuAberto by remember { mutableStateOf(false) }
@@ -56,8 +55,6 @@ fun AlugarLivros(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -156,7 +153,6 @@ fun AlugarLivros(
                 }
             }
 
-            // --- Corpo ---
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
@@ -178,7 +174,6 @@ fun AlugarLivros(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Caixa central com sombra e bordas suaves
             Card(
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
@@ -212,7 +207,6 @@ fun AlugarLivros(
             }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier

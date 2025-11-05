@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-// 1. Função de validação (mantida)
 fun validateEmail(email: String): String? {
     if (email.isBlank()) {
         return "Por favor, preencha seu e-mail institucional."
@@ -36,32 +35,23 @@ fun validateEmail(email: String): String? {
     return null
 }
 
-
-
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-// O Composable agora é o ponto de entrada da tela
 fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Unit) {
-
     var email by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
-    // Não usamos mais Scaffold aqui, pois o cabeçalho não é um TopAppBar padrão do Material
     Column(
         modifier = Modifier
             .fillMaxSize()
-            // 🚨 Use a cor de fundo que estava no seu Scaffold anterior se necessário
             .background(Color.White)
     ) {
-
-        // 🚀 BLOCO DE CABEÇALHO PADRÃO (Da EmailRedefinicaoScreen)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            // Row Branca (Top Bar com Seta e Logo)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,13 +60,10 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    // 🚨 LIGADO À NAVEGAÇÃO
                     onClick = onNavigateUp,
                     modifier = Modifier.size(60.dp)
-                    // .pointerHoverIcon(PointerIcon.Hand) - Removido pois não está nas importações padrão
                 ) {
                     Icon(
-                        // Usando Icons.Default.ArrowBack para ser igual à EmailRedefinicao
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Voltar",
                         tint = Color.Black
@@ -91,30 +78,26 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            // Imagem do Banner (logo abaixo da Row Branca)
             Image(
-                // 🚨 Usando o recurso de imagem da biblioteca (livros)
                 painter = painterResource(id = R.drawable.livros),
                 contentDescription = "Nova imagem de fundo",
                 modifier = Modifier
                     .fillMaxWidth()
-                    // Alinha logo abaixo da Row branca de 56dp
                     .align(Alignment.BottomCenter)
-                    .height(180.dp - 56.dp), // 180dp (total) - 56dp (Row) = 124dp de altura para a imagem
+                    .height(180.dp - 56.dp),
                 contentScale = ContentScale.Crop
             )
 
-            // Textos da Biblioteca (Adicionados para completar o padrão)
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(top = 28.dp), // Empurra o texto para baixo da Row branca
+                    .padding(top = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Reserve sua sala",
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 18.sp
                 )
                 Text(
                     text = "Biblioteca Unifor",
@@ -124,21 +107,17 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                 )
             }
         }
-        // 🚀 FIM DO BLOCO DE CABEÇALHO PADRÃO
-
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
             Text(
                 text = "Esqueceu a senha? Digite seu email institucional para recuperar",
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
-
 
             EmailRecoveryTextField(
                 value = email,
@@ -149,7 +128,6 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                 isError = emailError != null,
                 errorMessage = emailError
             )
-
 
             Button(
                 onClick = {
@@ -166,7 +144,7 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 32.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)), // Usando a cor 044EE7
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)),
                 shape = RoundedCornerShape(4.dp),
                 contentPadding = PaddingValues(vertical = 12.dp)
             ) {
@@ -175,18 +153,6 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
         }
     }
 }
-
-
-// Componentes que não são mais necessários (pois o design foi incorporado)
-/*
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun EsqueceuSenhaTopBar(onNavigateUp: () -> Unit) { ... }
-
-@Composable
-fun EsqueceuSenhaHeader() { ... }
-*/
-
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -218,7 +184,6 @@ fun EmailRecoveryTextField(
             singleLine = true
         )
 
-
         if (isError && errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -229,8 +194,6 @@ fun EmailRecoveryTextField(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable

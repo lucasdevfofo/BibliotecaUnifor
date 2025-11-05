@@ -33,7 +33,6 @@ import androidx.navigation.NavController
 fun EditarReserva(navController: NavController, salaNome: String) {
     val contexto = LocalContext.current
     var menuAberto by remember { mutableStateOf(false) }
-
     var horarioEntrada by remember { mutableStateOf<String?>(null) }
     var horarioSaida by remember { mutableStateOf<String?>(null) }
 
@@ -50,7 +49,6 @@ fun EditarReserva(navController: NavController, salaNome: String) {
                 .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // === Cabeçalho ===
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,7 +147,6 @@ fun EditarReserva(navController: NavController, salaNome: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // === Horários ===
             Text(
                 text = "Horário:",
                 fontSize = 14.sp,
@@ -240,7 +237,6 @@ fun EditarReserva(navController: NavController, salaNome: String) {
                 }
             }
 
-            // === Botão Confirmar ===
             Button(
                 onClick = {
                     if (horarioEntrada != null && horarioSaida != null) {
@@ -263,7 +259,6 @@ fun EditarReserva(navController: NavController, salaNome: String) {
             Spacer(modifier = Modifier.height(50.dp))
         }
 
-        // === Menu lateral ===
         if (menuAberto) {
             Box(
                 modifier = Modifier
