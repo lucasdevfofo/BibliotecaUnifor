@@ -43,7 +43,6 @@ fun TelaRenovarLivro(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,7 +131,6 @@ fun TelaRenovarLivro(navController: NavController) {
                     }
                 }
             }
-            // --- Fim Cabeçalho ---
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -198,7 +196,6 @@ fun TelaRenovarLivro(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- Barra inferior ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -226,7 +223,6 @@ fun TelaRenovarLivro(navController: NavController) {
             }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier

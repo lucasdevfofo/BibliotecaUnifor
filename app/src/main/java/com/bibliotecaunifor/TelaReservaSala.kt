@@ -36,8 +36,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
     val scrollState = rememberScrollState()
     val contexto = LocalContext.current
     var menuAberto by remember { mutableStateOf(false) }
-
-    // 🔹 Agora a finalidade é apenas texto digitado
     var finalidadeTexto by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -47,7 +45,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,7 +143,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // --- Sala selecionada ---
             Text(
                 text = "Você deseja reservar:",
                 fontSize = 14.sp,
@@ -174,7 +170,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 )
             }
 
-            // --- Finalidade (campo de texto livre) ---
             Text(
                 text = "O que você vai fazer:",
                 fontSize = 14.sp,
@@ -198,7 +193,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 )
             )
 
-            // --- Dia ---
             Text(
                 text = "Dia",
                 fontSize = 14.sp,
@@ -239,7 +233,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 }
             }
 
-            // --- Horários ---
             val horarios = listOf(
                 "07:00", "08:00", "09:00", "10:00", "11:00",
                 "12:00", "13:00", "14:00", "15:00", "16:00",
@@ -327,7 +320,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 }
             }
 
-            // --- Botão Reservar ---
             Button(
                 onClick = {
                     if (horarioEntrada != null && horarioSaida != null) {
@@ -335,7 +327,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                             " para ${finalidadeTexto.trim()}"
                         else ""
                         navController.navigate(Route.ReservaConfirmada.path)
-
                     } else {
                         Toast.makeText(
                             contexto,
@@ -371,7 +362,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                     .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
                 navController = navController
             )
-
         }
     }
 }

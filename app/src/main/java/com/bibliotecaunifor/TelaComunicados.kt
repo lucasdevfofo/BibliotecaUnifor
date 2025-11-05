@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import java.net.URLDecoder // Import necessário para decodificar
+import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +29,6 @@ fun TelaComunicados(
     tituloNotificacao: String?,
     mensagemCorpo: String?
 ) {
-    // 1. Decodificar o título e a mensagem
     val tituloDecodificado = tituloNotificacao?.let { URLDecoder.decode(it, "UTF-8") }
     val mensagemDecodificada = mensagemCorpo?.let { URLDecoder.decode(it, "UTF-8") }
 
@@ -107,7 +106,6 @@ fun TelaComunicados(
 fun TelaComunicadosPreview() {
     val navController = rememberNavController()
     BibliotecaUniforTheme {
-        // Passando uma mensagem de exemplo sem "+" para o Preview (em tempo de execução o URLDecoder vai corrigir)
         TelaComunicados(
             navController = navController,
             tituloNotificacao = "Aviso da Biblioteca",

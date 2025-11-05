@@ -41,18 +41,15 @@ fun TelaSalasDisponiveis(
     var menuAberto by remember { mutableStateOf(false) }
     var chatAberto by remember { mutableStateOf(false) }
 
-    // ✅ Fecha o chat automaticamente ao abrir o menu
     LaunchedEffect(menuAberto) {
         if (menuAberto) chatAberto = false
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
-
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -60,12 +57,11 @@ fun TelaSalasDisponiveis(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.livros),
-                    contentDescription = "Imagem de fundo biblioteca",
+                    contentDescription = null,
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop
                 )
 
-                // 🔹 Cabeçalho sem botão de voltar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -75,13 +71,11 @@ fun TelaSalasDisponiveis(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
-
                     Image(
                         painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo UNIFOR",
+                        contentDescription = null,
                         modifier = Modifier.size(40.dp)
                     )
-
                     Spacer(modifier = Modifier.weight(1f))
                 }
 
@@ -99,7 +93,7 @@ fun TelaSalasDisponiveis(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
-                            contentDescription = "Notificações",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(28.dp)
                         )
@@ -113,7 +107,7 @@ fun TelaSalasDisponiveis(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
-                            contentDescription = "Menu",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(30.dp)
                         )
@@ -138,7 +132,6 @@ fun TelaSalasDisponiveis(
                     }
                 }
             }
-            // --- Fim Cabeçalho ---
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -187,7 +180,6 @@ fun TelaSalasDisponiveis(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- Barra inferior ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,29 +188,28 @@ fun TelaSalasDisponiveis(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painterResource(id = R.drawable.ic_home), "Home", tint = Color.Black)
+                Icon(painterResource(id = R.drawable.ic_home), null, tint = Color.Black)
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
-                    contentDescription = "Histórico",
+                    contentDescription = null,
                     tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_list),
-                    contentDescription = "Listas",
+                    contentDescription = null,
                     tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_user),
-                    contentDescription = "Perfil",
+                    contentDescription = null,
                     tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
                 )
             }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -241,7 +232,6 @@ fun TelaSalasDisponiveis(
             )
         }
 
-        // --- Botão flutuante do chat ---
         if (!menuAberto) {
             FloatingActionButton(
                 onClick = { chatAberto = !chatAberto },
@@ -253,13 +243,12 @@ fun TelaSalasDisponiveis(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_chat),
-                    contentDescription = "Chatbot",
+                    contentDescription = null,
                     tint = Color.White
                 )
             }
         }
 
-        // --- Caixa do Chat (com envio) ---
         if (chatAberto && !menuAberto) {
             ChatBotPopup(onFechar = { chatAberto = false })
         }

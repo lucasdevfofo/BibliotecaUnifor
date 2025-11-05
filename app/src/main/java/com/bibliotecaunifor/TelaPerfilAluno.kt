@@ -66,14 +66,12 @@ fun TelaPerfilAluno(
             .fillMaxSize()
             .background(Color.White)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ===== Cabeçalho =====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +140,6 @@ fun TelaPerfilAluno(
                 }
             }
 
-            // ===== Avatar + nome =====
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(
@@ -190,7 +187,6 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // ===== Salas disponíveis =====
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -212,7 +208,6 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== Últimas reservas =====
             SectionCard(
                 titulo = "ÚLTIMAS RESERVAS",
                 content = {
@@ -243,7 +238,6 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ===== Livros alugados =====
             SectionCard(
                 titulo = "LIVROS ALUGADOS",
                 content = {
@@ -273,9 +267,7 @@ fun TelaPerfilAluno(
                             Spacer(Modifier.width(8.dp))
 
                             Button(
-                                onClick = {
-                                    navController.navigate(Route.TelaRenovarLivro.path)
-                                },
+                                onClick = { navController.navigate(Route.TelaRenovarLivro.path) },
                                 colors = ButtonDefaults.buttonColors(containerColor = roxoBotao),
                                 shape = RoundedCornerShape(6.dp)
                             ) {
@@ -290,7 +282,6 @@ fun TelaPerfilAluno(
             Spacer(modifier = Modifier.height(80.dp))
         }
 
-        // ===== Bottom bar =====
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -300,7 +291,6 @@ fun TelaPerfilAluno(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 🏠 Ícone da Home -> volta para SalasDisponiveis
             Icon(
                 painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = "Home",
@@ -324,10 +314,9 @@ fun TelaPerfilAluno(
                 tint = Color.Gray,
                 modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
             )
-            Icon(painterResource(id = R.drawable.ic_user), contentDescription = "Perfil", tint = Color.Black)
+            Icon(painter = painterResource(id = R.drawable.ic_user), contentDescription = "Perfil", tint = Color.Black)
         }
 
-        // ===== Menu lateral =====
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -341,7 +330,6 @@ fun TelaPerfilAluno(
                     .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
                 navController = navController
             )
-
         }
     }
 }

@@ -49,7 +49,7 @@ fun AppHeaderEditarUsuario(
     ) {
         Image(
             painter = painterResource(id = R.drawable.livros),
-            contentDescription = "Imagem de fundo biblioteca",
+            contentDescription = null,
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop
         )
@@ -65,7 +65,7 @@ fun AppHeaderEditarUsuario(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
+                    contentDescription = null,
                     tint = Color.Black
                 )
             }
@@ -76,7 +76,7 @@ fun AppHeaderEditarUsuario(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Logo UNIFOR",
+                    contentDescription = null,
                     modifier = Modifier.size(40.dp)
                 )
             }
@@ -98,7 +98,7 @@ fun AppHeaderEditarUsuario(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "Notificações",
+                    contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.size(28.dp)
                 )
@@ -112,7 +112,7 @@ fun AppHeaderEditarUsuario(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Menu,
-                    contentDescription = "Menu",
+                    contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.size(30.dp)
                 )
@@ -149,36 +149,30 @@ fun AppBottomNavEditarUsuario(navController: NavController) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Filled.Home, "Home", tint = Color.Gray,
+        Icon(Icons.Filled.Home, null, tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
         )
-        Icon(Icons.Filled.DateRange, "Reservas", tint = Color.Gray,
+        Icon(Icons.Filled.DateRange, null, tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
         )
-        Icon(Icons.Filled.List, "Catálogo", tint = Color.Gray,
+        Icon(Icons.Filled.List, null, tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.CatalogoLivros.path) }
         )
-        Icon(Icons.Filled.Person, "Perfil", tint = Color.Black,
+        Icon(Icons.Filled.Person, null, tint = Color.Black,
             modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
         )
     }
 }
 
-
 @Composable
-fun TelaEditarUsuario(
-    navController: NavController
-) {
+fun TelaEditarUsuario(navController: NavController) {
     val menuAberto = remember { mutableStateOf(false) }
-
-    // Valores iniciais atualizados para corresponder à imagem mais completa
     var nome by remember { mutableStateOf("Analice Castro") }
     var matricula by remember { mutableStateOf("2345989") }
     var email by remember { mutableStateOf("analicecastro@gmail.com") }
     var telefone by remember { mutableStateOf("82 9 8273-9280") }
     var cpf by remember { mutableStateOf("888.222.444-99") }
-    var curso by remember { mutableStateOf("Cienc. da Comp.") } // Novo campo 'Curso'
-
+    var curso by remember { mutableStateOf("Cienc. da Comp.") }
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -197,7 +191,7 @@ fun TelaEditarUsuario(
                     .padding(paddingValues)
                     .background(Color.White)
                     .padding(horizontal = 20.dp)
-                    .verticalScroll(scrollState), // Adiciona rolagem para garantir visibilidade
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -214,10 +208,11 @@ fun TelaEditarUsuario(
 
                 Icon(
                     imageVector = Icons.Filled.PersonOutline,
-                    contentDescription = "Ícone de Perfil",
+                    contentDescription = null,
                     modifier = Modifier.size(80.dp),
                     tint = Color.LightGray
                 )
+
                 Spacer(modifier = Modifier.height(5.dp))
 
                 OutlinedTextField(
@@ -284,8 +279,6 @@ fun TelaEditarUsuario(
                         unfocusedBorderColor = Color.LightGray
                     )
                 )
-
-                // NOVO CAMPO: CURSO
                 OutlinedTextField(
                     value = curso,
                     onValueChange = { curso = it },

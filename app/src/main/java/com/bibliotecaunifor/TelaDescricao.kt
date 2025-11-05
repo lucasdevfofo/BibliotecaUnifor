@@ -37,8 +37,6 @@ fun TelaDescricaoLivro(
     disponibilidade: String? = null
 ) {
     var menuAberto by remember { mutableStateOf(false) }
-
-    // decodifica caso venha com %20 ou acentos
     val tituloDecoded = URLDecoder.decode(tituloLivro, StandardCharsets.UTF_8.toString())
 
     Box(
@@ -50,7 +48,6 @@ fun TelaDescricaoLivro(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,7 +55,7 @@ fun TelaDescricaoLivro(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.livros),
-                    contentDescription = "Imagem de fundo biblioteca",
+                    contentDescription = null,
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -79,7 +76,7 @@ fun TelaDescricaoLivro(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
+                            contentDescription = null,
                             tint = Color.Black
                         )
                     }
@@ -88,7 +85,7 @@ fun TelaDescricaoLivro(
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo UNIFOR",
+                        contentDescription = null,
                         modifier = Modifier.size(40.dp)
                     )
 
@@ -107,7 +104,7 @@ fun TelaDescricaoLivro(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
-                            contentDescription = "Notificações",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(28.dp)
                         )
@@ -119,7 +116,7 @@ fun TelaDescricaoLivro(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
-                            contentDescription = "Menu",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(30.dp)
                         )
@@ -151,7 +148,6 @@ fun TelaDescricaoLivro(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Título ---
             Text(
                 text = tituloDecoded.uppercase(),
                 color = Color(0xFF044EE7),
@@ -161,7 +157,6 @@ fun TelaDescricaoLivro(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // --- Descrição ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,7 +182,6 @@ fun TelaDescricaoLivro(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- Disponibilidade ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -212,7 +206,6 @@ fun TelaDescricaoLivro(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // --- Botões ---
             Button(
                 onClick = {
                     val encodedName = java.net.URLEncoder.encode(tituloDecoded, StandardCharsets.UTF_8.toString())
@@ -243,7 +236,6 @@ fun TelaDescricaoLivro(
             }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier

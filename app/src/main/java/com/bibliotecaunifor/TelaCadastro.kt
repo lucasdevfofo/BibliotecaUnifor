@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-
 @Composable
 fun TelaCadastro(
     onNavigateUp: () -> Unit,
@@ -46,29 +45,24 @@ fun TelaCadastro(
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-
-        // --- 1. CABEÇALHO IDÊNTICO AO EMAILREDEFINICAO (Top Bar Branca + Banner) ---
-        // Usamos um Box para alinhar o Banner e os Textos DENTRO da área total de 180dp
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            // Imagem do Banner (Cobre toda a área de 180dp)
             Image(
                 painter = painterResource(id = R.drawable.livros),
                 contentDescription = "Nova imagem de fundo",
-                modifier = Modifier.matchParentSize(), // Ocupa os 180dp completos
+                modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop
             )
 
-            // 🚀 TOP BAR BRANCA FLUTUANTE (Camada superior para seta e logo)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(Color.White) // Fundo branco da Top Bar
-                    .align(Alignment.TopCenter), // Alinhada no topo do Box
+                    .background(Color.White)
+                    .align(Alignment.TopCenter),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -81,7 +75,6 @@ fun TelaCadastro(
                         tint = Color.Black
                     )
                 }
-                // Spacers para centralizar a logo
                 Spacer(modifier = Modifier.weight(0.67f))
                 Image(
                     painter = painterResource(id = R.drawable.logo),
@@ -91,15 +84,12 @@ fun TelaCadastro(
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            // 🚀 TEXTOS (Centralizados na área visível da imagem)
-            // Usamos um Box aninhado para delimitar a área onde o texto deve centralizar:
-            // Começa em 56dp (fim da Top Bar) e tem 124dp de altura (180 - 56)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(124.dp) // Altura da área visível da imagem
-                    .align(Alignment.BottomCenter), // Alinhado abaixo da Top Bar (56dp + 124dp = 180dp)
-                contentAlignment = Alignment.Center // Centraliza o texto nesta nova área
+                    .height(124.dp)
+                    .align(Alignment.BottomCenter),
+                contentAlignment = Alignment.Center
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -114,8 +104,6 @@ fun TelaCadastro(
                 }
             }
         }
-        // --- FIM CABEÇALHO IDÊNTICO ---
-
 
         Spacer(modifier = Modifier.height(14.dp))
 
@@ -131,7 +119,6 @@ fun TelaCadastro(
 
             Text(text = "Nome Completo", fontSize = 12.sp, color = Color.Gray)
             CampoCinza("Nome Completo", nome) { nome = it }
-            // ... (restante do formulário) ...
 
             Text(text = "Senha", fontSize = 12.sp, color = Color.Gray)
             CampoCinza("Senha", senha) { senha = it }
@@ -180,8 +167,6 @@ fun TelaCadastro(
         }
     }
 }
-
-// ... (Restante do Composable CampoCinza e Preview permanece o mesmo) ...
 
 @Composable
 fun CampoCinza(

@@ -25,12 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import java.net.URLEncoder // Import necessário para codificação de URL
+import java.net.URLEncoder
 
-// Definição da Data Class para estruturar os dados, incluindo o tipo de notificação
 data class Notificacao(val titulo: String, val mensagem: String, val isAdmin: Boolean = false)
 
-// Componente para exibir cada item da notificação
 @Composable
 fun NotificacaoItem(notificacao: Notificacao, navController: NavController) {
     val corFundo = if (notificacao.isAdmin) Color(0xFFFFF3E0) else Color(0xFFF5F5F5)
@@ -44,11 +42,8 @@ fun NotificacaoItem(notificacao: Notificacao, navController: NavController) {
             .padding(12.dp)
             .fillMaxWidth()
             .clickable {
-                // 1. Codificar os dados para serem seguros em uma URL
                 val tituloEncoded = URLEncoder.encode(notificacao.titulo, "UTF-8")
                 val mensagemEncoded = URLEncoder.encode(notificacao.mensagem, "UTF-8")
-
-                // 2. Navegar para a tela de comunicado com o conteúdo completo
                 navController.navigate("comunicados/$tituloEncoded/$mensagemEncoded")
             }
     ) {
@@ -63,9 +58,8 @@ fun NotificacaoItem(notificacao: Notificacao, navController: NavController) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
             } else {
-                // Ícone de Admin (simples)
                 Icon(
-                    painter = painterResource(id = R.drawable.logo), // Usando logo como ícone de admin
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Admin",
                     tint = corTitulo,
                     modifier = Modifier
@@ -91,10 +85,8 @@ fun NotificacaoItem(notificacao: Notificacao, navController: NavController) {
     }
 }
 
-
 @Composable
 fun TelaNotificacoes(navController: NavController) {
-    // 🔹 Exemplo de lista de notificações (agora com a notificação do administrador)
     val notificacoesOriginais = listOf(
         Pair("Rodrigo Silva", "Mensagem de notificação 1 — texto longo para testar rolagem."),
         Pair("Thiago Narak", "Mensagem de notificação 2 — texto ainda mais longo para testar overflow."),
@@ -106,7 +98,6 @@ fun TelaNotificacoes(navController: NavController) {
     )
 
     val notificacoesLista = remember {
-        // Mensagem de Administrador Fictícia
         val adminMessage = Notificacao(
             titulo = "Aviso da Biblioteca",
             mensagem = "A renovação de livros por e-mail foi descontinuada. Use o botão 'RENOVAR' na tela de perfil para gerenciar seus empréstimos. Prazo máximo estendido por 72h para transição.",
@@ -114,11 +105,8 @@ fun TelaNotificacoes(navController: NavController) {
         )
 
         val userMessages = notificacoesOriginais.map { Notificacao(it.first, it.second) }
-
-        // Coloca a mensagem do admin no topo
         listOf(adminMessage) + userMessages
     }
-
 
     Column(
         modifier = Modifier
@@ -126,8 +114,6 @@ fun TelaNotificacoes(navController: NavController) {
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // 🔹 TopBar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,7 +151,6 @@ fun TelaNotificacoes(navController: NavController) {
             }
         }
 
-        // 🔹 Título
         Text(
             text = "Notificações",
             fontSize = 26.sp,
@@ -175,7 +160,6 @@ fun TelaNotificacoes(navController: NavController) {
             modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
         )
 
-        // 🔹 Lista de Notificações
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

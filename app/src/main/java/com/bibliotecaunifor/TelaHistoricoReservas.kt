@@ -53,8 +53,6 @@ fun TelaHistoricoReservas(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,7 +147,6 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- Seção: Salas ---
             Text(
                 text = "Reservas de Salas",
                 fontSize = 18.sp,
@@ -203,7 +200,6 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- Seção: Livros ---
             Text(
                 text = "Reservas de Livros",
                 fontSize = 18.sp,
@@ -240,7 +236,6 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- Bottom Bar ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -276,10 +271,10 @@ fun TelaHistoricoReservas(navController: NavController) {
                     contentDescription = "Perfil",
                     tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
-                )            }
+                )
+            }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -297,6 +292,5 @@ fun TelaHistoricoReservas(navController: NavController) {
     }
 }
 
-// --- Modelos simples ---
 data class ReservaSala(val nome: String, val horario: String, val senha: String)
 data class ReservaLivro(val titulo: String, val periodo: String)

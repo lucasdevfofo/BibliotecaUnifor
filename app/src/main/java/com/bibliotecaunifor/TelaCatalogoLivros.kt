@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import android.net.Uri
 
-// Modelo dos livros
 data class Livro(
     val titulo: String,
     val descricao: String,
@@ -42,7 +41,6 @@ fun TelaCatalogoLivros(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
     var pesquisa by remember { mutableStateOf("") }
 
-    // --- Lista fixa com 10 livros de exemplo ---
     val livros = listOf(
         Livro(
             "O Pequeno Príncipe",
@@ -116,7 +114,6 @@ fun TelaCatalogoLivros(navController: NavController) {
         )
     )
 
-    // Filtro de pesquisa
     val livrosFiltrados = remember(pesquisa) {
         if (pesquisa.isBlank()) livros
         else livros.filter { it.titulo.contains(pesquisa, ignoreCase = true) }
@@ -127,8 +124,6 @@ fun TelaCatalogoLivros(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // ==== Cabeçalho ====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,7 +131,7 @@ fun TelaCatalogoLivros(navController: NavController) {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.livros),
-                    contentDescription = "Imagem de fundo biblioteca",
+                    contentDescription = null,
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -155,7 +150,7 @@ fun TelaCatalogoLivros(navController: NavController) {
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
+                            contentDescription = null,
                             tint = Color.Black
                         )
                     }
@@ -164,7 +159,7 @@ fun TelaCatalogoLivros(navController: NavController) {
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo UNIFOR",
+                        contentDescription = null,
                         modifier = Modifier.size(40.dp)
                     )
 
@@ -183,7 +178,7 @@ fun TelaCatalogoLivros(navController: NavController) {
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
-                            contentDescription = "Notificações",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(28.dp)
                         )
@@ -195,7 +190,7 @@ fun TelaCatalogoLivros(navController: NavController) {
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
-                            contentDescription = "Menu",
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier.size(30.dp)
                         )
@@ -223,7 +218,6 @@ fun TelaCatalogoLivros(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ==== Título + Barra de pesquisa ====
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,7 +253,6 @@ fun TelaCatalogoLivros(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ==== Lista de Livros ====
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -281,7 +274,6 @@ fun TelaCatalogoLivros(navController: NavController) {
                                     "descricaoLivro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
                                 )
                             }
-
                     ) {
                         Text(
                             text = livro.titulo,
@@ -296,7 +288,6 @@ fun TelaCatalogoLivros(navController: NavController) {
             }
         }
 
-        // ==== Menu lateral ====
         if (menuAberto) {
             Box(
                 modifier = Modifier

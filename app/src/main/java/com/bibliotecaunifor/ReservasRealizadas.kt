@@ -33,15 +33,11 @@ import androidx.navigation.NavController
 @Composable
 fun TelaReservasRealizadas(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
-
-    // 🔹 Mock: reserva de exemplo
     val reservas = remember {
         mutableStateListOf(
             ReservaExemplo("SALA 01", "14:00 às 16:00", "15/11/2025")
         )
     }
-
-    // 🔹 Controla qual reserva está expandida
     var reservaExpandida by remember { mutableStateOf<String?>(null) }
 
     Box(
@@ -53,7 +49,6 @@ fun TelaReservasRealizadas(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ===== Cabeçalho =====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,7 +116,6 @@ fun TelaReservasRealizadas(navController: NavController) {
                 }
             }
 
-            // ===== Título =====
             Text(
                 text = "Reservas realizadas",
                 fontSize = 22.sp,
@@ -135,7 +129,6 @@ fun TelaReservasRealizadas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== Listagem de reservas =====
             reservas.forEach { reserva ->
                 Card(
                     modifier = Modifier
@@ -205,8 +198,7 @@ fun TelaReservasRealizadas(navController: NavController) {
                                     Button(
                                         onClick = {
                                             navController.navigate("tela_editar_reserva/${reserva.sala}")
-                                        }
-                                        ,
+                                        },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4F78)),
                                         shape = RoundedCornerShape(8.dp),
                                         modifier = Modifier.weight(1f)
@@ -217,9 +209,7 @@ fun TelaReservasRealizadas(navController: NavController) {
                                     Spacer(modifier = Modifier.width(10.dp))
 
                                     Button(
-                                        onClick = {
-                                            // futuro: cancelar reserva
-                                        },
+                                        onClick = {},
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C)),
                                         shape = RoundedCornerShape(8.dp),
                                         modifier = Modifier.weight(1f)
@@ -236,7 +226,6 @@ fun TelaReservasRealizadas(navController: NavController) {
             Spacer(modifier = Modifier.height(100.dp))
         }
 
-        // ===== Bottom bar =====
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -271,7 +260,6 @@ fun TelaReservasRealizadas(navController: NavController) {
             )
         }
 
-        // ===== Menu lateral =====
         if (menuAberto) {
             Box(
                 modifier = Modifier
@@ -289,7 +277,6 @@ fun TelaReservasRealizadas(navController: NavController) {
     }
 }
 
-// 🔹 data class de exemplo
 data class ReservaExemplo(
     val sala: String,
     val horario: String,

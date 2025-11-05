@@ -8,10 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -32,8 +28,6 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import androidx.compose.ui.zIndex
-
 
 @Composable
 fun AppHeaderAcessibilidade(
@@ -125,13 +119,13 @@ fun AppHeaderAcessibilidade(
                     "Reserve sua sala",
                     color = Color.White,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal, // Geralmente mais claro para este tipo de texto
+                    fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     "Biblioteca Unifor",
                     color = Color.White,
-                    fontSize = 22.sp, // Um pouco maior para o nome
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
@@ -139,7 +133,6 @@ fun AppHeaderAcessibilidade(
         }
     }
 }
-
 
 @Composable
 fun AppBottomNavAcessibilidade(navController: NavController) {
@@ -158,7 +151,6 @@ fun AppBottomNavAcessibilidade(navController: NavController) {
             tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
         )
-
         Icon(
             painter = painterResource(id = R.drawable.ic_calendar),
             contentDescription = "Histórico",
@@ -179,7 +171,6 @@ fun AppBottomNavAcessibilidade(navController: NavController) {
         )
     }
 }
-
 
 @Composable
 fun TelaAcessibilidade(navController: NavController) {
@@ -233,14 +224,12 @@ fun TelaAcessibilidade(navController: NavController) {
                             isSelected = selectedFontSize == 0,
                             onClick = { selectedFontSize = 0 }
                         )
-
                         FontOption(
                             text = "aA",
                             fontSize = 30.sp,
                             isSelected = selectedFontSize == 1,
                             onClick = { selectedFontSize = 1 }
                         )
-
                         FontOption(
                             text = "aA",
                             fontSize = 40.sp,
@@ -257,15 +246,6 @@ fun TelaAcessibilidade(navController: NavController) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 8.dp)
                 )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -357,7 +337,6 @@ fun ColorBlindnessOption(
 @Composable
 fun TelaAcessibilidadePreview() {
     val navController = rememberNavController()
-
     BibliotecaUniforTheme {
         TelaAcessibilidade(navController)
     }

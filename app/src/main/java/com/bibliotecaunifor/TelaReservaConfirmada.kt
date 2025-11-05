@@ -37,8 +37,6 @@ fun TelaReservaConfirmada(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // --- Cabeçalho ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +89,9 @@ fun TelaReservaConfirmada(navController: NavController) {
                 ) {
                     IconButton(
                         onClick = { navController.navigate(Route.Notificacoes.path) },
-                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier
+                            .size(40.dp)
+                            .pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
@@ -103,7 +103,9 @@ fun TelaReservaConfirmada(navController: NavController) {
 
                     IconButton(
                         onClick = { menuAberto = !menuAberto },
-                        modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
+                        modifier = Modifier
+                            .size(40.dp)
+                            .pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Menu,
@@ -139,7 +141,6 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- Ícone central ---
             Image(
                 painter = painterResource(id = R.drawable.imagem_principal),
                 contentDescription = "Reserva confirmada",
@@ -148,7 +149,6 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- Texto ---
             Text(
                 text = "Reservado",
                 fontWeight = FontWeight.Bold,
@@ -166,7 +166,6 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- Botão Voltar ---
             Button(
                 onClick = { navController.navigate(Route.SalasDisponiveis.path) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E4C93)),
@@ -181,7 +180,6 @@ fun TelaReservaConfirmada(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // --- Barra inferior com navegação funcional ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,7 +223,6 @@ fun TelaReservaConfirmada(navController: NavController) {
             }
         }
 
-        // --- Menu lateral ---
         if (menuAberto) {
             Box(
                 modifier = Modifier

@@ -28,13 +28,12 @@ fun TelaLogin(
     onNavigateUp: () -> Unit,
     onCadastroClick: (isAdmin: Boolean) -> Unit,
     onEsqueceuSenhaClick: () -> Unit,
-    onEntrarClick: (isAdmin: Boolean) -> Unit // ✅ Agora envia se é admin ou não
+    onEntrarClick: (isAdmin: Boolean) -> Unit
 ) {
     val azulUnifor = Color(0xFF004AF5)
     val cinzaCampo = Color(0xFFD0D0D0)
     val cinzaBotao = Color(0xFF3A3A3A)
     val branco = Color.White
-    val isAdminSelected = remember { mutableStateOf(false) }
     var matricula by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var isAdmin by remember { mutableStateOf(false) }
@@ -51,7 +50,6 @@ fun TelaLogin(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 🔹 Logo centralizada e grande
             Image(
                 painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
                 contentDescription = "Logo Unifor",
@@ -61,7 +59,6 @@ fun TelaLogin(
                 contentScale = ContentScale.FillWidth
             )
 
-            // 🔹 Texto centralizado
             Text(
                 text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
                 fontSize = 24.sp,
@@ -73,7 +70,6 @@ fun TelaLogin(
                     .padding(bottom = 32.dp)
             )
 
-            // 🔹 Mascote centralizado
             Image(
                 painter = painterResource(id = R.drawable.mascote_mesa),
                 contentDescription = "Mascote Unifor",
@@ -86,7 +82,6 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // 🔹 Campos de login
             Text("Matrícula", fontSize = 16.sp, color = branco, modifier = Modifier.align(Alignment.Start))
             Spacer(modifier = Modifier.height(8.dp))
             CampoCinza(
@@ -114,7 +109,6 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 🔹 Seletor de tipo de login (Usuário / Admin)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -148,9 +142,8 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 🔹 Botão Entrar
             Button(
-                onClick = { onEntrarClick(isAdmin) }, // ✅ Envia o tipo de login
+                onClick = { onEntrarClick(isAdmin) },
                 colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -162,7 +155,6 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 🔹 Links inferiores
             Text(
                 text = "Esqueceu a Senha?",
                 color = branco,
