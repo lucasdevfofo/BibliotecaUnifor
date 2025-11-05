@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -189,78 +190,84 @@ fun TelaInicial(
     val azulUnifor = Color(0xFF004AF5)
     val cinzaBotao = Color(0xFFD0D0D0)
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(azulUnifor)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.Start
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Image(
-            painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
-            contentDescription = "Logo Unifor",
+        Column(
             modifier = Modifier
-                .height(70.dp)
-                .width(220.dp)
-                .align(Alignment.Start),
-            contentScale = ContentScale.Fit
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            lineHeight = 28.sp,
-            modifier = Modifier.align(Alignment.Start)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 24.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
+                contentDescription = "Logo Unifor",
+                modifier = Modifier
+                    .width(260.dp)
+                    .padding(top = 40.dp, bottom = 16.dp),
+                contentScale = ContentScale.FillWidth
+            )
+
+            Text(
+                text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp)
+            )
+
             Image(
                 painter = painterResource(id = R.drawable.mascote_mesa),
                 contentDescription = "Mascote Unifor",
                 modifier = Modifier
-                    .height(160.dp)
-                    .fillMaxWidth(0.8f),
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(vertical = 16.dp),
                 contentScale = ContentScale.Fit
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = onLoginClick,
+                colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)
+            ) {
+                Text(
+                    text = "Login",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onCadastroClick,
+                colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)
+            ) {
+                Text(
+                    text = "Cadastre-se",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(60.dp))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = onLoginClick,
-            colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text("Login", color = Color.Black, fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onCadastroClick,
-            colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text("Cadastre-se", color = Color.Black, fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
