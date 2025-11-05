@@ -200,7 +200,7 @@ fun TelaSalasDisponiveis(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
                     contentDescription = "Histórico",
-                    tint = Color.Black,
+                    tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
                 )
                 Icon(
@@ -212,7 +212,7 @@ fun TelaSalasDisponiveis(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_user),
                     contentDescription = "Perfil",
-                    tint = Color.Black,
+                    tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
                 )
             }

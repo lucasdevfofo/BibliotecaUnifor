@@ -315,7 +315,7 @@ fun TelaPerfilAluno(
             Icon(
                 painter = painterResource(id = R.drawable.ic_calendar),
                 contentDescription = "Histórico",
-                tint = Color.Black,
+                tint = Color.Gray,
                 modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
             )
             Icon(

@@ -274,7 +274,7 @@ fun TelaHistoricoReservas(navController: NavController) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_user),
                     contentDescription = "Perfil",
-                    tint = Color.Black,
+                    tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
                 )            }
         }
