@@ -11,17 +11,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BibliotecaUnifor">
+
         <activity
             android:name=".TelaInicialActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.BibliotecaUnifor">
+        </activity>
+
+        <activity
+            android:name=".TelaAdminLogin"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.BibliotecaUnifor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
