@@ -20,7 +20,7 @@
         </activity>
 
         <activity
-            android:name=".TelaAdminLogin"
+            android:name=".Adm.TelaInicialAdm"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.BibliotecaUnifor">
@@ -31,7 +31,14 @@
         </activity>
 
         <activity
-            android:name=".TelaLoginADM"
+            android:name=".Adm.TelaLoginAdm"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.BibliotecaUnifor">
+        </activity>
+
+        <activity
+            android:name=".Adm.TelaEsqueceuSenha"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.BibliotecaUnifor">

@@ -1,5 +1,6 @@
-package com.bibliotecaunifor
+package com.bibliotecaunifor.Adm
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,16 +33,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-class TelaLoginADM : ComponentActivity() {
+class TelaLoginAdm : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             BibliotecaUniforTheme {
-                TelaLoginADMContent(
+                TelaLoginAdmContent(
                     onLoginClicked = {},
-                    onEsqueceuSenhaClicked = {},
+                    onEsqueceuSenhaClicked = {
+                        startActivity(Intent(this, TelaEsqueceuSenha::class.java))
+                    },
                     onCadastroClicked = {}
                 )
             }
@@ -51,7 +55,7 @@ class TelaLoginADM : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaLoginADMContent(
+fun TelaLoginAdmContent(
     onLoginClicked: () -> Unit,
     onEsqueceuSenhaClicked: () -> Unit,
     onCadastroClicked: () -> Unit
@@ -181,8 +185,8 @@ fun TelaLoginADMContent(
 
 @Preview(showBackground = true)
 @Composable
-fun TelaLoginADMPreview() {
+fun TelaLoginAdmPreview() {
     BibliotecaUniforTheme {
-        TelaLoginADMContent({}, {}, {})
+        TelaLoginAdmContent({}, {}, {})
     }
 }

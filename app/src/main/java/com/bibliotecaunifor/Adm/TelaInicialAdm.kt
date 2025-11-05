@@ -1,4 +1,4 @@
-package com.bibliotecaunifor
+package com.bibliotecaunifor.Adm
 
 import android.content.Intent
 import android.os.Bundle
@@ -22,16 +22,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-class TelaAdminLogin : ComponentActivity() {
+class TelaInicialAdm : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             BibliotecaUniforTheme {
-                TelaAdminLoginContent(
+                TelaInicialAdmContent(
                     onLoginClicked = {
-                        startActivity(Intent(this, TelaLoginADM::class.java))
+                        startActivity(Intent(this, TelaLoginAdm::class.java))
                     },
                     onCadastroClicked = { }
                 )
@@ -41,7 +42,7 @@ class TelaAdminLogin : ComponentActivity() {
 }
 
 @Composable
-fun TelaAdminLoginContent(
+fun TelaInicialAdmContent(
     onLoginClicked: () -> Unit,
     onCadastroClicked: () -> Unit
 ) {
@@ -122,8 +123,8 @@ fun TelaAdminLoginContent(
 
 @Preview(showBackground = true)
 @Composable
-fun TelaAdminLoginPreview() {
+fun TelaInicialAdmPreview() {
     BibliotecaUniforTheme {
-        TelaAdminLoginContent({}, {})
+        TelaInicialAdmContent({}, {})
     }
 }
