@@ -27,6 +27,9 @@ sealed class Route(val path: String) {
     data object TelaRenovarLivro : Route("tela_renovar_livro")
     data object RegrasDoSistema : Route("regras_do_sistema")
     data object RenovarLivros : Route("renovar_livros")
+    // --- Rotas Comuns / Aluno ---
+    data object HistoricoReservas : Route("tela_historico_reservas")
+
 
     // --- NOVAS ROTAS DO ADMINISTRADOR ---
 }

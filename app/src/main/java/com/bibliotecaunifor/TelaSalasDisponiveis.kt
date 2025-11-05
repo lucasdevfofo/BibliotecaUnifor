@@ -197,7 +197,12 @@ fun TelaSalasDisponiveis(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(painterResource(id = R.drawable.ic_home), "Home", tint = Color.Black)
-                Icon(painterResource(id = R.drawable.ic_calendar), "Reservas", tint = Color.Gray)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_calendar),
+                    contentDescription = "Histórico",
+                    tint = Color.Black,
+                    modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+                )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_list),
                     contentDescription = "Listas",

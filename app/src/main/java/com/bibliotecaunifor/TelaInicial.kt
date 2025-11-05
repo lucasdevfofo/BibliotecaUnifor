@@ -170,6 +170,12 @@ fun AppNavigation() {
                 disponibilidade = disponibilidade
             )
         }
+        composable(Route.HistoricoReservas.path) {
+            TelaHistoricoReservas(navController)
+        }
+        composable(Route.TelaRenovarLivro.path) {
+            TelaRenovarLivro(navController)
+        }
 
 
     }
