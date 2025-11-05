@@ -1,5 +1,6 @@
 package com.bibliotecaunifor
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +30,9 @@ class TelaAdminLogin : ComponentActivity() {
         setContent {
             BibliotecaUniforTheme {
                 TelaAdminLoginContent(
-                    onLoginClicked = { },
+                    onLoginClicked = {
+                        startActivity(Intent(this, TelaLoginADM::class.java))
+                    },
                     onCadastroClicked = { }
                 )
             }
@@ -53,15 +56,14 @@ fun TelaAdminLoginContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_tela_inicial_e_cadastro),
-                contentDescription = "Logo Unifor Mobile",
+                contentDescription = null,
                 modifier = Modifier
-                    .offset(x = (-16).dp)
-                    .align(Alignment.Start)
-                    .width(200.dp)
+                    .width(260.dp)
                     .padding(top = 40.dp, bottom = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
@@ -71,7 +73,7 @@ fun TelaAdminLoginContent(
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
@@ -79,12 +81,12 @@ fun TelaAdminLoginContent(
 
             Image(
                 painter = painterResource(id = R.drawable.mascote_mesa),
-                contentDescription = "Mascote Unifor",
+                contentDescription = null,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
                     .height(200.dp)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
+                contentScale = ContentScale.Fit
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -113,7 +115,7 @@ fun TelaAdminLoginContent(
                 Text(text = "Cadastre-se", color = Color.Black, fontSize = 18.sp)
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(60.dp))
         }
     }
 }
