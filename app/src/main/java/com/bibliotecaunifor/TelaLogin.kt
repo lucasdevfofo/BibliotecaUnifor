@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun TelaLogin(
     onNavigateUp: () -> Unit,
-    onCadastroClick: () -> Unit,
+    onCadastroClick: (isAdmin: Boolean) -> Unit,
     onEsqueceuSenhaClick: () -> Unit,
     onEntrarClick: (isAdmin: Boolean) -> Unit // ✅ Agora envia se é admin ou não
 ) {
@@ -34,10 +34,10 @@ fun TelaLogin(
     val cinzaCampo = Color(0xFFD0D0D0)
     val cinzaBotao = Color(0xFF3A3A3A)
     val branco = Color.White
-
+    val isAdminSelected = remember { mutableStateOf(false) }
     var matricula by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
-    var isAdmin by remember { mutableStateOf(false) } // ✅ Novo estado de tipo de login
+    var isAdmin by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -182,7 +182,7 @@ fun TelaLogin(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onCadastroClick() }
+                    .clickable { onCadastroClick(isAdmin) }
                     .padding(bottom = 24.dp)
             )
         }

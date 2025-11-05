@@ -32,7 +32,7 @@ sealed class Route(val path: String) {
 
 
     // --- NOVAS ROTAS DO ADMINISTRADOR ---
-    data object HomeAdmin : Route("tela_home_admin") // ✅ nova rota adicionada aqui
-
-
+    data object TelaAdminGerenciarSalas : Route("tela_admin_gerenciar_salas")
+    data object TelaAdminGerenciarMesas : Route("tela_admin_gerenciar_mesas/{salaNome}")
+    data object TelaCadastroAdm : Route("tela_cadastro_admin")
 }

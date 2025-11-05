@@ -25,7 +25,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import androidx.navigation.NavType
-
+import com.bibliotecaunifor.Adm.TelaAdminGerenciarSalas
+import com.bibliotecaunifor.Adm.TelaAdminGerenciarMesas
+import com.bibliotecaunifor.Adm.TelaCadastroAdm
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,32 +55,75 @@ fun AppNavigation() {
                 onLoginClick = { navController.navigate(Route.Login.path) },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) }
             )
+
+        }
+        composable(Route.TelaCadastroAdm.path) {
+
+            TelaCadastroAdm(
+                onNavigateUp = { navController.popBackStack() },
+                onCadastrarClick = {
+
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
+            )
         }
 
-        // 🔹 Tela de login com lógica de redirecionamento
+
         composable(Route.Login.path) {
             TelaLogin(
                 onNavigateUp = { navController.popBackStack() },
-                onCadastroClick = { navController.navigate(Route.Cadastro.path) },
+                onCadastroClick = { isAdmin ->
+                    if (isAdmin) {
+                        navController.navigate(Route.TelaCadastroAdm.path)
+                    } else {
+                        navController.navigate(Route.Cadastro.path)
+                    }
+                },
                 onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
                 onEntrarClick = { isAdmin ->
                     if (isAdmin) {
-                        // 👉 Se for admin, vai pra Home ADM
-                        navController.navigate(Route.HomeAdmin.path)
+
+                        navController.navigate(Route.TelaAdminGerenciarSalas.path)
                     } else {
-                        // 👉 Se for usuário, vai pra tela de salas
+
                         navController.navigate(Route.SalasDisponiveis.path)
                     }
                 }
             )
         }
 
-        // 🔹 Exemplo de Home do Admin
-        composable(Route.HomeAdmin.path) {
-            TelaHomeAdmin(navController)
+        composable(Route.TelaAdminGerenciarSalas.path) {
+            TelaAdminGerenciarSalas(
+                onVoltarClick = {
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                },
+                onCadastrarNovaSalaClick = {
+
+                    println("Navegar para Tela de Cadastro de Sala/Mesa")
+                },
+                onGerenciarSalaClick = { salaNome ->
+
+                    navController.navigate("tela_admin_gerenciar_mesas/$salaNome")
+                }
+            )
         }
 
-        // 🔹 Outras telas
+        composable(
+            route = Route.TelaAdminGerenciarMesas.path, // Usa a rota com argumento
+            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
+        ) { backStackEntry -> // Linha onde a Sala está sendo definida
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala Não Encontrada"
+
+            TelaAdminGerenciarMesas( // Linha 99 ou 100
+                salaNome = salaNome, // Linha 100 ou 101
+                onVoltarClick = { navController.popBackStack() },
+                onEditarMesaClick = { mesaNum -> println("Editar $salaNome - $mesaNum") }, // Linha 102
+                onExcluirMesaClick = { mesaNum -> println("Excluir $salaNome - $mesaNum") }, // Linha 103
+                onCadastrarNovaMesaClick = { sala -> println("Cadastrar nova mesa em $sala") } // Linha 104
+            )
+        }
+
+
         composable(Route.Notificacoes.path) { TelaNotificacoes(navController) }
         composable(Route.MenuLateral.path) { MenuLateral(navController = navController) }
         composable(Route.Acessibilidade.path) { TelaAcessibilidade(navController = navController) }
