@@ -254,8 +254,9 @@ fun TelaReservasRealizadas(navController: NavController) {
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_calendar),
-                contentDescription = "Reservas",
-                tint = Color.Gray
+                contentDescription = "Histórico",
+                tint = Color.Gray,
+                modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_list),

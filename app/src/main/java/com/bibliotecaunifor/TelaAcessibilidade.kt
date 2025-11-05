@@ -153,26 +153,27 @@ fun AppBottomNavAcessibilidade(navController: NavController) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Filled.Home,
-            contentDescription = "",
+            painter = painterResource(id = R.drawable.ic_home),
+            contentDescription = "Home",
             tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
         )
+
         Icon(
-            imageVector = Icons.Filled.DateRange,
-            contentDescription = "",
+            painter = painterResource(id = R.drawable.ic_calendar),
+            contentDescription = "Histórico",
+            tint = Color.Gray,
+            modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_list),
+            contentDescription = "Listas",
             tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
         )
         Icon(
-            imageVector = Icons.Filled.List,
-            contentDescription = "",
-            tint = Color.Gray,
-            modifier = Modifier.clickable { navController.navigate(Route.CatalogoLivros.path) }
-        )
-        Icon(
-            imageVector = Icons.Filled.Person,
-            contentDescription = "",
+            painter = painterResource(id = R.drawable.ic_user),
+            contentDescription = "Perfil",
             tint = Color.Gray,
             modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
         )
