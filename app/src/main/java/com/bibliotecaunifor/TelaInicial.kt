@@ -47,6 +47,7 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Route.TelaInicial.path
     ) {
+        // 🔹 Tela inicial
         composable(Route.TelaInicial.path) {
             TelaInicial(
                 onLoginClick = { navController.navigate(Route.Login.path) },
@@ -54,27 +55,33 @@ fun AppNavigation() {
             )
         }
 
+        // 🔹 Tela de login com lógica de redirecionamento
         composable(Route.Login.path) {
             TelaLogin(
                 onNavigateUp = { navController.popBackStack() },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) },
                 onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
-                onEntrarClick = { navController.navigate(Route.SalasDisponiveis.path) }
+                onEntrarClick = { isAdmin ->
+                    if (isAdmin) {
+                        // 👉 Se for admin, vai pra Home ADM
+                        navController.navigate(Route.HomeAdmin.path)
+                    } else {
+                        // 👉 Se for usuário, vai pra tela de salas
+                        navController.navigate(Route.SalasDisponiveis.path)
+                    }
+                }
             )
-
-        }
-        composable(Route.Notificacoes.path) {
-            TelaNotificacoes(navController)
         }
 
-        composable(Route.MenuLateral.path) {
-            MenuLateral(navController = navController)
+        // 🔹 Exemplo de Home do Admin
+        composable(Route.HomeAdmin.path) {
+            TelaHomeAdmin(navController)
         }
 
-        composable(Route.Acessibilidade.path) {
-            TelaAcessibilidade(navController = navController)
-        }
-
+        // 🔹 Outras telas
+        composable(Route.Notificacoes.path) { TelaNotificacoes(navController) }
+        composable(Route.MenuLateral.path) { MenuLateral(navController = navController) }
+        composable(Route.Acessibilidade.path) { TelaAcessibilidade(navController = navController) }
 
         composable(Route.Cadastro.path) {
             TelaCadastro(
@@ -88,9 +95,7 @@ fun AppNavigation() {
         composable(Route.EsqueceuSenha.path) {
             EsqueceuSenhaScreen(
                 onNavigateUp = { navController.popBackStack() },
-                onEnviarClick = { email ->
-                    navController.navigate(Route.EmailRedefinicao.path)
-                }
+                onEnviarClick = { navController.navigate(Route.EmailRedefinicao.path) }
             )
         }
 
@@ -108,8 +113,10 @@ fun AppNavigation() {
                 onVoltarClick = { navController.popBackStack() },
                 onSalaClick = { sala ->
                     navController.navigate("reserva_sala/$sala")
-                })
+                }
+            )
         }
+
         composable(
             Route.Comunicados.path,
             arguments = listOf(
@@ -121,6 +128,7 @@ fun AppNavigation() {
             val mensagem = backStackEntry.arguments?.getString("mensagem")
             TelaComunicados(navController, titulo, mensagem)
         }
+
         composable(
             route = "reserva_sala/{salaNome}",
             arguments = listOf(navArgument("salaNome") { defaultValue = "Sala" })
@@ -132,29 +140,25 @@ fun AppNavigation() {
         composable(Route.ReservaConfirmada.path) {
             TelaReservaConfirmada(navController = navController)
         }
-        composable(Route.PerfilAluno.path) {
-            TelaPerfilAluno(navController)
-        }
-        composable(Route.EditarUsuario.path) {
-            TelaEditarUsuario(navController)
-        }
 
-        composable(Route.CatalogoLivros.path) {
-            TelaCatalogoLivros(navController)
-        }
+        composable(Route.PerfilAluno.path) { TelaPerfilAluno(navController) }
+        composable(Route.EditarUsuario.path) { TelaEditarUsuario(navController) }
+        composable(Route.CatalogoLivros.path) { TelaCatalogoLivros(navController) }
+
         composable("alugar_livro/{livroNome}") { backStackEntry ->
             val livroNome = backStackEntry.arguments?.getString("livroNome") ?: ""
             AlugarLivros(navController, livroNome)
         }
-        composable(Route.ReservasRealizadas.path) {
-            TelaReservasRealizadas(navController)
-        }
+
+        composable(Route.ReservasRealizadas.path) { TelaReservasRealizadas(navController) }
+
         composable(Route.EditarReserva.path) { backStackEntry ->
             val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala 01"
             EditarReserva(navController = navController, salaNome = salaNome)
         }
+
         composable(
-            route = "descricaoLivro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
+            route = "descricaoLivro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}"
         ) { backStackEntry ->
             val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
             val descricao = backStackEntry.arguments?.getString("descricao")
@@ -171,14 +175,9 @@ fun AppNavigation() {
                 disponibilidade = disponibilidade
             )
         }
-        composable(Route.HistoricoReservas.path) {
-            TelaHistoricoReservas(navController)
-        }
-        composable(Route.TelaRenovarLivro.path) {
-            TelaRenovarLivro(navController)
-        }
 
-
+        composable(Route.HistoricoReservas.path) { TelaHistoricoReservas(navController) }
+        composable(Route.TelaRenovarLivro.path) { TelaRenovarLivro(navController) }
     }
 }
 

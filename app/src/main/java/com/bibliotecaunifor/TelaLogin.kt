@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -21,14 +22,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
 @Composable
 fun TelaLogin(
     onNavigateUp: () -> Unit,
     onCadastroClick: () -> Unit,
     onEsqueceuSenhaClick: () -> Unit,
-    onEntrarClick: () -> Unit
+    onEntrarClick: (isAdmin: Boolean) -> Unit // ✅ Agora envia se é admin ou não
 ) {
     val azulUnifor = Color(0xFF004AF5)
     val cinzaCampo = Color(0xFFD0D0D0)
@@ -37,6 +37,7 @@ fun TelaLogin(
 
     var matricula by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
+    var isAdmin by remember { mutableStateOf(false) } // ✅ Novo estado de tipo de login
 
     Box(
         modifier = Modifier
@@ -85,7 +86,7 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // 🔹 Campos centralizados e proporcionais
+            // 🔹 Campos de login
             Text("Matrícula", fontSize = 16.sp, color = branco, modifier = Modifier.align(Alignment.Start))
             Spacer(modifier = Modifier.height(8.dp))
             CampoCinza(
@@ -113,9 +114,43 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 🔹 Botão centralizado igual ao ADM
+            // 🔹 Seletor de tipo de login (Usuário / Admin)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                @Composable
+                fun tipoBotao(text: String, selecionado: Boolean, aoClicar: () -> Unit) {
+                    OutlinedButton(
+                        onClick = aoClicar,
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (selecionado) Color.White else Color.Transparent,
+                            contentColor = if (selecionado) Color(0xFF004AF5) else Color.White
+                        ),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(
+                            width = 1.dp,
+                            brush = SolidColor(Color.White)
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp)
+                    ) {
+                        Text(text, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                tipoBotao("Usuário", selecionado = !isAdmin) { isAdmin = false }
+                tipoBotao("Admin", selecionado = isAdmin) { isAdmin = true }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 🔹 Botão Entrar
             Button(
-                onClick = onEntrarClick,
+                onClick = { onEntrarClick(isAdmin) }, // ✅ Envia o tipo de login
                 colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -127,7 +162,7 @@ fun TelaLogin(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 🔹 Links centralizados como no ADM
+            // 🔹 Links inferiores
             Text(
                 text = "Esqueceu a Senha?",
                 color = branco,
