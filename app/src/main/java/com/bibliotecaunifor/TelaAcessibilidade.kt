@@ -2,12 +2,12 @@ package com.bibliotecaunifor
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -19,20 +19,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+
+
+
+private val CorPrincipal = Color(0xFF044EE7)
+private val CorCinzaIcone = Color.Gray
+private val CorAtivaIcone = Color.Black
+
+
 
 @Composable
-fun AppHeaderAcessibilidade(
-    navController: NavController,
-    menuAberto: MutableState<Boolean>
+fun AlunoTopSection(
+    onNotificacoesClick: () -> Unit,
+    onMenuClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -41,10 +46,11 @@ fun AppHeaderAcessibilidade(
     ) {
         Image(
             painter = painterResource(id = R.drawable.livros),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop
         )
+
 
         Row(
             modifier = Modifier
@@ -54,27 +60,15 @@ fun AppHeaderAcessibilidade(
                 .align(Alignment.TopCenter),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "",
-                    tint = Color.Black
-                )
-            }
-
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(56.dp))
+            Spacer(modifier = Modifier.weight(1f))
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
         }
+
 
         Row(
             modifier = Modifier
@@ -83,29 +77,30 @@ fun AppHeaderAcessibilidade(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IconButton(
-                onClick = { navController.navigate(Route.Notificacoes.path) },
+                onClick = onNotificacoesClick,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "",
+                    contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.size(28.dp)
                 )
             }
 
             IconButton(
-                onClick = { menuAberto.value = !menuAberto.value },
+                onClick = onMenuClick,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Menu,
-                    contentDescription = "",
+                    contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.size(30.dp)
                 )
             }
         }
+
 
         Box(
             modifier = Modifier
@@ -115,229 +110,265 @@ fun AppHeaderAcessibilidade(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    "Reserve sua sala",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    "Biblioteca Unifor",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
+                Text("ACESSIBILIDADE", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+
             }
         }
     }
 }
 
 @Composable
-fun AppBottomNavAcessibilidade(navController: NavController) {
+fun AppBottomNavAlunoPadrao(
+    onHomeClick: () -> Unit,
+    onReservasClick: () -> Unit,
+    onCatalogoClick: () -> Unit,
+    onPerfilClick: () -> Unit,
+    currentRoute: String
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White)
-            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(0.dp)),
-        horizontalArrangement = Arrangement.SpaceAround,
+            .background(Color.White),
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Icon(
-            painter = painterResource(id = R.drawable.ic_home),
-            contentDescription = "Home",
-            tint = Color.Gray,
-            modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
+            painterResource(id = R.drawable.ic_home),
+            contentDescription = null,
+            tint = if (currentRoute == Route.SalasDisponiveis.path) CorAtivaIcone else CorCinzaIcone,
+            modifier = Modifier.clickable(onClick = onHomeClick)
         )
+
         Icon(
             painter = painterResource(id = R.drawable.ic_calendar),
-            contentDescription = "Histórico",
-            tint = Color.Gray,
-            modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+            contentDescription = null,
+            tint = if (currentRoute == Route.ReservasRealizadas.path) CorAtivaIcone else CorCinzaIcone,
+            modifier = Modifier.clickable(onClick = onReservasClick)
         )
+
         Icon(
             painter = painterResource(id = R.drawable.ic_list),
-            contentDescription = "Listas",
-            tint = Color.Gray,
-            modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
+            contentDescription = null,
+            tint = if (currentRoute == Route.CatalogoLivros.path) CorAtivaIcone else CorCinzaIcone,
+            modifier = Modifier.clickable(onClick = onCatalogoClick)
         )
+
         Icon(
             painter = painterResource(id = R.drawable.ic_user),
-            contentDescription = "Perfil",
-            tint = Color.Gray,
-            modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
+            contentDescription = null,
+            tint = if (currentRoute == Route.PerfilAluno.path) CorAtivaIcone else CorCinzaIcone,
+            modifier = Modifier.clickable(onClick = onPerfilClick)
         )
     }
 }
 
-@Composable
-fun TelaAcessibilidade(navController: NavController) {
-    var selectedFontSize by remember { mutableStateOf(0) }
-    var selectedColorBlindness by remember { mutableStateOf<String?>(null) }
-    val menuAberto = remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            AppHeaderAcessibilidade(
-                navController = navController,
-                menuAberto = menuAberto
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TelaAcessibilidadeAluno(
+    navController: NavController,
+    onNotificacoesClick: () -> Unit,
+    onVoltarClick: () -> Unit,
+    onMenuClick: () -> Unit,
+
+    onNavHomeClick: () -> Unit,
+    onNavReservasClick: () -> Unit,
+    onNavCatalogoClick: () -> Unit,
+    onNavPerfilClick: () -> Unit,
+    currentRoute: String
+) {
+    var menuLateralAberto by remember { mutableStateOf(false) }
+    var tamanhoFonteSelecionado by remember { mutableStateOf("MÉDIO") }
+    var modoEscuroAtivo by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+
+            AlunoTopSection(
+                onNotificacoesClick = onNotificacoesClick,
+                onMenuClick = { menuLateralAberto = true }
             )
-        },
-        bottomBar = { AppBottomNavAcessibilidade(navController = navController) }
-    ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize()) {
+
+
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Color.White)
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("FONTE", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
-                    Text("ACESSIBILIDADE", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
-                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "CONFIGURAÇÕES",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 16.dp, top = 8.dp)
+                )
+
+                Text(
+                    "FONTE",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
 
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceAround,
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        FontOption(
-                            text = "aA",
-                            fontSize = 20.sp,
-                            isSelected = selectedFontSize == 0,
-                            onClick = { selectedFontSize = 0 }
+                        TamanhoFonteOpcao(
+                            label = "aA",
+                            size = androidx.compose.ui.unit.TextUnit(18f, androidx.compose.ui.unit.TextUnitType.Sp),
+                            isSelected = tamanhoFonteSelecionado == "PEQUENO",
+                            onClick = { tamanhoFonteSelecionado = "PEQUENO" }
                         )
-                        FontOption(
-                            text = "aA",
-                            fontSize = 30.sp,
-                            isSelected = selectedFontSize == 1,
-                            onClick = { selectedFontSize = 1 }
+                        TamanhoFonteOpcao(
+                            label = "aA",
+                            size = androidx.compose.ui.unit.TextUnit(24f, androidx.compose.ui.unit.TextUnitType.Sp),
+                            isSelected = tamanhoFonteSelecionado == "MÉDIO",
+                            onClick = { tamanhoFonteSelecionado = "MÉDIO" }
                         )
-                        FontOption(
-                            text = "aA",
-                            fontSize = 40.sp,
-                            isSelected = selectedFontSize == 2,
-                            onClick = { selectedFontSize = 2 }
+                        TamanhoFonteOpcao(
+                            label = "aA",
+                            size = androidx.compose.ui.unit.TextUnit(32f, androidx.compose.ui.unit.TextUnitType.Sp),
+                            isSelected = tamanhoFonteSelecionado == "GRANDE",
+                            onClick = { tamanhoFonteSelecionado = "GRANDE" }
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(24.dp))
+
                 Text(
-                    "DALTONISMO",
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 8.dp)
+                    "MODO ESCURO",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    ColorBlindnessOption("ACROMATIA", "Acromatia", selectedColorBlindness, { selectedColorBlindness = it })
-                    ColorBlindnessOption("TRITANOPIA", "Tritanopia", selectedColorBlindness, { selectedColorBlindness = it })
-                    ColorBlindnessOption("PROTANOPIA", "Protanopia", selectedColorBlindness, { selectedColorBlindness = it })
-                    ColorBlindnessOption("DEUTERANOPIA", "Deuteranopia", selectedColorBlindness, { selectedColorBlindness = it })
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Switch(
+                            checked = modoEscuroAtivo,
+                            onCheckedChange = { modoEscuroAtivo = it },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = CorPrincipal,
+                                uncheckedThumbColor = Color.Gray,
+                                uncheckedTrackColor = Color.LightGray
+                            )
+                        )
+                    }
                 }
             }
 
-            if (menuAberto.value) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.4f))
-                        .zIndex(0.5f)
-                        .clickable { menuAberto.value = false }
-                )
-                MenuLateral(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .zIndex(1f)
-                        .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
-                    navController = navController
-                )
-            }
+
+            AppBottomNavAlunoPadrao(
+                onHomeClick = onNavHomeClick,
+                onReservasClick = onNavReservasClick,
+                onCatalogoClick = onNavCatalogoClick,
+                onPerfilClick = onNavPerfilClick,
+                currentRoute = currentRoute
+            )
+        }
+
+
+        if (menuLateralAberto) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .zIndex(0.5f)
+                    .clickable(
+                        onClick = { menuLateralAberto = false },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
+            )
+
+
+            MenuLateral(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .zIndex(1f)
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.75f)
+                    .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
+                navController = navController
+            )
         }
     }
 }
 
 @Composable
-fun FontOption(
-    text: String,
-    fontSize: TextUnit,
+fun TamanhoFonteOpcao(
+    label: String,
+    size: androidx.compose.ui.unit.TextUnit,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = text,
-            fontSize = fontSize,
+            text = label,
+            fontSize = size,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = Color.Black.copy(alpha = 0.8f)
         )
+        Spacer(modifier = Modifier.height(8.dp))
         RadioButton(
             selected = isSelected,
             onClick = onClick,
             colors = RadioButtonDefaults.colors(
-                selectedColor = Color(0xFF004AF5),
+                selectedColor = CorPrincipal,
                 unselectedColor = Color.Gray
-            )
-        )
-    }
-}
-
-@Composable
-fun ColorBlindnessOption(
-    label: String,
-    value: String,
-    selectedValue: String?,
-    onValueChange: (String?) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onValueChange(if (selectedValue == value) null else value) }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            color = Color.Black,
-            modifier = Modifier.weight(1f)
-        )
-        RadioButton(
-            selected = selectedValue == value,
-            onClick = { onValueChange(if (selectedValue == value) null else value) },
-            colors = RadioButtonDefaults.colors(
-                selectedColor = Color(0xFF004AF5),
-                unselectedColor = Color.Gray
-            )
+            ),
+            modifier = Modifier.size(24.dp).clip(CircleShape)
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun TelaAcessibilidadePreview() {
-    val navController = rememberNavController()
-    BibliotecaUniforTheme {
-        TelaAcessibilidade(navController)
-    }
+fun TelaAcessibilidadeAlunoPreview() {
+    TelaAcessibilidadeAluno(
+        navController = rememberNavController(),
+        onVoltarClick = { },
+        onNotificacoesClick = { },
+        onMenuClick = { },
+        onNavHomeClick = { },
+        onNavReservasClick = { },
+        onNavCatalogoClick = { },
+        onNavPerfilClick = { },
+        currentRoute = Route.Acessibilidade.path
+    )
 }

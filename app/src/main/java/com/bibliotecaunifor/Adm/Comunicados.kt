@@ -1,4 +1,4 @@
-package com.bibliotecaunifor
+package com.bibliotecaunifor.Adm
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
 val azulUifrBotao = Color(0xFF044EE7)

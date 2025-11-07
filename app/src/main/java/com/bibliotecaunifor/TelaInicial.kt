@@ -16,18 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.bibliotecaunifor.Adm.*
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import androidx.navigation.NavType
-import com.bibliotecaunifor.Adm.TelaAdminGerenciarSalas
-import com.bibliotecaunifor.Adm.TelaAdminGerenciarMesas
-import com.bibliotecaunifor.Adm.TelaCadastroAdm
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,17 +45,51 @@ class TelaInicialActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = Route.TelaInicial.path
-    ) {
+    NavHost(navController = navController, startDestination = Route.TelaInicial.path) {
         composable(Route.TelaInicial.path) {
             TelaInicial(
                 onLoginClick = { navController.navigate(Route.Login.path) },
                 onCadastroClick = { navController.navigate(Route.Cadastro.path) }
             )
         }
+
+        composable(Route.Login.path) {
+            TelaLogin(
+                onNavigateUp = { navController.popBackStack() },
+                onCadastroClick = { isAdmin ->
+                    if (isAdmin) navController.navigate(Route.TelaCadastroAdm.path)
+                    else navController.navigate(Route.Cadastro.path)
+                },
+                onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
+                onEntrarClick = { isAdmin ->
+                    if (isAdmin) navController.navigate(Route.TelaAdminGerenciarSalas.path)
+                    else navController.navigate(Route.SalasDisponiveis.path)
+                }
+            )
+        }
+
+        composable(Route.Cadastro.path) {
+            TelaCadastro(
+                onNavigateUp = { navController.popBackStack() },
+                onCadastrarClick = { navController.popBackStack(Route.Login.path, inclusive = false) }
+            )
+        }
+
+        composable(Route.EsqueceuSenha.path) {
+            EsqueceuSenhaScreen(
+                onNavigateUp = { navController.popBackStack() },
+                onEnviarClick = { navController.navigate(Route.EmailRedefinicao.path) }
+            )
+        }
+
+        composable(Route.EmailRedefinicao.path) {
+            EmailRedefinicaoScreen(
+                onNavigateBackToLogin = {
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
+            )
+        }
+
         composable(Route.TelaCadastroAdm.path) {
             TelaCadastroAdm(
                 onNavigateUp = { navController.popBackStack() },
@@ -64,128 +98,308 @@ fun AppNavigation() {
                 }
             )
         }
-        composable(Route.Login.path) {
-            TelaLogin(
-                onNavigateUp = { navController.popBackStack() },
-                onCadastroClick = { isAdmin ->
-                    if (isAdmin) {
-                        navController.navigate(Route.TelaCadastroAdm.path)
-                    } else {
-                        navController.navigate(Route.Cadastro.path)
-                    }
-                },
-                onEsqueceuSenhaClick = { navController.navigate(Route.EsqueceuSenha.path) },
-                onEntrarClick = { isAdmin ->
-                    if (isAdmin) {
-                        navController.navigate(Route.TelaAdminGerenciarSalas.path)
-                    } else {
-                        navController.navigate(Route.SalasDisponiveis.path)
-                    }
-                }
-            )
-        }
+
         composable(Route.TelaAdminGerenciarSalas.path) {
             TelaAdminGerenciarSalas(
-                onVoltarClick = {
-                    navController.popBackStack(Route.Login.path, inclusive = false)
-                },
-                onCadastrarNovaSalaClick = {
-                    println("Navegar para Tela de Cadastro de Sala/Mesa")
-                },
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onCadastrarNovaSalaClick = {},
                 onGerenciarSalaClick = { salaNome ->
-                    navController.navigate("tela_admin_gerenciar_mesas/$salaNome")
-                }
+                    navController.navigate(Route.adminGerenciarMesas(salaNome))
+                },
+                onNavHomeClick = {},
+                onNavHistoricoClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavListasClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                currentRoute = Route.TelaAdminGerenciarSalas.path
             )
         }
+
         composable(
             route = Route.TelaAdminGerenciarMesas.path,
             arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
         ) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala Não Encontrada"
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
             TelaAdminGerenciarMesas(
                 salaNome = salaNome,
                 onVoltarClick = { navController.popBackStack() },
-                onEditarMesaClick = { mesaNum -> println("Editar $salaNome - $mesaNum") },
-                onExcluirMesaClick = { mesaNum -> println("Excluir $salaNome - $mesaNum") },
-                onCadastrarNovaMesaClick = { sala -> println("Cadastrar nova mesa em $sala") }
+                onEditarMesaClick = {},
+                onExcluirMesaClick = {},
+                onCadastrarNovaMesaClick = {}
             )
         }
-        composable(Route.Notificacoes.path) { TelaNotificacoes(navController) }
-        composable(Route.MenuLateral.path) { MenuLateral(navController = navController) }
-        composable(Route.Acessibilidade.path) { TelaAcessibilidade(navController = navController) }
-        composable(Route.Cadastro.path) {
-            TelaCadastro(
-                onNavigateUp = { navController.popBackStack() },
-                onCadastrarClick = {
-                    navController.popBackStack(Route.Login.path, inclusive = false)
+
+        composable(
+            route = "tela_admin_editar_livro/{tituloLivro}",
+            arguments = listOf(navArgument("tituloLivro") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val tituloLivro = backStackEntry.arguments?.getString("tituloLivro") ?: ""
+            TelaAdminEditarLivro(
+                navController = navController,
+                tituloLivro = tituloLivro,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onSalvarEdicaoClick = { _, _, _, _, _, _ ->
+                    navController.popBackStack()
                 }
             )
         }
-        composable(Route.EsqueceuSenha.path) {
-            EsqueceuSenhaScreen(
-                onNavigateUp = { navController.popBackStack() },
-                onEnviarClick = { navController.navigate(Route.EmailRedefinicao.path) }
+
+        composable(Route.TelaAdminGerenciarUsuarios.path) {
+            TelaAdminGerenciarUsuarios(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavUsuariosClick = {},
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                onCadastrarUsuarioClick = { navController.navigate(Route.TelaAdminCadastrarUsuario.path) },
+                onEditarUsuarioClick = { usuario ->
+                    val nomeCodificado = URLEncoder.encode(usuario.nome, StandardCharsets.UTF_8.toString())
+                    navController.navigate(Route.adminEditarUsuario(nomeCodificado))
+                },
+                onExcluirUsuarioClick = {},
+                currentRoute = Route.TelaAdminGerenciarUsuarios.path
             )
         }
-        composable(Route.EmailRedefinicao.path) {
-            EmailRedefinicaoScreen(
+
+        composable(Route.TelaAdminCadastrarUsuario.path) {
+            TelaAdminCadastrarUsuario(
+                onVoltarClick = { navController.popBackStack() },
+                onConfirmarCadastro = { _, _, _, _, _, _ ->
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = Route.TelaAdminEditarUsuario.path,
+            arguments = listOf(navArgument("nomeUsuario") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val nomeUsuario = backStackEntry.arguments?.getString("nomeUsuario") ?: ""
+            TelaAdminEditarUsuario(
+                nomeUsuario = nomeUsuario,
+                onVoltarClick = { navController.popBackStack() },
+                onConfirmarEdicao = { _, _, _, _, _, _ ->
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Route.TelaAdminReservasRealizadas.path) {
+            TelaAdminReservasRealizadas(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onDownloadRelatorioClick = { println("Baixando relatório...") },
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = {},
+                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                currentRoute = Route.TelaAdminReservasRealizadas.path
+            )
+        }
+
+        composable(Route.TelaAdminEditarPerfil.path) {
+            TelaAdminEditarPerfil(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onConfirmarEdicao = { _, _, _, _, _ ->
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Route.TelaPerfilAdmin.path) {
+            TelaPerfilAdmin(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onEditarClick = { navController.navigate(Route.TelaAdminEditarPerfil.path) },
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = {},
+                currentRoute = Route.TelaPerfilAdmin.path
+            )
+        }
+
+        composable(Route.TelaAcessibilidadeAdmin.path) {
+            TelaAcessibilidadeAdmin(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                currentRoute = Route.TelaAcessibilidadeAdmin.path
+            )
+        }
+
+        composable(Route.TelaCatalogoLivrosAdmin.path) {
+            TelaCatalogoLivrosAdmin(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onMenuClick = {},
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                currentRoute = Route.TelaCatalogoLivrosAdmin.path,
+                onAdicionarLivroClick = { navController.navigate(Route.TelaAdicionarLivroAdmin.path) },
+                onEditarLivroClick = { livro ->
+                    val tituloCodificado = java.net.URLEncoder.encode(livro.titulo, "UTF-8")
+                    navController.navigate("tela_admin_editar_livro/$tituloCodificado")
+                },
+                onExcluirLivroClick = { livro ->
+                    println("Excluindo livro: ${livro.titulo}")
+                }
+            )
+        }
+
+        composable(Route.TelaAdicionarLivroAdmin.path) {
+            TelaAdicionarLivroAdmin(navController = navController)
+        }
+
+        composable(Route.Comunicados.path) {
+            ComunicadosScreen(
+                onSendMessage = {
+                    println("Comunicado enviado!")
+                    navController.navigate(Route.ComunicadoEnviado.path)
+                }
+            )
+        }
+
+        composable(Route.ComunicadoEnviado.path) {
+            ComunicadoEnviadoScreen(
                 onNavigateBackToLogin = {
-                    navController.popBackStack(Route.Login.path, inclusive = false)
+                    navController.popBackStack(Route.Comunicados.path, inclusive = false)
                 }
             )
         }
+
+        composable(Route.RegrasDoSistema.path) {
+            RegrasDoSistema(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
+                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
+                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
+                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
+                currentRoute = Route.RegrasDoSistema.path
+            )
+        }
+
         composable(Route.SalasDisponiveis.path) {
             TelaSalasDisponiveis(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
                 onSalaClick = { sala ->
-                    navController.navigate("reserva_sala/$sala")
+                    navController.navigate(Route.reservaSala(sala))
                 }
             )
         }
-        composable(
-            Route.Comunicados.path,
-            arguments = listOf(
-                navArgument("titulo") { type = NavType.StringType },
-                navArgument("mensagem") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val titulo = backStackEntry.arguments?.getString("titulo")
-            val mensagem = backStackEntry.arguments?.getString("mensagem")
-            TelaComunicados(navController, titulo, mensagem)
-        }
+
         composable(
             route = "reserva_sala/{salaNome}",
-            arguments = listOf(navArgument("salaNome") { defaultValue = "Sala" })
+            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
         ) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala"
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
             TelaReservaSala(navController = navController, salaNome = salaNome)
         }
+
         composable(Route.ReservaConfirmada.path) {
             TelaReservaConfirmada(navController = navController)
         }
-        composable(Route.PerfilAluno.path) { TelaPerfilAluno(navController) }
-        composable(Route.EditarUsuario.path) { TelaEditarUsuario(navController) }
-        composable(Route.CatalogoLivros.path) { TelaCatalogoLivros(navController) }
-        composable("alugar_livro/{livroNome}") { backStackEntry ->
-            val livroNome = backStackEntry.arguments?.getString("livroNome") ?: ""
-            AlugarLivros(navController, livroNome)
+
+        composable(Route.PerfilAluno.path) {
+            TelaPerfilAluno(navController = navController)
         }
-        composable(Route.ReservasRealizadas.path) { TelaReservasRealizadas(navController) }
-        composable(Route.EditarReserva.path) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: "Sala 01"
+
+        composable(Route.EditarUsuario.path) {
+            TelaEditarUsuario(navController = navController)
+        }
+
+        composable(Route.CatalogoLivros.path) {
+            TelaCatalogoLivros(navController = navController)
+        }
+
+        composable(Route.ReservasRealizadas.path) {
+            TelaReservasRealizadas(navController = navController)
+        }
+
+        composable(Route.HistoricoReservas.path) {
+            TelaHistoricoReservas(navController = navController)
+        }
+
+        composable(Route.TelaRenovarLivro.path) {
+            TelaRenovarLivro(navController = navController)
+        }
+
+        composable(Route.Notificacoes.path) {
+            TelaNotificacoes(navController = navController)
+        }
+
+        composable(Route.MenuLateral.path) {
+            MenuLateral(navController = navController)
+        }
+
+        composable(Route.Acessibilidade.path) {
+            TelaAcessibilidadeAluno(
+                navController = navController,
+                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onVoltarClick = { navController.popBackStack() },
+                onMenuClick = {},
+                onNavHomeClick = { navController.navigate(Route.SalasDisponiveis.path) },
+                onNavReservasClick = { navController.navigate(Route.ReservasRealizadas.path) },
+                onNavCatalogoClick = { navController.navigate(Route.CatalogoLivros.path) },
+                onNavPerfilClick = { navController.navigate(Route.PerfilAluno.path) },
+                currentRoute = Route.Acessibilidade.path
+            )
+        }
+
+        composable(
+            route = "alugar_livro/{livroNome}",
+            arguments = listOf(navArgument("livroNome") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val livroNome = backStackEntry.arguments?.getString("livroNome") ?: ""
+            AlugarLivros(navController = navController, livroNome = livroNome)
+        }
+
+        composable(
+            route = "tela_editar_reserva/{salaNome}",
+            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
             EditarReserva(navController = navController, salaNome = salaNome)
         }
+
         composable(
-            route = "descricaoLivro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}"
+            route = "descricao_livro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
+            arguments = listOf(
+                navArgument("titulo") { type = NavType.StringType },
+                navArgument("descricao") { type = NavType.StringType },
+                navArgument("genero") { type = NavType.StringType },
+                navArgument("autor") { type = NavType.StringType },
+                navArgument("disponibilidade") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
-            val descricao = backStackEntry.arguments?.getString("descricao")
-            val genero = backStackEntry.arguments?.getString("genero")
-            val autor = backStackEntry.arguments?.getString("autor")
-            val disponibilidade = backStackEntry.arguments?.getString("disponibilidade")
+            val descricao = backStackEntry.arguments?.getString("descricao") ?: ""
+            val genero = backStackEntry.arguments?.getString("genero") ?: ""
+            val autor = backStackEntry.arguments?.getString("autor") ?: ""
+            val disponibilidade = backStackEntry.arguments?.getString("disponibilidade") ?: ""
             TelaDescricaoLivro(
-                navController,
+                navController = navController,
                 tituloLivro = titulo,
                 descricao = descricao,
                 genero = genero,
@@ -193,8 +407,22 @@ fun AppNavigation() {
                 disponibilidade = disponibilidade
             )
         }
-        composable(Route.HistoricoReservas.path) { TelaHistoricoReservas(navController) }
-        composable(Route.TelaRenovarLivro.path) { TelaRenovarLivro(navController) }
+
+        composable(
+            route = "comunicados/{titulo}/{mensagem}",
+            arguments = listOf(
+                navArgument("titulo") { type = NavType.StringType },
+                navArgument("mensagem") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
+            val mensagem = backStackEntry.arguments?.getString("mensagem") ?: ""
+            TelaComunicados(
+                navController = navController,
+                tituloNotificacao = titulo,
+                mensagemCorpo = mensagem
+            )
+        }
     }
 }
 
@@ -225,16 +453,17 @@ fun TelaInicial(
                     .padding(top = 40.dp, bottom = 16.dp),
                 contentScale = ContentScale.FillWidth
             )
+
             Text(
                 text = "Bem vindo ao aplicativo da\nBiblioteca da UNIFOR",
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
                 color = Color.White,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 32.dp)
             )
+
             Image(
                 painter = painterResource(id = R.drawable.mascote_mesa),
                 contentDescription = "Mascote Unifor",
@@ -244,7 +473,9 @@ fun TelaInicial(
                     .padding(vertical = 16.dp),
                 contentScale = ContentScale.Fit
             )
+
             Spacer(modifier = Modifier.weight(1f))
+
             Button(
                 onClick = onLoginClick,
                 colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
@@ -253,14 +484,11 @@ fun TelaInicial(
                     .fillMaxWidth()
                     .height(55.dp)
             ) {
-                Text(
-                    text = "Login",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Login", color = Color.Black, fontSize = 18.sp)
             }
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Button(
                 onClick = onCadastroClick,
                 colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),
@@ -269,13 +497,9 @@ fun TelaInicial(
                     .fillMaxWidth()
                     .height(55.dp)
             ) {
-                Text(
-                    text = "Cadastre-se",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Cadastre-se", color = Color.Black, fontSize = 18.sp)
             }
+
             Spacer(modifier = Modifier.height(60.dp))
         }
     }
