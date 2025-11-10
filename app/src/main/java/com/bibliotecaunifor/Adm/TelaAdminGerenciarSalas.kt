@@ -209,6 +209,30 @@ fun TelaAdminGerenciarSalas(
                         fontWeight = FontWeight.Bold
                     )
                 }
+                }
+
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 100.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(Route.TelaChatbotAdmin.path)
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(50.dp),
+                containerColor = azulPrimario,
+                contentColor = Color.White
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.unibo),
+                    contentDescription = "Chatbot Unibô",
+                    modifier = Modifier.size(30.dp)
+                )
             }
         }
 

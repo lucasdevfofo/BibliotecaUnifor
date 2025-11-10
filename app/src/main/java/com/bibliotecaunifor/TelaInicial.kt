@@ -138,7 +138,7 @@ fun AppNavigation() {
                 navController = navController,
                 tituloLivro = tituloLivro,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onSalvarEdicaoClick = { _, _, _, _, _, _ ->
                     navController.popBackStack()
@@ -191,7 +191,7 @@ fun AppNavigation() {
             TelaAdminReservasRealizadas(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onDownloadRelatorioClick = { println("Baixando relatório...") },
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
@@ -206,7 +206,7 @@ fun AppNavigation() {
             TelaAdminEditarPerfil(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onConfirmarEdicao = { _, _, _, _, _ ->
                     navController.popBackStack()
@@ -218,7 +218,7 @@ fun AppNavigation() {
             TelaPerfilAdmin(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onEditarClick = { navController.navigate(Route.TelaAdminEditarPerfil.path) },
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
@@ -233,7 +233,7 @@ fun AppNavigation() {
             TelaAcessibilidadeAdmin(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
                 onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
@@ -247,7 +247,7 @@ fun AppNavigation() {
             TelaCatalogoLivrosAdmin(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
                 onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
@@ -281,7 +281,7 @@ fun AppNavigation() {
         composable(Route.ComunicadoEnviado.path) {
             ComunicadoEnviadoScreen(
                 onNavigateBackToLogin = {
-                    navController.popBackStack(Route.Comunicados.path, inclusive = false)
+                    navController.popBackStack(Route.TelaNotificacoesAdmin.path, inclusive = false)
                 }
             )
         }
@@ -290,7 +290,7 @@ fun AppNavigation() {
             RegrasDoSistema(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
                 onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
                 onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
@@ -422,9 +422,27 @@ fun AppNavigation() {
                 tituloNotificacao = titulo,
                 mensagemCorpo = mensagem
             )
+
         }
-    }
-}
+        composable(Route.TelaChatbotAdmin.path) {
+            TelaChatbot(
+                onVoltarClick = { navController.popBackStack() }
+            )
+
+            }
+        composable(Route.TelaNotificacoesAdmin.path) {
+            TelaNotificacoesAdmin(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { },
+                onMenuClick = { },
+                onEnviarComunicadoClick = { navController.navigate(Route.Comunicados.path) }
+            )
+        }
+    } // ← Esta chave fecha o NavHost
+} // ← Esta chave fecha o AppNavigation
+
+
 
 @Composable
 fun TelaInicial(
@@ -502,5 +520,4 @@ fun TelaInicial(
 
             Spacer(modifier = Modifier.height(60.dp))
         }
-    }
-}
+        }}

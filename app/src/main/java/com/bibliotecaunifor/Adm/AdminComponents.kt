@@ -3,6 +3,8 @@ package com.bibliotecaunifor.Adm
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
@@ -16,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -244,6 +247,107 @@ fun AdminTopBarPerfil(
                     modifier = Modifier.size(30.dp)
                 )
             }
+        }
+    }
+}
+@Composable
+fun ChatbotTopBarMinimal(
+    onVoltarClick: () -> Unit,
+    onNotificacoesClick: () -> Unit,
+    onMenuClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .background(
+                color = Color(0xFF3F4F78),
+                shape = RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                )
+            )
+    ) {
+        // Barra branca no topo (igual às outras telas)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color.White)
+                .align(Alignment.TopCenter)
+        )
+
+        IconButton(
+            onClick = onVoltarClick,
+            modifier = Modifier
+                .size(56.dp)
+                .align(Alignment.TopStart)
+                .zIndex(2f)
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.Black, modifier = Modifier.size(30.dp))
+        }
+
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo UNIFOR",
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.TopCenter)
+                .offset(y = 8.dp)
+                .zIndex(2f)
+        )
+
+        // Botões de notificações e menu
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 16.dp, top = 8.dp)
+                .zIndex(2f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            IconButton(
+                onClick = onNotificacoesClick,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(Icons.Outlined.Notifications, "Notificações", tint = Color.Black, modifier = Modifier.size(28.dp))
+            }
+
+            IconButton(
+                onClick = onMenuClick,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(Icons.Outlined.Menu, "Menu", tint = Color.Black, modifier = Modifier.size(30.dp))
+            }
+        }
+
+        // Foto do Unibô + texto na parte azul
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Foto do Unibô (substitua R.drawable.unibo pelo seu drawable)
+            Image(
+                painter = painterResource(id = R.drawable.unibo),
+                contentDescription = "Unibô",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Text(
+                text = "Unibô",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

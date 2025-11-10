@@ -35,8 +35,10 @@ fun ComunicadoEnviadoScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.imagem_principal),
-            contentDescription = "Imagem principal"
+            painter = painterResource(id = R.drawable.emacomverificado),
+            contentDescription = "Imagem principal",
+            modifier = Modifier.size(250.dp)
+
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
