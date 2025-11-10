@@ -1,5 +1,6 @@
 package com.bibliotecaunifor
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,7 +27,8 @@ import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 @Composable
 fun TelaCadastro(
     onNavigateUp: () -> Unit,
-    onCadastrarClick: () -> Unit
+    onCadastrarClick: () -> Unit,
+    onIrParaAdminClick: () -> Unit // 👈 novo callback pra ir pra tela admin
 ) {
     val cinzaCampo = Color(0xFFF2F2F2)
     val azulBotao = Color(0xFF2E4C93)
@@ -106,6 +108,50 @@ fun TelaCadastro(
         }
 
         Spacer(modifier = Modifier.height(14.dp))
+
+        // ------------------- BOTÕES USUÁRIO / ADMIN -------------------
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { /* já está na tela de usuário */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = azulBotao
+                ),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+            ) {
+                Text(
+                    text = "Usuário",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            OutlinedButton(
+                onClick = { onIrParaAdminClick() }, // 👈 chama o callback de navegação
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = azulBotao
+                ),
+                border = BorderStroke(2.dp, azulBotao),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+            ) {
+                Text(
+                    text = "Admin",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        // ---------------------------------------------------------------
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
@@ -213,6 +259,6 @@ fun CampoCinza(
 @Composable
 fun TelaCadastroPreview() {
     BibliotecaUniforTheme {
-        TelaCadastro(onNavigateUp = {}, onCadastrarClick = {})
+        TelaCadastro(onNavigateUp = {}, onCadastrarClick = {}, onIrParaAdminClick = {})
     }
 }

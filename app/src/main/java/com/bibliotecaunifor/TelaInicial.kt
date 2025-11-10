@@ -71,9 +71,11 @@ fun AppNavigation() {
         composable(Route.Cadastro.path) {
             TelaCadastro(
                 onNavigateUp = { navController.popBackStack() },
-                onCadastrarClick = { navController.popBackStack(Route.Login.path, inclusive = false) }
+                onCadastrarClick = { navController.popBackStack(Route.Login.path, inclusive = false) },
+                onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) } // 👈 adiciona isso
             )
         }
+
 
         composable(Route.EsqueceuSenha.path) {
             EsqueceuSenhaScreen(
@@ -95,9 +97,11 @@ fun AppNavigation() {
                 onNavigateUp = { navController.popBackStack() },
                 onCadastrarClick = {
                     navController.popBackStack(Route.Login.path, inclusive = false)
-                }
+                },
+                onIrParaUsuarioClick = { navController.navigate(Route.Cadastro.path) } // 👈 volta pro cadastro normal
             )
         }
+
 
         composable(Route.TelaAdminGerenciarSalas.path) {
             TelaAdminGerenciarSalas(

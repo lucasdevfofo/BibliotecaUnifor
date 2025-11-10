@@ -1,15 +1,12 @@
 package com.bibliotecaunifor.Adm
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -24,21 +21,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.platform.LocalContext
-import android.widget.Toast
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import com.bibliotecaunifor.R
+import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
-
-
-// O @Composable TelaCadastroAdm e CampoCinzaAdm permanecem no mesmo arquivo
 @Composable
 fun TelaCadastroAdm(
     onNavigateUp: () -> Unit,
-    onCadastrarClick: () -> Unit
+    onCadastrarClick: () -> Unit,
+    onIrParaUsuarioClick: () -> Unit // 👈 novo callback pra voltar pro cadastro de usuário
 ) {
     val azulBotao = Color(0xFF3F4F78)
 
@@ -55,7 +48,6 @@ fun TelaCadastroAdm(
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,7 +60,7 @@ fun TelaCadastroAdm(
                 contentScale = ContentScale.Crop
             )
 
-            // Bar for back button and logo
+            // Barra superior com botão de voltar e logo
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -88,17 +80,13 @@ fun TelaCadastroAdm(
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f)) // Espaço para centralizar
-
+                Spacer(modifier = Modifier.weight(1f))
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo",
                     modifier = Modifier.size(40.dp)
                 )
-
-                Spacer(modifier = Modifier.weight(1f)) // Espaço para centralizar
-
-                // Filler para o lado direito (simulando icons laterais)
+                Spacer(modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(60.dp))
             }
 
@@ -109,9 +97,7 @@ fun TelaCadastroAdm(
                     .align(Alignment.BottomCenter),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "Reserve sua sala",
                         color = Color.White,
@@ -130,6 +116,50 @@ fun TelaCadastroAdm(
         }
 
         Spacer(modifier = Modifier.height(14.dp))
+
+        // ------------------- BOTÕES USUÁRIO / ADMIN -------------------
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = { onIrParaUsuarioClick() }, // 👈 volta pra tela de cadastro normal
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = azulBotao
+                ),
+                border = BorderStroke(2.dp, azulBotao),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+            ) {
+                Text(
+                    text = "Usuário",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Button(
+                onClick = { /* já está na tela admin */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = azulBotao
+                ),
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+            ) {
+                Text(
+                    text = "Admin",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        // ---------------------------------------------------------------
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
@@ -235,6 +265,6 @@ fun CampoCinzaAdm(
 @Composable
 fun TelaCadastroAdmPreview() {
     BibliotecaUniforTheme {
-        TelaCadastroAdm(onNavigateUp = {}, onCadastrarClick = {})
+        TelaCadastroAdm(onNavigateUp = {}, onCadastrarClick = {}, onIrParaUsuarioClick = {})
     }
 }
