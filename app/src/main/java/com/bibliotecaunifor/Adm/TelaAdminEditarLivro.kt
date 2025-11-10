@@ -1,189 +1,259 @@
 package com.bibliotecaunifor.Adm
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-
+import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaAdminCadastrarUsuario(
+fun TelaAdminEditarLivro(
+    navController: NavController,
+    tituloLivro: String,
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
     onMenuClick: () -> Unit,
-    onConfirmarCadastro: (
-        novoNome: String,
-        novaMatricula: String,
-        novoEmail: String,
-        novoTelefone: String,
-        novoCpf: String,
-        novoCurso: String
+    onSalvarEdicaoClick: (
+        titulo: String,
+        autor: String,
+        genero: String,
+        descricao: String,
+        isbn: String,
+        quantidade: Int
     ) -> Unit
 ) {
-    val azulPrimario = Color(0xFF3F4F78)
-    val cinzaClaroFundo = Color(0xFFF3F3F3)
+    var menuLateralAberto by remember { mutableStateOf(false) } // ← ESTADO DO MENU
 
-    var nome by remember { mutableStateOf("") }
-    var matricula by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var telefone by remember { mutableStateOf("") }
-    var cpf by remember { mutableStateOf("") }
-    var curso by remember { mutableStateOf("") }
+    val corPrincipal = Color(0xFF044EE7)
+    val corFundoInput = Color(0xFFF2F2F2)
+    val scrollState = rememberScrollState()
+
+    val tituloOriginal = URLDecoder.decode(tituloLivro, StandardCharsets.UTF_8.toString())
+
+    var titulo by remember { mutableStateOf(TextFieldValue(tituloOriginal)) }
+    var autor by remember { mutableStateOf(TextFieldValue("Antoine de Saint-Exupéry")) }
+    var genero by remember { mutableStateOf(TextFieldValue("Fábula Filosófica")) }
+    var descricao by remember { mutableStateOf(TextFieldValue("Uma fábula sobre um menino que viaja por planetas e aprende lições sobre amor, amizade e a essência da vida.")) }
+    var isbn by remember { mutableStateOf(TextFieldValue("978-85-359-2218-8")) }
+    var quantidade by remember { mutableStateOf(TextFieldValue("5")) }
 
 
-    Scaffold(
-        topBar = {
-
-            AdminTopBarUsuarios(
-                onVoltarClick = onVoltarClick,
-                onNotificacoesClick = {   },
-                onMenuClick = {   }
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(cinzaClaroFundo)
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Cadastrar Usuário",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                AdminTopBar(
+                    onVoltarClick = onVoltarClick,
+                    onNotificacoesClick = onNotificacoesClick,
+                    onMenuClick = { menuLateralAberto = true } // ← ABRE O MENU
+                )
+            },
+            bottomBar = {}
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .padding(bottom = 20.dp)
-                    .align(Alignment.Start)
-            )
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Color.White)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    "EDITAR LIVRO",
+                    color = corPrincipal,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    tituloOriginal,
+                    color = Color.Gray,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp)
+                )
+                Divider(color = corPrincipal.copy(alpha = 0.5f), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                CampoEdicaoLivro(
+                    label = "Título do Livro",
+                    value = titulo,
+                    onValueChange = { titulo = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput
+                )
+
+                CampoEdicaoLivro(
+                    label = "Autor",
+                    value = autor,
+                    onValueChange = { autor = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput
+                )
+
+                CampoEdicaoLivro(
+                    label = "Gênero",
+                    value = genero,
+                    onValueChange = { genero = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput
+                )
+
+                CampoEdicaoLivro(
+                    label = "Descrição",
+                    value = descricao,
+                    onValueChange = { descricao = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput,
+                    singleLine = false,
+                    minLines = 3
+                )
+
+                CampoEdicaoLivro(
+                    label = "ISBN",
+                    value = isbn,
+                    onValueChange = { isbn = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput
+                )
+
+                CampoEdicaoLivro(
+                    label = "Quantidade em Estoque",
+                    value = quantidade,
+                    onValueChange = { quantidade = it },
+                    corPrincipal = corPrincipal,
+                    corFundoInput = corFundoInput
+                )
+
+                Spacer(modifier = Modifier.height(48.dp))
+
+                Button(
+                    onClick = {
+                        val quantidadeInt = quantidade.text.toIntOrNull() ?: 0
+                        onSalvarEdicaoClick(
+                            titulo.text,
+                            autor.text,
+                            genero.text,
+                            descricao.text,
+                            isbn.text,
+                            quantidadeInt
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .pointerHoverIcon(PointerIcon.Hand),
+                    colors = ButtonDefaults.buttonColors(containerColor = corPrincipal),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "SALVAR ALTERAÇÕES", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
 
 
+        if (menuLateralAberto) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
-                    .background(Color(0xFFE0E0E0), RoundedCornerShape(32.dp))
-                    .padding(bottom = 20.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .zIndex(4f)
+                    .clickable { menuLateralAberto = false }
             ) {
-                Icon(Icons.Default.Person, contentDescription = "Perfil", modifier = Modifier.size(48.dp), tint = Color.Gray)
-            }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.4f))
+                )
 
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            OutlinedTextField(
-                value = nome,
-                onValueChange = { nome = it },
-                label = { Text("Nome do Usuário") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp), // Removido o padding bottom
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-
-            OutlinedTextField(
-                value = matricula,
-                onValueChange = { matricula = it },
-                label = { Text("Matrícula") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-
-            OutlinedTextField(
-                value = telefone,
-                onValueChange = { telefone = it },
-                label = { Text("Telefone") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-            Spacer(modifier = Modifier.height(10.dp)) // <-- Espaço de 10.dp
-
-
-            OutlinedTextField(
-                value = cpf,
-                onValueChange = { cpf = it },
-                label = { Text("CPF") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-            Spacer(modifier = Modifier.height(10.dp)) // <-- Espaço de 10.dp
-
-
-            OutlinedTextField(
-                value = curso,
-                onValueChange = { curso = it },
-                label = { Text("Curso") },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth().height(55.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
-            )
-
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-
-            Button(
-                onClick = {
-                    onConfirmarCadastro(nome, matricula, email, telefone, cpf, curso)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(55.dp)
-            ) {
-                Text(
-                    "CONFIRMAR",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                MenuLateralAdmin(
+                    navController = navController,
+                    onLinkClick = { menuLateralAberto = false },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.75f)
                 )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaAdminCadastrarUsuarioPreview() {
-    BibliotecaUniforTheme {
-        TelaAdminCadastrarUsuario(
-            onVoltarClick = {},
-            onNotificacoesClick = {},
-            onMenuClick = {},
-            onConfirmarCadastro = { a, b, c, d, e, f -> }
+fun CampoEdicaoLivro(
+    label: String,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    corPrincipal: Color,
+    corFundoInput: Color,
+    singleLine: Boolean = true,
+    minLines: Int = 1
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(bottom = 4.dp),
+            color = Color.Black.copy(alpha = 0.8f)
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = corPrincipal,
+                unfocusedBorderColor = Color.Gray.copy(alpha = 0.5f),
+                focusedContainerColor = corFundoInput,
+                unfocusedContainerColor = corFundoInput,
+                cursorColor = corPrincipal
+            ),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TelaAdminEditarLivroPreview() {
+    TelaAdminEditarLivro(
+        navController = rememberNavController(),
+        tituloLivro = "O Pequeno Príncipe",
+        onVoltarClick = {},
+        onNotificacoesClick = {},
+        onMenuClick = {},
+        onSalvarEdicaoClick = { _, _, _, _, _, _ -> }
+    )
 }
