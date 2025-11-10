@@ -35,6 +35,7 @@ import com.bibliotecaunifor.Route
 @Composable
 fun AdminTopBarAdicionar(
     navController: NavController,
+    onNotificacoesClick: () -> Unit,
     onMenuClick: () -> Unit
 ) {
     Box(
@@ -86,7 +87,7 @@ fun AdminTopBarAdicionar(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IconButton(
-                onClick = { navController.navigate(Route.Notificacoes.path) },
+                onClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
             ) {
                 Icon(Icons.Outlined.Notifications, "Notificações", tint = Color.Black, modifier = Modifier.size(28.dp))
@@ -141,7 +142,8 @@ fun TelaAdicionarLivroAdmin(
             topBar = {
                 AdminTopBarAdicionar(
                     navController = navController,
-                    onMenuClick = { menuLateralAberto = true }
+                    onMenuClick = { menuLateralAberto = true },
+                    onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 )
             },
             bottomBar = {

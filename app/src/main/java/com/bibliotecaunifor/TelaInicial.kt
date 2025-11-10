@@ -72,10 +72,9 @@ fun AppNavigation() {
             TelaCadastro(
                 onNavigateUp = { navController.popBackStack() },
                 onCadastrarClick = { navController.popBackStack(Route.Login.path, inclusive = false) },
-                onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) } // 👈 adiciona isso
+                onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) }
             )
         }
-
 
         composable(Route.EsqueceuSenha.path) {
             EsqueceuSenhaScreen(
@@ -98,15 +97,16 @@ fun AppNavigation() {
                 onCadastrarClick = {
                     navController.popBackStack(Route.Login.path, inclusive = false)
                 },
-                onIrParaUsuarioClick = { navController.navigate(Route.Cadastro.path) } // 👈 volta pro cadastro normal
+                onIrParaUsuarioClick = { navController.navigate(Route.Cadastro.path) }
             )
         }
-
 
         composable(Route.TelaAdminGerenciarSalas.path) {
             TelaAdminGerenciarSalas(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
+                onMenuClick = { },
                 onCadastrarNovaSalaClick = {},
                 onGerenciarSalaClick = { salaNome ->
                     navController.navigate(Route.adminGerenciarMesas(salaNome))
@@ -136,6 +136,7 @@ fun AppNavigation() {
         composable(
             route = "tela_admin_editar_livro/{tituloLivro}",
             arguments = listOf(navArgument("tituloLivro") { type = NavType.StringType })
+
         ) { backStackEntry ->
             val tituloLivro = backStackEntry.arguments?.getString("tituloLivro") ?: ""
             TelaAdminEditarLivro(
@@ -171,6 +172,8 @@ fun AppNavigation() {
         composable(Route.TelaAdminCadastrarUsuario.path) {
             TelaAdminCadastrarUsuario(
                 onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
+                onMenuClick = {  },
                 onConfirmarCadastro = { _, _, _, _, _, _ ->
                     navController.popBackStack()
                 }
@@ -185,6 +188,8 @@ fun AppNavigation() {
             TelaAdminEditarUsuario(
                 nomeUsuario = nomeUsuario,
                 onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
+                onMenuClick = {  },
                 onConfirmarEdicao = { _, _, _, _, _, _ ->
                     navController.popBackStack()
                 }
@@ -426,14 +431,14 @@ fun AppNavigation() {
                 tituloNotificacao = titulo,
                 mensagemCorpo = mensagem
             )
-
         }
+
         composable(Route.TelaChatbotAdmin.path) {
             TelaChatbot(
                 onVoltarClick = { navController.popBackStack() }
             )
+        }
 
-            }
         composable(Route.TelaNotificacoesAdmin.path) {
             TelaNotificacoesAdmin(
                 navController = navController,
@@ -443,10 +448,8 @@ fun AppNavigation() {
                 onEnviarComunicadoClick = { navController.navigate(Route.Comunicados.path) }
             )
         }
-    } // ← Esta chave fecha o NavHost
-} // ← Esta chave fecha o AppNavigation
-
-
+    }
+}
 
 @Composable
 fun TelaInicial(
@@ -524,4 +527,5 @@ fun TelaInicial(
 
             Spacer(modifier = Modifier.height(60.dp))
         }
-        }}
+    }
+}

@@ -24,7 +24,8 @@ fun TelaAdminEditarUsuario(
 
     nomeUsuario: String,
     onVoltarClick: () -> Unit,
-
+    onNotificacoesClick: () -> Unit,
+    onMenuClick: () -> Unit,
     onConfirmarEdicao: (
         novoNome: String,
         novaMatricula: String,
@@ -107,7 +108,7 @@ fun TelaAdminEditarUsuario(
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-            // Campo 3: Email
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it }, // Atualiza o estado
@@ -117,7 +118,7 @@ fun TelaAdminEditarUsuario(
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-            // Campo 4: Telefone
+
             OutlinedTextField(
                 value = telefone,
                 onValueChange = { telefone = it }, // Atualiza o estado
@@ -127,7 +128,7 @@ fun TelaAdminEditarUsuario(
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-            // Campo 5: CPF
+
             OutlinedTextField(
                 value = cpf,
                 onValueChange = { cpf = it }, // Atualiza o estado
@@ -137,10 +138,10 @@ fun TelaAdminEditarUsuario(
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-            // Campo 6: Curso
+
             OutlinedTextField(
                 value = curso,
-                onValueChange = { curso = it }, // Atualiza o estado
+                onValueChange = { curso = it },
                 label = { Text("Curso") },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth().height(55.dp).padding(bottom = 8.dp),
@@ -149,10 +150,10 @@ fun TelaAdminEditarUsuario(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botão Confirmar
+
             Button(
                 onClick = {
-                    // Chama a função de confirmação com os novos valores
+
                     onConfirmarEdicao(nome, matricula, email, telefone, cpf, curso)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
@@ -179,7 +180,9 @@ fun TelaAdminEditarUsuarioPreview() {
         TelaAdminEditarUsuario(
             nomeUsuario = "Analice Castro",
             onVoltarClick = {},
-            onConfirmarEdicao = { a, b, c, d, e, f -> } // Função de confirmação de exemplo
+            onNotificacoesClick = {},
+            onMenuClick = {},
+            onConfirmarEdicao = { a, b, c, d, e, f -> }
         )
     }
 }

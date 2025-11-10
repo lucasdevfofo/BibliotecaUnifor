@@ -21,6 +21,8 @@ import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 @Composable
 fun TelaAdminCadastrarUsuario(
     onVoltarClick: () -> Unit,
+    onNotificacoesClick: () -> Unit,
+    onMenuClick: () -> Unit,
     onConfirmarCadastro: (
         novoNome: String,
         novaMatricula: String,
@@ -179,6 +181,8 @@ fun TelaAdminCadastrarUsuarioPreview() {
     BibliotecaUniforTheme {
         TelaAdminCadastrarUsuario(
             onVoltarClick = {},
+            onNotificacoesClick = {},
+            onMenuClick = {},
             onConfirmarCadastro = { a, b, c, d, e, f -> }
         )
     }
