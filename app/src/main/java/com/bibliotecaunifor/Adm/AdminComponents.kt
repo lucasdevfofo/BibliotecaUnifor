@@ -48,7 +48,7 @@ fun AppBottomNavAdminPadrao(
 ) {
     val branco = Color.White
     val cinzaEscuro = Color.Gray
-    val azulSelecao = Color(0xFF004AF5)
+    val pretoselecao = Color.Black
 
     val navItems = listOf(
         NavItemAdmin(R.drawable.ic_home, "Salas", Route.TelaAdminGerenciarSalas.path, onHomeClick),
@@ -71,12 +71,12 @@ fun AppBottomNavAdminPadrao(
                     Icon(
                         painter = painterResource(id = item.iconResId),
                         contentDescription = item.label,
-                        tint = if (isSelected) azulSelecao else cinzaEscuro,
+                        tint = if (isSelected) pretoselecao else cinzaEscuro,
                         modifier = Modifier.size(28.dp)
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = azulSelecao,
+                    selectedIconColor = pretoselecao,
                     unselectedIconColor = cinzaEscuro,
                     indicatorColor = branco
                 )

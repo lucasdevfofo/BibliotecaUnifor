@@ -106,16 +106,6 @@ fun TelaAdminGerenciarSalas(
                             .align(Alignment.TopCenter)
                     )
 
-                    IconButton(
-                        onClick = onVoltarClick,
-                        modifier = Modifier
-                            .size(56.dp)
-                            .align(Alignment.TopStart)
-                            .zIndex(2f)
-                            .pointerHoverIcon(PointerIcon.Hand)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.Black, modifier = Modifier.size(30.dp))
-                    }
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
