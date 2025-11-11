@@ -180,6 +180,7 @@ fun TelaSalasDisponiveis(
 
             Spacer(modifier = Modifier.weight(1f))
 
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,24 +189,38 @@ fun TelaSalasDisponiveis(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painterResource(id = R.drawable.ic_home), null, tint = Color.Black)
+
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_home),
+                    contentDescription = null,
+                    tint = Color(0xFF044EE7) // Azul para indicar ativo
+                )
+
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
                     contentDescription = null,
                     tint = Color.Gray,
-                    modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.HistoricoReservas.path)
+                    }
                 )
+
                 Icon(
                     painter = painterResource(id = R.drawable.ic_list),
                     contentDescription = null,
                     tint = Color.Gray,
-                    modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.ReservasRealizadas.path)
+                    }
                 )
+
                 Icon(
                     painter = painterResource(id = R.drawable.ic_user),
                     contentDescription = null,
                     tint = Color.Gray,
-                    modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
+                    modifier = Modifier.clickable {
+                        navController.navigate(Route.PerfilAluno.path)
+                    }
                 )
             }
         }
@@ -232,131 +247,37 @@ fun TelaSalasDisponiveis(
             )
         }
 
-        if (!menuAberto) {
-            FloatingActionButton(
-                onClick = { chatAberto = !chatAberto },
-                containerColor = Color(0xFF044EE7),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 20.dp, bottom = 80.dp)
-                    .zIndex(2f)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_chat),
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            }
-        }
 
-        if (chatAberto && !menuAberto) {
-            ChatBotPopup(onFechar = { chatAberto = false })
-        }
-    }
-}
-
-@Composable
-fun ChatBotPopup(onFechar: () -> Unit) {
-    var inputText by remember { mutableStateOf(TextFieldValue("")) }
-    var mensagens by remember {
-        mutableStateOf(listOf("🤖 Olá! Posso te ajudar com informações sobre horários, reservas e livros disponíveis."))
-    }
-
-    val respostas = mapOf(
-        "horario" to "A biblioteca funciona de segunda a sexta, das 7h às 20h.",
-        "livro" to "Você pode reservar livros pelo app ou no balcão de atendimento.",
-        "mesa" to "As mesas disponíveis estão listadas acima! Basta clicar em uma para reservar.",
-        "reserva" to "Para reservar, selecione uma sala e confirme sua escolha.",
-        "oi" to "Olá! Como posso te ajudar? 😊"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .fillMaxHeight(0.5f)
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .shadow(4.dp)
-            .zIndex(3f),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(bottom = 80.dp),
+            contentAlignment = Alignment.BottomEnd
         ) {
-            Text(
-                text = "Chat Biblioteca 🤖",
-                color = Color(0xFF044EE7),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            FloatingActionButton(
+                onClick = {
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                itemsIndexed(mensagens) { _, msg ->
-                    Text(
-                        text = msg,
-                        fontSize = 14.sp,
-                        color = if (msg.startsWith("🤖")) Color.Black else Color(0xFF044EE7),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextField(
-                    value = inputText,
-                    onValueChange = { inputText = it },
-                    placeholder = { Text("Digite sua mensagem...") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF2F2F2),
-                        unfocusedContainerColor = Color(0xFFF2F2F2),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
-                    onClick = {
-                        val textoUsuario = inputText.text.trim()
-                        if (textoUsuario.isNotEmpty()) {
-                            mensagens = mensagens + "Você: $textoUsuario"
-                            val resposta = respostas.entries.find {
-                                textoUsuario.contains(it.key, ignoreCase = true)
-                            }?.value ?: "Desculpe, não entendi. Tente perguntar sobre horários, livros ou reservas."
-                            mensagens = mensagens + "🤖 $resposta"
-                            inputText = TextFieldValue("")
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7))
-                ) {
-                    Text("Enviar", color = Color.White)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = onFechar,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)),
-                modifier = Modifier.align(Alignment.End)
+                    navController.navigate(Route.TelaChatbotUsuario.path)
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(50.dp),
+                containerColor = Color(0xFF0038A8),
+                contentColor = Color.White
             ) {
-                Text("Fechar", color = Color.White)
+                Icon(
+                    painter = painterResource(id = R.drawable.unibo),
+                    contentDescription = "Chatbot Unibô",
+                    modifier = Modifier.size(30.dp)
+                )
             }
         }
+
+
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

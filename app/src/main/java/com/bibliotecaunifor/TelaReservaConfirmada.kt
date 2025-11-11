@@ -142,7 +142,7 @@ fun TelaReservaConfirmada(navController: NavController) {
             Spacer(modifier = Modifier.height(40.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.imagem_principal),
+                painter = painterResource(id = R.drawable.emacomverificado),
                 contentDescription = "Reserva confirmada",
                 modifier = Modifier.size(150.dp)
             )

@@ -39,7 +39,11 @@ sealed class Route(val path: String) {
     object Notificacoes : Route("tela_notificacoes")
     object MenuLateral : Route("menu_lateral")
     object TelaChatbotAdmin : Route("tela_chatbot")
-    object  TelaNotificacoesAdmin : Route(path = "tela_not_admin")
+    object TelaNotificacoesAdmin : Route(path = "tela_not_admin")
+
+    // NOVAS ROTAS DO CHATBOT
+    object TelaChatbotUsuario : Route("tela_chatbot_usuario") // Chatbot para usuário comum
+
     // ROTAS DE LIVROS E CATÁLOGO
     object CatalogoLivros : Route("tela_catalogo_livros")
     object TelaRenovarLivro : Route("tela_renovar_livro")

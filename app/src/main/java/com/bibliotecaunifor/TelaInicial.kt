@@ -25,10 +25,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.Adm.*
+import com.bibliotecaunifor.TelaChatBotUsuario
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-
+import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -355,7 +356,10 @@ fun AppNavigation() {
         }
 
         composable(Route.Notificacoes.path) {
-            TelaNotificacoes(navController = navController)
+            TelaNotificacoesUsuario(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() }
+            )
         }
 
         composable(Route.MenuLateral.path) {
@@ -435,6 +439,12 @@ fun AppNavigation() {
 
         composable(Route.TelaChatbotAdmin.path) {
             TelaChatbot(
+                onVoltarClick = { navController.popBackStack() }
+            )
+        }
+        composable(Route.TelaChatbotUsuario.path) {
+            TelaChatBotUsuario(
+                navController = navController,
                 onVoltarClick = { navController.popBackStack() }
             )
         }

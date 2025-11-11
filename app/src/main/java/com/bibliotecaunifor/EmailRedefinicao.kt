@@ -99,7 +99,7 @@ fun EmailRedefinicaoScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.imagem_principal),
+                painter = painterResource(id = R.drawable.emacomverificado),
                 contentDescription = "Imagem principal"
             )
             Spacer(modifier = Modifier.height(24.dp))
