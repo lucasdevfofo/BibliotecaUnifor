@@ -100,7 +100,8 @@ fun EmailRedefinicaoScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.emacomverificado),
-                contentDescription = "Imagem principal"
+                contentDescription = "Imagem principal",
+                modifier = Modifier.size(200.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(

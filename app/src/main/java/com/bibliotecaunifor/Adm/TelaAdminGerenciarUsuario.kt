@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bibliotecaunifor.Route
 
 data class UsuarioAdmin(
     val id: Int,
@@ -72,9 +73,7 @@ fun TelaAdminGerenciarUsuarios(
             topBar = {
                 AdminTopBarUsuarios(
                     onVoltarClick = onVoltarClick,
-                    onNotificacoesClick = {
-                        // Navegar para notificações quando implementar
-                    },
+                    onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                     onMenuClick = { menuLateralAberto = true }
                 )
             },
@@ -94,7 +93,7 @@ fun TelaAdminGerenciarUsuarios(
                     .padding(paddingValues)
                     .background(Color.White)
             ) {
-                // Título
+
                 Text(
                     text = "Gerenciar Usuários",
                     fontSize = 20.sp,
@@ -103,7 +102,7 @@ fun TelaAdminGerenciarUsuarios(
                     modifier = Modifier.padding(16.dp)
                 )
 
-                // Campo de pesquisa
+
                 OutlinedTextField(
                     value = textoPesquisa,
                     onValueChange = { textoPesquisa = it },
@@ -130,7 +129,7 @@ fun TelaAdminGerenciarUsuarios(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Lista de usuários
+
                 if (usuariosFiltrados.isEmpty()) {
                     Column(
                         modifier = Modifier
@@ -166,29 +165,40 @@ fun TelaAdminGerenciarUsuarios(
                     }
                 }
 
-                // Botão de cadastrar
-                Button(
-                    onClick = onCadastrarUsuarioClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3F4F78)
-                    ),
-                    shape = RoundedCornerShape(8.dp),
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
                         .padding(16.dp)
                 ) {
-                    Text(
-                        text = "CADASTRAR NOVO USUÁRIO",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Button(
+                        onClick = onCadastrarUsuarioClick,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF3F4F78)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp,
+                            pressedElevation = 4.dp
+                        )
+                    ) {
+                        Text(
+                            text = "CADASTRAR NOVO USUÁRIO",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
                 }
             }
         }
 
-        // Menu Lateral Overlay
+
+
         if (menuLateralAberto) {
             Box(
                 modifier = Modifier
@@ -221,7 +231,7 @@ fun UsuarioItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Avatar do usuário
+
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -239,7 +249,7 @@ fun UsuarioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Informações do usuário
+
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -261,7 +271,7 @@ fun UsuarioItem(
             )
         }
 
-        // Botões de ação
+
         Row {
             IconButton(
                 onClick = onEditarClick,

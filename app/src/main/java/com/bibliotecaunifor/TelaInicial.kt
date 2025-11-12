@@ -108,7 +108,6 @@ fun AppNavigation() {
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = { },
-                onCadastrarNovaSalaClick = {},
                 onGerenciarSalaClick = { salaNome ->
                     navController.navigate(Route.adminGerenciarMesas(salaNome))
                 },
@@ -167,6 +166,29 @@ fun AppNavigation() {
                 },
                 onExcluirUsuarioClick = {},
                 currentRoute = Route.TelaAdminGerenciarUsuarios.path
+            )
+        }
+        composable(Route.TelaAdminCadastrarSala.path) {
+            TelaAdminCadastrarSala(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = {
+                    navController.navigate(Route.TelaNotificacoesAdmin.path)
+                },
+                onMenuClick = {  },
+                onNavHomeClick = {
+                    navController.navigate(Route.TelaAdminGerenciarSalas.path)
+                },
+                onNavHistoricoClick = {
+                    navController.navigate(Route.TelaAdminReservasRealizadas.path)
+                },
+                onNavListasClick = {
+                    navController.navigate(Route.TelaAdminGerenciarUsuarios.path)
+                },
+                onNavPerfilClick = {
+                    navController.navigate(Route.TelaPerfilAdmin.path)
+                },
+                currentRoute = Route.TelaAdminCadastrarSala.path
             )
         }
 

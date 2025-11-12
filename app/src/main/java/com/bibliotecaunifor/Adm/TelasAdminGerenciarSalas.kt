@@ -45,7 +45,6 @@ fun TelaAdminGerenciarSalas(
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
     onMenuClick: () -> Unit,
-    onCadastrarNovaSalaClick: () -> Unit,
     onGerenciarSalaClick: (String) -> Unit,
     onNavHomeClick: () -> Unit,
     onNavHistoricoClick: () -> Unit,
@@ -127,7 +126,7 @@ fun TelaAdminGerenciarSalas(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         IconButton(
-                            onClick = {   },
+                            onClick = onNotificacoesClick,
                             modifier = Modifier.size(40.dp).pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Icon(Icons.Outlined.Notifications, "Notificações", tint = Color.Black, modifier = Modifier.size(28.dp))
@@ -186,7 +185,9 @@ fun TelaAdminGerenciarSalas(
                 }
 
                 Button(
-                    onClick = onCadastrarNovaSalaClick,
+                    onClick = {
+                        navController.navigate(Route.TelaAdminCadastrarSala.path)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
@@ -313,7 +314,6 @@ fun TelaAdminGerenciarSalasPreview() {
             onVoltarClick = {},
             onNotificacoesClick = {},
             onMenuClick = {},
-            onCadastrarNovaSalaClick = {},
             onGerenciarSalaClick = {},
             onNavHomeClick = {},
             onNavHistoricoClick = {},

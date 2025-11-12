@@ -27,6 +27,7 @@ sealed class Route(val path: String) {
     object Comunicados : Route("comunicados")
     object ComunicadoEnviado : Route("comunicado_enviado")
     object RegrasDoSistema : Route("regras_do_sistema")
+    object TelaAdminCadastrarSala : Route("tela_admin_cadastrar_sala")
 
     // ROTAS DO USUÁRIO/ALUNO
     object SalasDisponiveis : Route("tela_salas_disponiveis")

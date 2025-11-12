@@ -1,4 +1,3 @@
-// TelaNotificacoes.kt
 package com.bibliotecaunifor.Adm
 
 import androidx.compose.foundation.background
