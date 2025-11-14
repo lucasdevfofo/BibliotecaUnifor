@@ -1,11 +1,10 @@
 package com.bibliotecaunifor.Adm
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
@@ -35,22 +34,29 @@ fun TelaNotificacoesAdmin(
     navController: NavController,
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
-    onMenuClick: () -> Unit,
     onEnviarComunicadoClick: () -> Unit
 ) {
+    var menuAberto by remember { mutableStateOf(false) }
+
     val notificacoes = remember {
         listOf(
             Notificacao(
                 id = "1",
                 remetente = "PEDRO AUGUSTO",
-                mensagem = "Boa noite Pessoal! Biblioteca estará fechada ho.",
+                mensagem = "Boa noite Pessoal! Biblioteca estará fechada hoje.",
                 lida = false
             ),
             Notificacao(
                 id = "2",
                 remetente = "JOSÉ ALBERTO",
-                mensagem = "Boa noite Pessoal! Hoje chegou novos livros no..",
+                mensagem = "Boa noite Pessoal! Hoje chegou novos livros na biblioteca.",
                 lida = true
+            ),
+            Notificacao(
+                id = "3",
+                remetente = "MARIA SILVA",
+                mensagem = "Lembrando que o prazo para renovação é até sexta-feira.",
+                lida = false
             )
         )
     }
@@ -67,7 +73,9 @@ fun TelaNotificacoesAdmin(
                 AdminTopBar(
                     onVoltarClick = onVoltarClick,
                     onNotificacoesClick = onNotificacoesClick,
-                    onMenuClick = onMenuClick
+                    onMenuClick = {
+                        menuAberto = true
+                    }
                 )
 
                 Text(
@@ -89,7 +97,45 @@ fun TelaNotificacoesAdmin(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(notificacoes.size) { index ->
-                        ItemNotificacao(notificacao = notificacoes[index])
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            if (!notificacoes[index].lida) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(Color.Red, shape = CircleShape)
+                                        .align(Alignment.CenterVertically)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                            } else {
+                                Spacer(modifier = Modifier.width(20.dp))
+                            }
+
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = notificacoes[index].remetente,
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text(
+                                    text = notificacoes[index].mensagem,
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                        Divider(color = Color.LightGray, thickness = 1.dp)
                     }
                 }
 
@@ -107,7 +153,6 @@ fun TelaNotificacoesAdmin(
                         fontWeight = FontWeight.Bold
                     )
 
-                    // Botão circular com "+"
                     IconButton(
                         onClick = onEnviarComunicadoClick,
                         modifier = Modifier
@@ -125,45 +170,28 @@ fun TelaNotificacoesAdmin(
                         )
                     }
                 }
-            } // Fecha Column
-        } // Fecha Scaffold
-    } // Fecha Box
-}
+            }
+        }
 
-@Composable
-fun ItemNotificacao(notificacao: Notificacao) {
-    var checked by remember { mutableStateOf(notificacao.lida) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White),
-        verticalAlignment = Alignment.Top
-    ) {
-
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = notificacao.remetente,
-                color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+        if (menuAberto) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable {
+                        menuAberto = false
+                    }
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = notificacao.mensagem,
-                color = Color.Gray,
-                fontSize = 14.sp
+            MenuLateralAdmin(
+                navController = navController,
+                onLinkClick = {
+                    menuAberto = false
+                },
+                modifier = Modifier.align(Alignment.TopEnd)
             )
         }
     }
-    Divider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.padding(top = 8.dp))
 }
 
 @Preview(showBackground = true)
@@ -173,7 +201,6 @@ fun TelaNotificacoesPreview() {
         navController = rememberNavController(),
         onVoltarClick = {},
         onNotificacoesClick = {},
-        onMenuClick = {},
         onEnviarComunicadoClick = {}
     )
 }

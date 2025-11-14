@@ -480,7 +480,6 @@ fun AppNavigation() {
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { },
-                onMenuClick = { },
                 onEnviarComunicadoClick = { navController.navigate(Route.Comunicados.path) }
             )
         }
