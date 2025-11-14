@@ -270,8 +270,9 @@ fun TelaCatalogoLivros(navController: NavController) {
                                 val generoEncoded = Uri.encode(livro.genero)
                                 val autorEncoded = Uri.encode(livro.autor)
                                 val disponivelEncoded = Uri.encode(livro.disponibilidade)
+
                                 navController.navigate(
-                                    "descricaoLivro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
+                                    "descricao_livro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
                                 )
                             }
                     ) {

@@ -1,5 +1,6 @@
 package com.bibliotecaunifor
 
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -428,11 +429,13 @@ fun AppNavigation() {
                 navArgument("disponibilidade") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
-            val descricao = backStackEntry.arguments?.getString("descricao") ?: ""
-            val genero = backStackEntry.arguments?.getString("genero") ?: ""
-            val autor = backStackEntry.arguments?.getString("autor") ?: ""
-            val disponibilidade = backStackEntry.arguments?.getString("disponibilidade") ?: ""
+
+            val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
+            val descricao = Uri.decode(backStackEntry.arguments?.getString("descricao") ?: "")
+            val genero = Uri.decode(backStackEntry.arguments?.getString("genero") ?: "")
+            val autor = Uri.decode(backStackEntry.arguments?.getString("autor") ?: "")
+            val disponibilidade = Uri.decode(backStackEntry.arguments?.getString("disponibilidade") ?: "")
+
             TelaDescricaoLivro(
                 navController = navController,
                 tituloLivro = titulo,
@@ -442,6 +445,7 @@ fun AppNavigation() {
                 disponibilidade = disponibilidade
             )
         }
+
 
         composable(
             route = "comunicados/{titulo}/{mensagem}",
