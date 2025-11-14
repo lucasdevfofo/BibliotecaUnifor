@@ -193,7 +193,7 @@ fun TelaSalasDisponiveis(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = null,
-                    tint = Color(0xFF044EE7) // Azul para indicar ativo
+                    tint = Color.Black
                 )
 
                 Icon(
@@ -262,7 +262,7 @@ fun TelaSalasDisponiveis(
                 modifier = Modifier
                     .padding(16.dp)
                     .size(50.dp),
-                containerColor = Color(0xFF0038A8),
+                containerColor = Color(0xFF3F4F78),
                 contentColor = Color.White
             ) {
                 Icon(
