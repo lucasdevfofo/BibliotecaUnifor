@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import java.time.LocalDate
 import java.util.*
@@ -221,12 +222,16 @@ fun CalendarFields(label: String, selectedDate: LocalDate?, onDateSelected: (Loc
 @Preview(showBackground = true)
 @Composable
 fun RenovarLivrosPreview() {
-    val fakeNavController = androidx.navigation.testing.TestNavHostController(LocalContext.current)
-    BibliotecaUniforTheme {
-        RenovarLivros(
-            navController = fakeNavController,
-            onVoltarClick = {},
-            onSalaClick = {}
-        )
+    if (androidx.compose.ui.platform.LocalInspectionMode.current) {
+
+        val fakeNavController = rememberNavController()
+
+        BibliotecaUniforTheme {
+            RenovarLivros(
+                navController = fakeNavController,
+                onVoltarClick = {},
+                onSalaClick = {}
+            )
+        }
     }
 }

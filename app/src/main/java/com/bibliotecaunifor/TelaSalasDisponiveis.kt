@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 
 @Composable
@@ -282,13 +283,17 @@ fun TelaSalasDisponiveis(
 @Preview(showBackground = true)
 @Composable
 fun TelaSalasDisponiveisPreview() {
-    val fakeNavController =
-        androidx.navigation.testing.TestNavHostController(androidx.compose.ui.platform.LocalContext.current)
-    BibliotecaUniforTheme {
-        TelaSalasDisponiveis(
-            navController = fakeNavController,
-            onVoltarClick = {},
-            onSalaClick = {}
-        )
+
+    if (androidx.compose.ui.platform.LocalInspectionMode.current) {
+
+        val fakeNavController = rememberNavController()
+
+        BibliotecaUniforTheme {
+            TelaSalasDisponiveis(
+                navController = fakeNavController,
+                onVoltarClick = {},
+                onSalaClick = {}
+            )
+        }
     }
 }

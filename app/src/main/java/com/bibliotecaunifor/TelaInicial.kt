@@ -27,10 +27,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.Adm.*
 import com.bibliotecaunifor.TelaChatBotUsuario
+import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +81,9 @@ fun AppNavigation() {
         composable(Route.EsqueceuSenha.path) {
             EsqueceuSenhaScreen(
                 onNavigateUp = { navController.popBackStack() },
-                onEnviarClick = { navController.navigate(Route.EmailRedefinicao.path) }
+                onEnviarClick = { email ->
+                    navController.navigate(Route.EmailRedefinicao.path)
+                }
             )
         }
 
@@ -128,9 +130,9 @@ fun AppNavigation() {
             TelaAdminGerenciarMesas(
                 salaNome = salaNome,
                 onVoltarClick = { navController.popBackStack() },
-                onEditarMesaClick = {},
-                onExcluirMesaClick = {},
-                onCadastrarNovaMesaClick = {}
+                onEditarMesaClick = { mesaNome -> },
+                onExcluirMesaClick = { mesaNome -> },
+                onCadastrarNovaMesaClick = { mesaNome -> }
             )
         }
 
