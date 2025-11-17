@@ -26,8 +26,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bibliotecaunifor.Adm.*
-import com.bibliotecaunifor.TelaChatBotUsuario
 import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
+import com.bibliotecaunifor.cadastro.TelaCadastro
+import com.bibliotecaunifor.cadastro.TelaCadastroAdm
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -73,8 +74,11 @@ fun AppNavigation() {
         composable(Route.Cadastro.path) {
             TelaCadastro(
                 onNavigateUp = { navController.popBackStack() },
-                onCadastrarClick = { navController.popBackStack(Route.Login.path, inclusive = false) },
-                onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) }
+                onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) },
+                onNavigateSuccess = {
+                    // Depois de cadastrar, volta ao login
+                    navController.popBackStack(Route.Login.path, inclusive = false)
+                }
             )
         }
 
@@ -98,10 +102,10 @@ fun AppNavigation() {
         composable(Route.TelaCadastroAdm.path) {
             TelaCadastroAdm(
                 onNavigateUp = { navController.popBackStack() },
-                onCadastrarClick = {
+                onIrParaUsuarioClick = { navController.navigate(Route.Cadastro.path) },
+                onNavigateSuccess = {
                     navController.popBackStack(Route.Login.path, inclusive = false)
-                },
-                onIrParaUsuarioClick = { navController.navigate(Route.Cadastro.path) }
+                }
             )
         }
 
