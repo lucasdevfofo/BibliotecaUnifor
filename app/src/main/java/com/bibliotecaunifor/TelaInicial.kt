@@ -472,7 +472,7 @@ fun AppNavigation() {
         }
 
         composable(Route.TelaChatbotAdmin.path) {
-            TelaChatbot(
+            TelaChatBotAdmin(
                 onVoltarClick = { navController.popBackStack() }
             )
         }
