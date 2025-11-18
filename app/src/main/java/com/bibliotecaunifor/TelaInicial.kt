@@ -29,6 +29,8 @@ import com.bibliotecaunifor.Adm.*
 import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
 import com.bibliotecaunifor.cadastro.TelaCadastro
 import com.bibliotecaunifor.cadastro.TelaCadastroAdm
+import com.bibliotecaunifor.perfilAluno.TelaEditarUsuario
+import com.bibliotecaunifor.perfilAluno.TelaPerfilAluno
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

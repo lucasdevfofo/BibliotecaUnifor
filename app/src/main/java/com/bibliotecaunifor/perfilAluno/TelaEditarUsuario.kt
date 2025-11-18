@@ -1,5 +1,6 @@
-package com.bibliotecaunifor
+package com.bibliotecaunifor.perfilAluno
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,9 +35,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bibliotecaunifor.MenuLateral
+import com.bibliotecaunifor.R
+import com.bibliotecaunifor.Route
+import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.bibliotecaunifor.viewmodel.TelaEditarUsuarioViewModel
 
 @Composable
 fun AppHeaderEditarUsuario(
@@ -48,7 +56,7 @@ fun AppHeaderEditarUsuario(
             .height(180.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.livros),
+            painter = painterResource(id = R.drawable.livros), // Certifique-se que essa imagem existe
             contentDescription = null,
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop
@@ -74,6 +82,7 @@ fun AppHeaderEditarUsuario(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.Center
             ) {
+                // Se não tiver o logo no drawable, comente essa linha ou adicione a imagem
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = null,
@@ -163,17 +172,61 @@ fun AppBottomNavEditarUsuario(navController: NavController) {
         )
     }
 }
-
 @Composable
-fun TelaEditarUsuario(navController: NavController) {
+fun TelaEditarUsuario(
+    navController: NavController,
+    viewModel: TelaEditarUsuarioViewModel = viewModel()
+) {
     val menuAberto = remember { mutableStateOf(false) }
-    var nome by remember { mutableStateOf("Analice Castro") }
-    var matricula by remember { mutableStateOf("2345989") }
-    var email by remember { mutableStateOf("analicecastro@gmail.com") }
-    var telefone by remember { mutableStateOf("82 9 8273-9280") }
-    var cpf by remember { mutableStateOf("888.222.444-99") }
-    var curso by remember { mutableStateOf("Cienc. da Comp.") }
+    val context = LocalContext.current
+
+    // Observa estados
+    val uiState by viewModel.uiState.collectAsState()
+    val dadosDoBanco by viewModel.usuarioAtual.collectAsState() // <--- NOVO
+
+    // Variáveis de texto (Iniciam vazias para não piscar dados falsos)
+    var nome by remember { mutableStateOf("") }
+    var matricula by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var telefone by remember { mutableStateOf("") }
+    var cpf by remember { mutableStateOf("") }
+    var curso by remember { mutableStateOf("") }
+
     val scrollState = rememberScrollState()
+
+    // 1. Busca os dados assim que a tela abre
+    LaunchedEffect(Unit) {
+        viewModel.carregarDadosUsuario()
+    }
+
+    // 2. Quando os dados chegarem do banco, preenche os campos
+    LaunchedEffect(dadosDoBanco) {
+        dadosDoBanco?.let { user ->
+            nome = user.nomeCompleto
+            matricula = user.matricula
+            email = user.email
+            telefone = user.telefone
+            cpf = user.cpf
+            curso = user.curso
+        }
+    }
+
+    // Lógica de Sucesso/Erro (Manteve igual)
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is TelaEditarUsuarioViewModel.UiState.Success -> {
+                Toast.makeText(context, "Dados atualizados!", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+            }
+            is TelaEditarUsuarioViewModel.UiState.Error -> {
+                val erro = (uiState as TelaEditarUsuarioViewModel.UiState.Error).mensagem
+                Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+            }
+            else -> {}
+        }
+    }
+
+    // ... Resto do código (Scaffold, etc) continua igual ...
 
     Scaffold(
         topBar = {
@@ -184,6 +237,7 @@ fun TelaEditarUsuario(navController: NavController) {
         },
         bottomBar = { AppBottomNavEditarUsuario(navController = navController) }
     ) { paddingValues ->
+
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
@@ -215,6 +269,7 @@ fun TelaEditarUsuario(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(5.dp))
 
+                // --- FORMULÁRIO ---
                 OutlinedTextField(
                     value = nome,
                     onValueChange = { nome = it },
@@ -294,25 +349,52 @@ fun TelaEditarUsuario(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                // --- BOTÃO DE AÇÃO ---
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = {
+                        // Cria o objeto com os dados da tela
+                        val usuarioAtualizado = UsuarioModel(
+                            nomeCompleto = nome,
+                            matricula = matricula,
+                            curso = curso,
+                            cpf = cpf,
+                            telefone = telefone,
+                            email = email
+                        )
+                        // Chama o ViewModel para salvar no Firebase
+                        viewModel.salvarAlteracoes(usuarioAtualizado)
+                    },
+                    // Desabilita o botão enquanto estiver carregando para evitar múltiplos cliques
+                    enabled = uiState !is TelaEditarUsuarioViewModel.UiState.Loading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4F78)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(
-                        "CONFIRMAR",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (uiState is TelaEditarUsuarioViewModel.UiState.Loading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            "CONFIRMAR",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
             }
 
+            // --- LOADING OVERLAY (Opcional, caso queira travar a tela toda) ---
+            // if (uiState is TelaEditarUsuarioViewModel.UiState.Loading) { ... }
+
+            // --- MENU LATERAL ---
             if (menuAberto.value) {
                 Box(
                     modifier = Modifier
@@ -321,6 +403,7 @@ fun TelaEditarUsuario(navController: NavController) {
                         .zIndex(0.5f)
                         .clickable { menuAberto.value = false }
                 )
+                // Certifique-se que o componente MenuLateral existe no seu projeto
                 MenuLateral(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -338,6 +421,8 @@ fun TelaEditarUsuario(navController: NavController) {
 fun TelaEditarUsuarioPreview() {
     val navController = rememberNavController()
     BibliotecaUniforTheme {
+        // Mock do ViewModel não é necessário para Preview simples de UI,
+        // mas se o preview quebrar, você pode criar um FakeViewModel
         TelaEditarUsuario(navController)
     }
 }

@@ -1,6 +1,5 @@
-package com.bibliotecaunifor
+package com.bibliotecaunifor.perfilAluno
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,31 +22,47 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.bibliotecaunifor.MenuLateral
+import com.bibliotecaunifor.R
+import com.bibliotecaunifor.Route
+import com.bibliotecaunifor.viewmodel.TelaPerfilAlunoViewModel
 
 @Composable
 fun TelaPerfilAluno(
     navController: NavController,
-    nome: String = "Lucas Lindo",
-    matricula: String = "2412825",
-    curso: String = "ADS"
+    // Injetando o ViewModel
+    viewModel: TelaPerfilAlunoViewModel = viewModel()
 ) {
+    // Cores
     val azulUnifor = Color(0xFF004AF5)
     val cinzaBorda = Color(0xFFE0E0E0)
     val cinzaClaro = Color(0xFFF5F7FF)
     val roxoBotao = Color(0xFF3F4F78)
 
+    // Estados de UI
     var menuAberto by remember { mutableStateOf(false) }
-    val ctx = LocalContext.current
     val scroll = rememberScrollState()
 
+    // Observando os dados do Firebase
+    val usuario by viewModel.usuarioState.collectAsState()
+
+    // Busca os dados assim que a tela abrir
+    LaunchedEffect(Unit) {
+        viewModel.carregarDados()
+    }
+
+    // Sempre que voltar da tela de editar (quando a tela ganhar foco novamente),
+    // seria bom recarregar. Mas por padrão, o LaunchedEffect(Unit) roda na criação.
+    // Se você editar e voltar e não atualizar, me avise que adicionamos um "refresh".
+
+    // Listas mockadas (essas ficam fixas por enquanto ou viriam de outra collection)
     val ultimasReservas = remember {
         listOf(
             "SALA 01" to "HORÁRIO: 15:00 - 18:00",
@@ -72,6 +87,7 @@ fun TelaPerfilAluno(
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // --- HEADER ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,6 +115,7 @@ fun TelaPerfilAluno(
 
                     Spacer(modifier = Modifier.weight(0.63f))
 
+                    // Verifique se o recurso existe no seu projeto
                     Image(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo UNIFOR",
@@ -142,6 +159,7 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // --- FOTO DE PERFIL ---
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -150,8 +168,9 @@ fun TelaPerfilAluno(
                     .border(1.dp, cinzaBorda, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
+                // Idealmente, futuramente carregar a foto do usuario?.fotoUrl
                 Image(
-                    painter = painterResource(id = R.drawable.ic_user),
+                    painter = painterResource(id = R.drawable.ic_user), // Ícone placeholder
                     contentDescription = "Avatar",
                     modifier = Modifier.size(72.dp)
                 )
@@ -159,8 +178,19 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(text = nome, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
-            Text(text = matricula, fontSize = 12.sp, color = Color.Gray)
+            // --- DADOS DO USUÁRIO (VINDO DO FIREBASE) ---
+            Text(
+                text = usuario?.nomeCompleto ?: "Carregando...",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+
+            Text(
+                text = usuario?.matricula ?: "...",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
 
             Divider(
                 modifier = Modifier.padding(top = 12.dp).width(240.dp),
@@ -169,10 +199,15 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Text(text = curso, fontSize = 14.sp, color = Color.Black)
+            Text(
+                text = usuario?.curso ?: "...",
+                fontSize = 14.sp,
+                color = Color.Black
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            // --- BOTÃO EDITAR ---
             Button(
                 onClick = { navController.navigate(Route.EditarUsuario.path) },
                 colors = ButtonDefaults.buttonColors(containerColor = roxoBotao),
@@ -187,6 +222,7 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // --- BARRA DE PROGRESSO (Estática por enquanto) ---
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -208,6 +244,7 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- ÚLTIMAS RESERVAS ---
             SectionCard(
                 titulo = "ÚLTIMAS RESERVAS",
                 content = {
@@ -238,6 +275,7 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // --- LIVROS ALUGADOS ---
             SectionCard(
                 titulo = "LIVROS ALUGADOS",
                 content = {
@@ -282,6 +320,7 @@ fun TelaPerfilAluno(
             Spacer(modifier = Modifier.height(80.dp))
         }
 
+        // --- BOTTOM NAV ---
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -291,6 +330,7 @@ fun TelaPerfilAluno(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Certifique-se de ter os ícones corretos no drawable
             Icon(
                 painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = "Home",
@@ -317,6 +357,7 @@ fun TelaPerfilAluno(
             Icon(painter = painterResource(id = R.drawable.ic_user), contentDescription = "Perfil", tint = Color.Black)
         }
 
+        // --- MENU LATERAL ---
         if (menuAberto) {
             Box(
                 modifier = Modifier
