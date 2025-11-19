@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,24 +27,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.bibliotecaunifor.viewmodel.TelaHistoricoReservasViewModel
 
 @Composable
 fun TelaHistoricoReservas(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
     var expandido by remember { mutableStateOf<String?>(null) }
+    val viewModel: TelaHistoricoReservasViewModel = viewModel()
 
-    val reservasSalas = listOf(
-        ReservaSala("Sala 01", "07:00 - 09:00", "ABC123"),
-        ReservaSala("Sala 04", "10:00 - 12:00", "XYZ987"),
-        ReservaSala("Sala 07", "15:00 - 17:00", "LMN456")
-    )
-
-    val reservasLivros = listOf(
-        ReservaLivro("O Pequeno Príncipe", "10/10/2025 - 20/10/2025"),
-        ReservaLivro("Dom Casmurro", "05/09/2025 - 15/09/2025"),
-        ReservaLivro("1984", "01/08/2025 - 10/08/2025")
-    )
+    LaunchedEffect(Unit) {
+        viewModel.carregarHistoricoReservas()
+    }
 
     Box(
         modifier = Modifier
@@ -147,89 +144,154 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "Reservas de Salas",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF044EE7),
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 20.dp, bottom = 8.dp)
-            )
-
-            reservasSalas.forEach { reserva ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp)
-                        .clickable {
-                            expandido = if (expandido == reserva.nome) null else reserva.nome
-                        },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE7EEFF))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = reserva.nome,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color(0xFF044EE7)
-                            )
-                            Icon(
-                                imageVector = if (expandido == reserva.nome)
-                                    Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                                contentDescription = "Expandir",
-                                tint = Color(0xFF044EE7)
-                            )
-                        }
-
-                        AnimatedVisibility(visible = expandido == reserva.nome) {
-                            Column(modifier = Modifier.padding(top = 8.dp)) {
-                                Text("Horário: ${reserva.horario}", color = Color.Black)
-                                Text("Senha de acesso: ${reserva.senha}", color = Color.Black)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Reservas de Livros",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF044EE7),
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 20.dp, bottom = 8.dp)
-            )
-
-            reservasLivros.forEach { livro ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF3F7FF))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = livro.titulo,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+            when {
+                viewModel.loading -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
                             color = Color(0xFF044EE7)
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Período: ${livro.periodo}",
-                            fontSize = 14.sp,
-                            color = Color.Black
+                            "Carregando histórico...",
+                            fontSize = 16.sp,
+                            color = Color.Gray
                         )
+                    }
+                }
+
+                viewModel.erro != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "Erro: ${viewModel.erro}",
+                            fontSize = 16.sp,
+                            color = Color.Red
+                        )
+                    }
+                }
+
+                viewModel.historicoReservas.isEmpty() -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            "Nenhum histórico encontrado",
+                            fontSize = 18.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Suas reservas aparecerão aqui",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                else -> {
+                    Text(
+                        text = "Todas as Reservas",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF044EE7),
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(start = 20.dp, bottom = 8.dp)
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        items(viewModel.historicoReservas) { reserva ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                                    .clickable {
+                                        expandido = if (expandido == reserva.id) null else reserva.id
+                                    },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = when (reserva.status) {
+                                        "concluída" -> Color(0xFFE8F5E8)
+                                        "cancelada" -> Color(0xFFFFEBEE)
+                                        else -> Color(0xFFE7EEFF)
+                                    }
+                                )
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Column {
+                                            Text(
+                                                text = reserva.salaNome,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color(0xFF044EE7)
+                                            )
+                                            Text(
+                                                text = "Data: ${reserva.data}",
+                                                fontSize = 14.sp,
+                                                color = Color.Black
+                                            )
+                                        }
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = reserva.status.replaceFirstChar { it.uppercase() },
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = when (reserva.status) {
+                                                    "concluída" -> Color(0xFF2E7D32)
+                                                    "cancelada" -> Color(0xFFC62828)
+                                                    else -> Color(0xFF044EE7)
+                                                }
+                                            )
+                                            Icon(
+                                                imageVector = if (expandido == reserva.id)
+                                                    Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                                contentDescription = "Expandir",
+                                                tint = Color(0xFF044EE7)
+                                            )
+                                        }
+                                    }
+
+                                    AnimatedVisibility(visible = expandido == reserva.id) {
+                                        Column(modifier = Modifier.padding(top = 8.dp)) {
+                                            Text("Horário: ${reserva.horarioInicio} - ${reserva.horarioFim}", color = Color.Black)
+                                            if (reserva.usuarioNome.isNotEmpty()) {
+                                                Text("Usuário: ${reserva.usuarioNome}", color = Color.Black)
+                                            }
+                                            if (reserva.usuarioMatricula.isNotEmpty()) {
+                                                Text("Matrícula: ${reserva.usuarioMatricula}", color = Color.Black)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -291,6 +353,3 @@ fun TelaHistoricoReservas(navController: NavController) {
         }
     }
 }
-
-data class ReservaSala(val nome: String, val horario: String, val senha: String)
-data class ReservaLivro(val titulo: String, val periodo: String)
