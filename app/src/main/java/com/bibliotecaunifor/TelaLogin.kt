@@ -176,7 +176,7 @@ fun TelaLogin(
                                 snackbarHostState.showSnackbar("Informe matrícula e senha.")
                             }
                         } else {
-                            viewModel.loginComMatricula(matricula, senha)
+                            viewModel.loginComMatricula(matricula, senha, isAdmin)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = cinzaBotao),

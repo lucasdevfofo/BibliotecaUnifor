@@ -248,10 +248,7 @@ fun AppNavigation() {
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
-                onMenuClick = {},
-                onConfirmarEdicao = { _, _, _, _, _ ->
-                    navController.popBackStack()
-                }
+                onMenuClick = {}
             )
         }
 

@@ -1,4 +1,5 @@
 package com.bibliotecaunifor.Adm
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,14 +19,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.roxoBotao
+import com.bibliotecaunifor.viewmodel.TelaPerfilAdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaPerfilAdmin(
     navController: NavController,
+    // Injetando o ViewModel
+    viewModel: TelaPerfilAdminViewModel = viewModel(),
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
     onMenuClick: () -> Unit,
@@ -34,10 +39,7 @@ fun TelaPerfilAdmin(
     onNavReservasClick: () -> Unit,
     onNavUsuariosClick: () -> Unit,
     onNavPerfilClick: () -> Unit,
-    currentRoute: String,
-    nome: String = "PEDRO AUGUSTO",
-    cargo: String = "",
-    departamento: String = "ADMINISTRADOR"
+    currentRoute: String
 ) {
     val cinzaBorda = Color(0xFFE0E0E0)
     val cinzaClaro = Color(0xFFF5F7FF)
@@ -45,6 +47,13 @@ fun TelaPerfilAdmin(
     var menuLateralAberto by remember { mutableStateOf(false) }
     val scroll = rememberScrollState()
 
+    // Observando os dados do Admin vindo do Firebase
+    val adminDados by viewModel.adminState.collectAsState()
+
+    // Busca os dados assim que a tela abre
+    LaunchedEffect(Unit) {
+        viewModel.carregarDados()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -52,7 +61,6 @@ fun TelaPerfilAdmin(
                 AdminTopBarPerfil(
                     onVoltarClick = onVoltarClick,
                     onNotificacoesClick = onNotificacoesClick,
-
                     onMenuClick = { menuLateralAberto = true }
                 )
             },
@@ -76,6 +84,7 @@ fun TelaPerfilAdmin(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Foto de Perfil
                 Box(
                     modifier = Modifier
                         .size(140.dp)
@@ -93,9 +102,20 @@ fun TelaPerfilAdmin(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(text = nome, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                // Nome vindo do banco (ou "Carregando...")
+                Text(
+                    text = adminDados?.nomeCompleto?.uppercase() ?: "CARREGANDO...",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
 
-                Text(text = cargo, fontSize = 12.sp, color = Color.Gray)
+                // Matrícula ou Email vindo do banco
+                Text(
+                    text = adminDados?.matricula ?: "...",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
 
                 Divider(
                     modifier = Modifier.padding(top = 12.dp).width(240.dp),
@@ -104,7 +124,12 @@ fun TelaPerfilAdmin(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                Text(text = departamento, fontSize = 14.sp, color = Color.Black)
+                // Cargo/Departamento (Pode ser fixo ou pegar do banco se tiver esse campo)
+                Text(
+                    text = "ADMINISTRADOR", // Se quiser dinâmico: adminDados?.tipo?.uppercase() ?: ""
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -127,15 +152,12 @@ fun TelaPerfilAdmin(
 
 
         if (menuLateralAberto) {
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.4f))
-
                     .clickable { menuLateralAberto = false }
             )
-
 
             MenuLateralAdmin(
                 modifier = Modifier
