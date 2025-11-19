@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import android.net.Uri
+import com.bibliotecaunifor.viewmodel.TelaCatalogoLivrosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
