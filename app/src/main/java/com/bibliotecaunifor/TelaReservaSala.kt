@@ -30,13 +30,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
-fun TelaReservaSala(navController: NavController, salaNome: String) {
+fun TelaReservaSala(navController: NavController, salaId: String) {
     val scrollState = rememberScrollState()
     val contexto = LocalContext.current
     var menuAberto by remember { mutableStateOf(false) }
     var finalidadeTexto by remember { mutableStateOf("") }
+    var diaSelecionado by remember { mutableStateOf<String?>(null) }
+    var horarioEntrada by remember { mutableStateOf<String?>(null) }
+    var horarioSaida by remember { mutableStateOf<String?>(null) }
+    var salaNome by remember { mutableStateOf("") }
+    var capacidade by remember { mutableStateOf(0) }
+
+    LaunchedEffect(salaId) {
+        val db = Firebase.firestore
+        try {
+            val doc = db.collection("salas").document(salaId).get().await()
+            if (doc.exists()) {
+                salaNome = doc.getString("nome") ?: "Sala Desconhecida"
+
+
+                capacidade = when {
+                    doc.get("capacidade") is Long -> doc.getLong("capacidade")?.toInt() ?: 0
+                    doc.get("capacidade") is String -> doc.getString("capacidade")?.toIntOrNull() ?: 0
+                    else -> 0
+                }
+            }
+        } catch (e: Exception) {
+            salaNome = "Sala Desconhecida"
+            capacidade = 0
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -162,7 +193,7 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "$salaNome - 23 vagas disponíveis",
+                    text = "$salaNome - Capacidade: $capacidade pessoas",
                     color = Color(0xFF044EE7),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
@@ -203,7 +234,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
             )
 
             val dias = listOf("Segunda", "Terça", "Quarta", "Quinta", "Sexta")
-            var diaSelecionado by remember { mutableStateOf<String?>(null) }
 
             Row(
                 modifier = Modifier
@@ -238,9 +268,6 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
                 "12:00", "13:00", "14:00", "15:00", "16:00",
                 "17:00", "18:00", "19:00", "20:00"
             )
-
-            var horarioEntrada by remember { mutableStateOf<String?>(null) }
-            var horarioSaida by remember { mutableStateOf<String?>(null) }
 
             Text(
                 text = "Horário de Entrada",
@@ -322,15 +349,26 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
 
             Button(
                 onClick = {
-                    if (horarioEntrada != null && horarioSaida != null) {
-                        val finalidadeMsg = if (finalidadeTexto.isNotBlank())
-                            " para ${finalidadeTexto.trim()}"
-                        else ""
-                        navController.navigate(Route.ReservaConfirmada.path)
+                    if (horarioEntrada != null && horarioSaida != null && diaSelecionado != null) {
+                        fazerReservaNoFirebase(
+                            salaId = salaId,
+                            salaNome = salaNome,
+                            dia = diaSelecionado!!,
+                            horarioEntrada = horarioEntrada!!,
+                            horarioSaida = horarioSaida!!,
+                            finalidade = finalidadeTexto,
+                            onSuccess = {
+                                Toast.makeText(contexto, "Reserva realizada com sucesso!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(Route.ReservaConfirmada.path)
+                            },
+                            onError = { erro ->
+                                Toast.makeText(contexto, "Erro: $erro", Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     } else {
                         Toast.makeText(
                             contexto,
-                            "Selecione horário de entrada e saída!",
+                            "Selecione dia, horário de entrada e saída!",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -364,4 +402,98 @@ fun TelaReservaSala(navController: NavController, salaNome: String) {
             )
         }
     }
+}
+
+private fun fazerReservaNoFirebase(
+    salaId: String,
+    salaNome: String,
+    dia: String,
+    horarioEntrada: String,
+    horarioSaida: String,
+    finalidade: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit
+) {
+    val db = Firebase.firestore
+    val auth = Firebase.auth
+    val user = auth.currentUser
+
+    if (user == null) {
+        onError("Usuário não logado")
+        return
+    }
+
+    db.collection("reservas")
+        .whereEqualTo("usuarioId", user.uid)
+        .whereIn("status", listOf("pendente", "confirmada"))
+        .get()
+        .addOnSuccessListener { reservasAtivas ->
+            if (reservasAtivas.size() >= 2) {
+                onError("Você já tem 2 reservas ativas. Limite máximo atingido.")
+                return@addOnSuccessListener
+            }
+
+            db.collection("usuarios").document(user.uid).get()
+                .addOnSuccessListener { userDoc ->
+                    if (userDoc.exists()) {
+                        val usuarioNome = userDoc.getString("nome") ?: ""
+                        val usuarioMatricula = userDoc.getString("matricula") ?: ""
+
+                        val dataReserva = converterDiaParaData(dia)
+                        val reservaId = "${salaId}_${user.uid}_${System.currentTimeMillis()}"
+
+                        val reservaData = hashMapOf(
+                            "id" to reservaId,
+                            "usuarioId" to user.uid,
+                            "usuarioNome" to usuarioNome,
+                            "usuarioMatricula" to usuarioMatricula,
+                            "salaId" to salaId,
+                            "salaNome" to salaNome,
+                            "data" to dataReserva,
+                            "horarioInicio" to horarioEntrada,
+                            "horarioFim" to horarioSaida,
+                            "finalidade" to finalidade,
+                            "status" to "pendente",
+                            "dataCriacao" to getDataAtual(),
+                            "dataAtualizacao" to getDataAtual()
+                        )
+
+                        db.collection("reservas").document(reservaId).set(reservaData)
+                            .addOnSuccessListener {
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                onError(e.message ?: "Erro desconhecido")
+                            }
+                    } else {
+                        onError("Dados do usuário não encontrados")
+                    }
+                }
+                .addOnFailureListener { e ->
+                    onError("Erro ao buscar usuário: ${e.message}")
+                }
+        }
+        .addOnFailureListener { e ->
+            onError("Erro ao verificar reservas: ${e.message}")
+        }
+}
+
+private fun converterDiaParaData(dia: String): String {
+    val calendar = Calendar.getInstance()
+    val diasSemana = listOf("Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado")
+    val diaIndex = diasSemana.indexOf(dia)
+
+    if (diaIndex != -1) {
+        val hoje = calendar.get(Calendar.DAY_OF_WEEK) - 1
+        var diasParaAdicionar = diaIndex - hoje
+        if (diasParaAdicionar <= 0) diasParaAdicionar += 7
+
+        calendar.add(Calendar.DAY_OF_MONTH, diasParaAdicionar)
+    }
+
+    return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+}
+
+private fun getDataAtual(): String {
+    return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 }

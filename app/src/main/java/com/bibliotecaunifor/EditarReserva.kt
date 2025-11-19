@@ -1,6 +1,5 @@
 package com.bibliotecaunifor
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,19 +27,67 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.Toast
 
 @Composable
-fun EditarReserva(navController: NavController, salaNome: String) {
+fun EditarReserva(navController: NavController, reservaId: String) {
     val contexto = LocalContext.current
     var menuAberto by remember { mutableStateOf(false) }
     var horarioEntrada by remember { mutableStateOf<String?>(null) }
     var horarioSaida by remember { mutableStateOf<String?>(null) }
+    var reserva by remember { mutableStateOf<Reserva?>(null) }
+    val db = FirebaseFirestore.getInstance()
 
     val horarios = listOf(
         "07:00", "08:00", "09:00", "10:00", "11:00",
         "12:00", "13:00", "14:00", "15:00", "16:00",
         "17:00", "18:00", "19:00", "20:00"
     )
+
+    LaunchedEffect(reservaId) {
+        db.collection("reservas").document(reservaId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    reserva = Reserva(
+                        id = document.getString("id") ?: "",
+                        salaNome = document.getString("salaNome") ?: "",
+                        horarioInicio = document.getString("horarioInicio") ?: "",
+                        horarioFim = document.getString("horarioFim") ?: "",
+                        data = document.getString("data") ?: "",
+                        status = document.getString("status") ?: "",
+                        usuarioNome = document.getString("usuarioNome") ?: "",
+                        usuarioMatricula = document.getString("usuarioMatricula") ?: "",
+                        salaId = document.getString("salaId") ?: ""
+                    )
+                    horarioEntrada = document.getString("horarioInicio")
+                    horarioSaida = document.getString("horarioFim")
+                }
+            }
+    }
+
+    fun atualizarReserva() {
+        if (horarioEntrada != null && horarioSaida != null && reserva != null) {
+            val updates = hashMapOf<String, Any>(
+                "horarioInicio" to horarioEntrada!!,
+                "horarioFim" to horarioSaida!!,
+                "dataAtualizacao" to java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(java.util.Date())
+            )
+
+            db.collection("reservas").document(reservaId)
+                .update(updates)
+                .addOnSuccessListener {
+                    Toast.makeText(contexto, "Reserva atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                    navController.popBackStack()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(contexto, "Erro ao atualizar reserva", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(contexto, "Selecione os horários!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -136,7 +183,7 @@ fun EditarReserva(navController: NavController, salaNome: String) {
                             fontSize = 18.sp
                         )
                         Text(
-                            text = salaNome,
+                            text = reserva?.salaNome ?: "",
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -238,14 +285,7 @@ fun EditarReserva(navController: NavController, salaNome: String) {
             }
 
             Button(
-                onClick = {
-                    if (horarioEntrada != null && horarioSaida != null) {
-                        Toast.makeText(contexto, "Reserva atualizada com sucesso!", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                    } else {
-                        Toast.makeText(contexto, "Selecione os horários!", Toast.LENGTH_SHORT).show()
-                    }
-                },
+                onClick = { atualizarReserva() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E4C93)),
                 shape = RoundedCornerShape(6.dp),
                 modifier = Modifier

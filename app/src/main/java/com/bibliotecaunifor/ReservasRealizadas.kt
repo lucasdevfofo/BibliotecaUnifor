@@ -23,22 +23,43 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import android.widget.Toast
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun TelaReservasRealizadas(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
-    val reservas = remember {
-        mutableStateListOf(
-            ReservaExemplo("SALA 01", "14:00 às 16:00", "15/11/2025")
-        )
-    }
+    var reservas by remember { mutableStateOf<List<Reserva>>(emptyList()) }
     var reservaExpandida by remember { mutableStateOf<String?>(null) }
+    val contexto = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
+
+    LaunchedEffect(Unit) {
+        carregarReservasUsuario(db) { reservasCarregadas ->
+            reservas = reservasCarregadas
+        }
+    }
+
+    fun cancelarReserva(id: String) {
+        db.collection("reservas").document(id)
+            .update("status", "cancelado")
+            .addOnSuccessListener {
+                reservas = reservas.filter { it.id != id }
+                Toast.makeText(contexto, "Reserva cancelada com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(contexto, "Erro ao cancelar reserva", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     Box(
         modifier = Modifier
@@ -129,92 +150,123 @@ fun TelaReservasRealizadas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            reservas.forEach { reserva ->
-                Card(
+            if (reservas.isEmpty()) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
-                        .border(1.dp, Color(0xFF044EE7), RoundedCornerShape(10.dp))
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Column(
+                    Text(
+                        text = "Nenhuma reserva encontrada",
+                        fontSize = 18.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Suas reservas aparecerão aqui",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                reservas.forEach { reserva ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                reservaExpandida = if (reservaExpandida == reserva.sala) null else reserva.sala
-                            }
-                            .padding(16.dp)
+                            .padding(horizontal = 20.dp, vertical = 8.dp)
+                            .border(1.dp, Color(0xFF044EE7), RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.White),
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    reservaExpandida = if (reservaExpandida == reserva.id) null else reserva.id
+                                }
+                                .padding(16.dp)
                         ) {
-                            Text(
-                                text = reserva.sala,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF044EE7)
-                            )
-                            Icon(
-                                imageVector = if (reservaExpandida == reserva.sala)
-                                    Icons.Filled.KeyboardArrowUp
-                                else
-                                    Icons.Filled.KeyboardArrowDown,
-                                contentDescription = "Expandir",
-                                tint = Color(0xFF044EE7)
-                            )
-                        }
-
-                        AnimatedVisibility(
-                            visible = reservaExpandida == reserva.sala,
-                            enter = expandVertically(),
-                            exit = shrinkVertically()
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 12.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Horário: ${reserva.horario}",
-                                    fontSize = 16.sp,
-                                    color = Color.Black
+                                    text = reserva.salaNome,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF044EE7)
                                 )
-                                Text(
-                                    text = "Data: ${reserva.data}",
-                                    fontSize = 16.sp,
-                                    color = Color.Black
+                                Icon(
+                                    imageVector = if (reservaExpandida == reserva.id)
+                                        Icons.Filled.KeyboardArrowUp
+                                    else
+                                        Icons.Filled.KeyboardArrowDown,
+                                    contentDescription = "Expandir",
+                                    tint = Color(0xFF044EE7)
                                 )
+                            }
 
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                            AnimatedVisibility(
+                                visible = reservaExpandida == reserva.id,
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 12.dp)
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            navController.navigate("tela_editar_reserva/${reserva.sala}")
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4F78)),
-                                        shape = RoundedCornerShape(8.dp),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text("Editar", color = Color.White)
-                                    }
+                                    Text(
+                                        text = "Horário: ${reserva.horarioInicio} às ${reserva.horarioFim}",
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    )
+                                    Text(
+                                        text = "Data: ${reserva.data}",
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    )
+                                    Text(
+                                        text = "Status: ${reserva.status}",
+                                        fontSize = 16.sp,
+                                        color = if (reserva.status == "pendente") Color(0xFF044EE7) else Color.Gray
+                                    )
 
-                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Spacer(modifier = Modifier.height(12.dp))
 
-                                    Button(
-                                        onClick = {},
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C)),
-                                        shape = RoundedCornerShape(8.dp),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text("Cancelar", color = Color.White)
+                                    if (reserva.status == "pendente") {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Button(
+                                                onClick = {
+                                                    navController.navigate("tela_editar_reserva/${reserva.id}")
+                                                },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4F78)),
+                                                shape = RoundedCornerShape(8.dp),
+                                                modifier = Modifier.weight(1f)
+                                            ) {
+                                                Text("Editar", color = Color.White)
+                                            }
+
+                                            Spacer(modifier = Modifier.width(10.dp))
+
+                                            Button(
+                                                onClick = {
+                                                    cancelarReserva(reserva.id)
+                                                },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C)),
+                                                shape = RoundedCornerShape(8.dp),
+                                                modifier = Modifier.weight(1f)
+                                            ) {
+                                                Text("Cancelar", color = Color.White)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -277,8 +329,42 @@ fun TelaReservasRealizadas(navController: NavController) {
     }
 }
 
-data class ReservaExemplo(
-    val sala: String,
-    val horario: String,
-    val data: String
+fun carregarReservasUsuario(db: FirebaseFirestore, onResult: (List<Reserva>) -> Unit) {
+    val usuarioId = Firebase.auth.currentUser?.uid ?: "user123"
+
+    db.collection("reservas")
+        .whereEqualTo("usuarioId", usuarioId)
+        .whereEqualTo("status", "pendente")
+        .get()
+        .addOnSuccessListener { documents ->
+            val reservasList = documents.documents.map { document ->
+                Reserva(
+                    id = document.id,
+                    salaNome = document.getString("salaNome") ?: "",
+                    horarioInicio = document.getString("horarioInicio") ?: "",
+                    horarioFim = document.getString("horarioFim") ?: "",
+                    data = document.getString("data") ?: "",
+                    status = document.getString("status") ?: "",
+                    usuarioNome = document.getString("usuarioNome") ?: "",
+                    usuarioMatricula = document.getString("usuarioMatricula") ?: "",
+                    salaId = document.getString("salaId") ?: ""
+                )
+            }
+            onResult(reservasList)
+        }
+        .addOnFailureListener {
+            onResult(emptyList())
+        }
+}
+
+data class Reserva(
+    val id: String,
+    val salaNome: String,
+    val horarioInicio: String,
+    val horarioFim: String,
+    val data: String,
+    val status: String,
+    val usuarioNome: String,
+    val usuarioMatricula: String,
+    val salaId: String
 )

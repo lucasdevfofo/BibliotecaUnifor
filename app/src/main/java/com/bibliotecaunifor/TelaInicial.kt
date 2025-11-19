@@ -348,11 +348,11 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "reserva_sala/{salaNome}",
-            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
+            route = "reserva_sala/{salaId}",
+            arguments = listOf(navArgument("salaId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
-            TelaReservaSala(navController = navController, salaNome = salaNome)
+            val salaId = backStackEntry.arguments?.getString("salaId") ?: ""
+            TelaReservaSala(navController = navController, salaId = salaId)
         }
 
         composable(Route.ReservaConfirmada.path) {
@@ -417,11 +417,11 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "tela_editar_reserva/{salaNome}",
-            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
+            route = "tela_editar_reserva/{reservaId}",
+            arguments = listOf(navArgument("reservaId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
-            EditarReserva(navController = navController, salaNome = salaNome)
+            val reservaId = backStackEntry.arguments?.getString("reservaId") ?: ""
+            EditarReserva(navController = navController, reservaId = reservaId)
         }
 
         composable(

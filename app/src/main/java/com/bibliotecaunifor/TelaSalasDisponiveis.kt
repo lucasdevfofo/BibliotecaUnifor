@@ -16,15 +16,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +29,18 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+data class SalaFirebase(
+    val id: String = "",
+    val nome: String = "",
+    val capacidade: Int = 0,
+    val localizacao: String = "",
+    val disponivel: Boolean = true
+)
 
 @Composable
 fun TelaSalasDisponiveis(
@@ -41,6 +50,40 @@ fun TelaSalasDisponiveis(
 ) {
     var menuAberto by remember { mutableStateOf(false) }
     var chatAberto by remember { mutableStateOf(false) }
+    var salas by remember { mutableStateOf<List<SalaFirebase>>(emptyList()) }
+    var carregando by remember { mutableStateOf(false) }
+    var erro by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        carregando = true
+        scope.launch {
+            try {
+                val db = Firebase.firestore
+                val result = db.collection("salas").get().await()
+
+                salas = result.documents.map { doc ->
+                    val capacidade = when {
+                        doc.get("capacidade") is Long -> doc.getLong("capacidade")?.toInt() ?: 0
+                        doc.get("capacidade") is String -> doc.getString("capacidade")?.toIntOrNull() ?: 0
+                        else -> 0
+                    }
+
+                    SalaFirebase(
+                        id = doc.id,
+                        nome = doc.getString("nome") ?: "Sala sem nome",
+                        capacidade = capacidade,
+                        localizacao = doc.getString("localizacao") ?: "",
+                        disponivel = doc.getBoolean("disponivel") ?: true
+                    )
+                }
+                carregando = false
+            } catch (e: Exception) {
+                erro = "Erro ao carregar salas"
+                carregando = false
+            }
+        }
+    }
 
     LaunchedEffect(menuAberto) {
         if (menuAberto) chatAberto = false
@@ -148,39 +191,67 @@ fun TelaSalasDisponiveis(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            val salas = listOf(
-                "SALA 01", "SALA 02", "SALA 03", "SALA 04",
-                "SALA 05", "SALA 06", "SALA 07", "SALA 08"
-            )
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                itemsIndexed(salas) { index, sala ->
-                    val bgColor = if (index % 2 == 0) Color(0xFFE7EEFF) else Color.Transparent
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(bgColor, RoundedCornerShape(4.dp))
-                            .padding(vertical = 12.dp)
-                            .clickable { navController.navigate("reserva_sala/$sala") }
-                    ) {
-                        Text(
-                            text = sala,
-                            color = Color(0xFF044EE7),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
+            if (carregando) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (erro != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = erro!!,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = 20.dp)
+                ) {
+                    itemsIndexed(salas.filter { it.disponivel }.sortedBy { it.nome }) { index, sala ->
+                        val bgColor = if (index % 2 == 0) Color(0xFFE7EEFF) else Color.Transparent
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(bgColor, RoundedCornerShape(4.dp))
+                                .padding(vertical = 12.dp)
+                                .clickable {
+                                    navController.navigate("reserva_sala/${sala.id}")
+                                }
+                        ) {
+                            Column(modifier = Modifier.padding(start = 10.dp)) {
+                                Text(
+                                    text = sala.nome,
+                                    color = Color(0xFF044EE7),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Capacidade: ${sala.capacidade} pessoas",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
-
 
             Row(
                 modifier = Modifier
@@ -190,7 +261,6 @@ fun TelaSalasDisponiveis(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = null,
@@ -248,7 +318,6 @@ fun TelaSalasDisponiveis(
             )
         }
 
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -257,7 +326,6 @@ fun TelaSalasDisponiveis(
         ) {
             FloatingActionButton(
                 onClick = {
-
                     navController.navigate(Route.TelaChatbotUsuario.path)
                 },
                 modifier = Modifier
@@ -273,21 +341,14 @@ fun TelaSalasDisponiveis(
                 )
             }
         }
-
-
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
 fun TelaSalasDisponiveisPreview() {
-
     if (androidx.compose.ui.platform.LocalInspectionMode.current) {
-
         val fakeNavController = rememberNavController()
-
         BibliotecaUniforTheme {
             TelaSalasDisponiveis(
                 navController = fakeNavController,
