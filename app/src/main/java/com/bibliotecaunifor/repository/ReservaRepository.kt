@@ -2,7 +2,6 @@ package com.bibliotecaunifor.repository
 
 import com.bibliotecaunifor.model.Reserva
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
@@ -12,7 +11,7 @@ class ReservaRepository {
     private val db = FirebaseFirestore.getInstance()
     private val collection = db.collection("reservas")
 
-    // ------------ CRIAR RESERVA ---------------
+
     suspend fun criarReserva(reserva: Reserva): Result<Boolean> {
         return try {
             val reservaData = hashMapOf(
@@ -38,12 +37,11 @@ class ReservaRepository {
         }
     }
 
-    // ------------ BUSCAR MINHAS RESERVAS ---------------
+
     suspend fun getMinhasReservas(usuarioId: String): List<Reserva> {
         return try {
             val result = collection
                 .whereEqualTo("usuarioId", usuarioId)
-                // .orderBy("data", Query.Direction.DESC) // REMOVER ESTA LINHA
                 .get()
                 .await()
 
@@ -62,13 +60,49 @@ class ReservaRepository {
                     dataCriacao = doc.getString("dataCriacao") ?: "",
                     dataAtualizacao = doc.getString("dataAtualizacao") ?: ""
                 )
-            }.sortedByDescending { it.data } // Ordenar localmente
+            }.sortedByDescending { it.data }
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    // ------------ VERIFICAR DISPONIBILIDADE ---------------
+
+    suspend fun buscarTodasReservasUsuario(usuarioId: String): List<Reserva> {
+        return try {
+            val result = collection
+                .whereEqualTo("usuarioId", usuarioId)
+                .get()
+                .await()
+
+            result.documents.map { doc ->
+                Reserva(
+                    id = doc.getString("id") ?: doc.id,
+                    usuarioId = doc.getString("usuarioId") ?: "",
+                    usuarioNome = doc.getString("usuarioNome") ?: "",
+                    usuarioMatricula = doc.getString("usuarioMatricula") ?: "",
+                    salaId = doc.getString("salaId") ?: "",
+                    salaNome = doc.getString("salaNome") ?: "",
+                    data = doc.getString("data") ?: "",
+                    horarioInicio = doc.getString("horarioInicio") ?: "",
+                    horarioFim = doc.getString("horarioFim") ?: "",
+                    status = doc.getString("status") ?: "pendente",
+                    dataCriacao = doc.getString("dataCriacao") ?: "",
+                    dataAtualizacao = doc.getString("dataAtualizacao") ?: ""
+                )
+            }.sortedByDescending { reserva ->
+                try {
+                    val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    format.parse(reserva.data)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+
     suspend fun verificarDisponibilidade(salaId: String, data: String, horarioInicio: String, horarioFim: String): Boolean {
         return try {
             val result = collection
