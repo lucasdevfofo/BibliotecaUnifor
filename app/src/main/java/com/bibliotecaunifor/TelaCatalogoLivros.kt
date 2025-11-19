@@ -24,99 +24,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import android.net.Uri
-
-data class Livro(
-    val titulo: String,
-    val descricao: String,
-    val genero: String,
-    val autor: String,
-    val disponibilidade: String
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaCatalogoLivros(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
     var pesquisa by remember { mutableStateOf("") }
+    val viewModel: TelaCatalogoLivrosViewModel = viewModel()
 
-    val livros = listOf(
-        Livro(
-            "O Pequeno Príncipe",
-            "Uma fábula poética sobre amor, amizade e a essência da vida, acompanhando um jovem príncipe em sua jornada por diferentes planetas.",
-            "Fábula filosófica / Literatura infantojuvenil",
-            "Antoine de Saint-Exupéry",
-            "Disponível"
-        ),
-        Livro(
-            "Noites Brancas",
-            "Um jovem sonhador conhece uma mulher em São Petersburgo e vive quatro noites intensas que marcam sua vida para sempre.",
-            "Romance psicológico",
-            "Fiódor Dostoiévski",
-            "Disponível"
-        ),
-        Livro(
-            "Código Limpo",
-            "Um guia essencial para desenvolvedores que buscam escrever código legível, eficiente e fácil de manter.",
-            "Tecnologia / Programação",
-            "Robert C. Martin",
-            "Disponível"
-        ),
-        Livro(
-            "Entendendo Algoritmos",
-            "Uma introdução visual e prática ao mundo dos algoritmos e estruturas de dados, perfeita para iniciantes em programação.",
-            "Tecnologia / Computação",
-            "Aditya Bhargava",
-            "Disponível"
-        ),
-        Livro(
-            "JavaScript: O Guia Definitivo",
-            "A obra mais completa sobre JavaScript, cobrindo desde os fundamentos até conceitos avançados da linguagem.",
-            "Tecnologia / Desenvolvimento Web",
-            "David Flanagan",
-            "Disponível"
-        ),
-        Livro(
-            "Dom Casmurro",
-            "A clássica história de amor e ciúmes entre Bentinho e Capitu, escrita com maestria por Machado de Assis.",
-            "Romance realista / Literatura brasileira",
-            "Machado de Assis",
-            "Indisponível"
-        ),
-        Livro(
-            "O Hobbit",
-            "Bilbo Bolseiro embarca em uma inesperada aventura ao lado de anões e do mago Gandalf em busca de um tesouro guardado por um dragão.",
-            "Fantasia / Aventura",
-            "J. R. R. Tolkien",
-            "Disponível"
-        ),
-        Livro(
-            "1984",
-            "Um retrato distópico de um futuro controlado por um regime totalitário, onde o Grande Irmão tudo vê.",
-            "Distopia / Política / Ficção científica",
-            "George Orwell",
-            "Disponível"
-        ),
-        Livro(
-            "O Cortiço",
-            "Um retrato vívido da vida em um cortiço carioca, explorando desigualdade social, miséria e ambição.",
-            "Naturalismo / Literatura brasileira",
-            "Aluísio Azevedo",
-            "Disponível"
-        ),
-        Livro(
-            "Orgulho e Preconceito",
-            "A história envolvente entre Elizabeth Bennet e o sr. Darcy, marcada por ironia, amor e críticas sociais sutis.",
-            "Romance clássico / Literatura inglesa",
-            "Jane Austen",
-            "Disponível"
-        )
-    )
+    LaunchedEffect(Unit) {
+        viewModel.carregarLivros()
+    }
 
-    val livrosFiltrados = remember(pesquisa) {
-        if (pesquisa.isBlank()) livros
-        else livros.filter { it.titulo.contains(pesquisa, ignoreCase = true) }
+    LaunchedEffect(pesquisa) {
+        viewModel.pesquisarLivros(pesquisa)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -253,38 +177,120 @@ fun TelaCatalogoLivros(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                items(livrosFiltrados) { livro ->
+            when {
+                viewModel.loading -> {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
-                            .padding(vertical = 12.dp)
-                            .clickable {
-                                val tituloEncoded = Uri.encode(livro.titulo)
-                                val descricaoEncoded = Uri.encode(livro.descricao)
-                                val generoEncoded = Uri.encode(livro.genero)
-                                val autorEncoded = Uri.encode(livro.autor)
-                                val disponivelEncoded = Uri.encode(livro.disponibilidade)
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(48.dp),
+                                color = Color(0xFF044EE7)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                "Carregando livros...",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
 
-                                navController.navigate(
-                                    "descricao_livro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
+                viewModel.erro != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                "Erro: ${viewModel.erro}",
+                                fontSize = 16.sp,
+                                color = Color.Red
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.carregarLivros() },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7))
+                            ) {
+                                Text("Tentar Novamente")
+                            }
+                        }
+                    }
+                }
+
+                viewModel.livrosFiltrados.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                if (pesquisa.isBlank()) "Nenhum livro cadastrado" else "Nenhum livro encontrado",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                            if (pesquisa.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    "Tente buscar por outro termo",
+                                    fontSize = 14.sp,
+                                    color = Color.Gray
                                 )
                             }
-                    ) {
-                        Text(
-                            text = livro.titulo,
-                            color = Color(0xFF044EE7),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 20.dp)
+                    ) {
+                        items(viewModel.livrosFiltrados) { livro ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
+                                    .padding(vertical = 12.dp)
+                                    .clickable {
+                                        val tituloEncoded = Uri.encode(livro.titulo)
+                                        val descricaoEncoded = Uri.encode(livro.descricao)
+                                        val generoEncoded = Uri.encode(livro.genero)
+                                        val autorEncoded = Uri.encode(livro.autor)
+                                        val disponivelEncoded = Uri.encode(livro.disponibilidade)
+
+                                        navController.navigate(
+                                            "descricao_livro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
+                                        )
+                                    }
+                            ) {
+                                Column(modifier = Modifier.padding(horizontal = 10.dp)) {
+                                    Text(
+                                        text = livro.titulo,
+                                        color = Color(0xFF044EE7),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "por ${livro.autor}",
+                                        color = Color(0xFF044EE7).copy(alpha = 0.7f),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
                 }
             }
         }
