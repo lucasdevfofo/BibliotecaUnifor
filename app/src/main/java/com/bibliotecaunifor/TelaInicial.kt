@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,11 +32,12 @@ import com.bibliotecaunifor.Adm.*
 import com.bibliotecaunifor.Usuario.TelaNotificacoesUsuario
 import com.bibliotecaunifor.cadastro.TelaCadastro
 import com.bibliotecaunifor.cadastro.TelaCadastroAdm
+import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.perfilAluno.TelaEditarUsuario
 import com.bibliotecaunifor.perfilAluno.TelaPerfilAluno
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import com.bibliotecaunifor.viewmodel.UsuarioAdminViewModel
+
 class TelaInicialActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +82,6 @@ fun AppNavigation() {
                 onNavigateUp = { navController.popBackStack() },
                 onIrParaAdminClick = { navController.navigate(Route.TelaCadastroAdm.path) },
                 onNavigateSuccess = {
-                    // Depois de cadastrar, volta ao login
                     navController.popBackStack(Route.Login.path, inclusive = false)
                 }
             )
@@ -145,7 +148,6 @@ fun AppNavigation() {
         composable(
             route = "tela_admin_editar_livro/{tituloLivro}",
             arguments = listOf(navArgument("tituloLivro") { type = NavType.StringType })
-
         ) { backStackEntry ->
             val tituloLivro = backStackEntry.arguments?.getString("tituloLivro") ?: ""
             TelaAdminEditarLivro(
@@ -161,6 +163,8 @@ fun AppNavigation() {
         }
 
         composable(Route.TelaAdminGerenciarUsuarios.path) {
+            val viewModel: UsuarioAdminViewModel = viewModel()
+
             TelaAdminGerenciarUsuarios(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
@@ -169,14 +173,16 @@ fun AppNavigation() {
                 onNavUsuariosClick = {},
                 onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
                 onCadastrarUsuarioClick = { navController.navigate(Route.TelaAdminCadastrarUsuario.path) },
-                onEditarUsuarioClick = { usuario ->
-                    val nomeCodificado = URLEncoder.encode(usuario.nome, StandardCharsets.UTF_8.toString())
-                    navController.navigate(Route.adminEditarUsuario(nomeCodificado))
+                onEditarUsuarioClick = { uid, usuario ->
+                    navController.navigate("tela_admin_editar_usuario/$uid")
                 },
-                onExcluirUsuarioClick = {},
+                onExcluirUsuarioClick = { uid, usuario ->
+                    viewModel.excluirUsuario(uid)
+                },
                 currentRoute = Route.TelaAdminGerenciarUsuarios.path
             )
         }
+
         composable(Route.TelaAdminCadastrarSala.path) {
             TelaAdminCadastrarSala(
                 navController = navController,
@@ -204,27 +210,19 @@ fun AppNavigation() {
         composable(Route.TelaAdminCadastrarUsuario.path) {
             TelaAdminCadastrarUsuario(
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
-                onMenuClick = {  },
-                onConfirmarCadastro = { _, _, _, _, _, _ ->
-                    navController.popBackStack()
-                }
+                onCadastroSucesso = { navController.popBackStack() }
             )
         }
 
         composable(
-            route = Route.TelaAdminEditarUsuario.path,
-            arguments = listOf(navArgument("nomeUsuario") { type = NavType.StringType })
+            route = "tela_admin_editar_usuario/{uid}",
+            arguments = listOf(navArgument("uid") { type = NavType.StringType })
         ) { backStackEntry ->
-            val nomeUsuario = backStackEntry.arguments?.getString("nomeUsuario") ?: ""
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
             TelaAdminEditarUsuario(
-                nomeUsuario = nomeUsuario,
+                uid = uid,
                 onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
-                onMenuClick = {  },
-                onConfirmarEdicao = { _, _, _, _, _, _ ->
-                    navController.popBackStack()
-                }
+                onEdicaoSucesso = { navController.popBackStack() }
             )
         }
 
@@ -294,7 +292,7 @@ fun AppNavigation() {
                 currentRoute = Route.TelaCatalogoLivrosAdmin.path,
                 onAdicionarLivroClick = { navController.navigate(Route.TelaAdicionarLivroAdmin.path) },
                 onEditarLivroClick = { livro ->
-                    val tituloCodificado = java.net.URLEncoder.encode(livro.titulo, "UTF-8")
+                    val tituloCodificado = Uri.encode(livro.titulo)
                     navController.navigate("tela_admin_editar_livro/$tituloCodificado")
                 },
                 onExcluirLivroClick = { livro ->
@@ -450,7 +448,6 @@ fun AppNavigation() {
                 disponibilidade = disponibilidade
             )
         }
-
 
         composable(
             route = "comunicados/{titulo}/{mensagem}",

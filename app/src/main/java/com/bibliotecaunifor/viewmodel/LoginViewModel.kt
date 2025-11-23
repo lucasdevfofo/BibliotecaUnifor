@@ -13,13 +13,12 @@ import kotlinx.coroutines.launch
 class LoginViewModel : ViewModel() {
 
     private val authRepo = AuthRepository()
-    private val usuarioRepo = UsuarioRepository() // Vamos usar para checar o tipo
+    private val usuarioRepo = UsuarioRepository()
 
     var loading by mutableStateOf(false)
     var sucesso by mutableStateOf(false)
     var erro by mutableStateOf<String?>(null)
 
-    // Agora recebe o booleano do botão (isAdmin)
     fun loginComMatricula(matricula: String, senha: String, tentarComoAdmin: Boolean) {
         loading = true
         erro = null
@@ -37,17 +36,16 @@ class LoginViewModel : ViewModel() {
                 val uid = FirebaseAuth.getInstance().currentUser?.uid
 
                 if (uid != null) {
+                    // CORREÇÃO: Chamada correta da função suspend
                     val usuarioDoBanco = usuarioRepo.buscarUsuario(uid)
-                    val tipoNoBanco = usuarioDoBanco?.tipo ?: "usuario" // Se não tiver tipo, assume usuario
+                    val tipoNoBanco = usuarioDoBanco?.tipo ?: "usuario"
 
                     // LÓGICA DE SEGURANÇA:
-                    // Se o usuário quer entrar como Admin, mas no banco não é Admin...
                     if (tentarComoAdmin && tipoNoBanco != "admin") {
                         erro = "Acesso Negado: Esta conta não possui permissão de Administrador."
-                        FirebaseAuth.getInstance().signOut() // Desloga o intruso imediatamente
+                        FirebaseAuth.getInstance().signOut()
                         loading = false
                     } else {
-                        // Tudo certo! (Ou é admin legítimo, ou é usuário entrando como usuário)
                         sucesso = true
                         loading = false
                     }

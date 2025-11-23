@@ -22,28 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.Route
-
-data class UsuarioAdmin(
-    val id: Int,
-    val nome: String,
-    val email: String,
-    val matricula: String,
-    val isBlocked: Boolean = false
-)
-
-val usuariosExemplo = listOf(
-    UsuarioAdmin(1, "ISABELLE FEITOSA", "isabelle@edu.unifor.br", "2345987"),
-    UsuarioAdmin(2, "MARIA CLARA MARQUES", "maria@edu.unifor.br", "2345988"),
-    UsuarioAdmin(3, "ROSA MARTINS", "rosa@edu.unifor.br", "2345989"),
-    UsuarioAdmin(4, "ANA CLARA DOSTOIÉVSKI", "ana@edu.unifor.br", "2345990"),
-    UsuarioAdmin(5, "ANALICE CASTRO", "analice@edu.unifor.br", "2345991"),
-    UsuarioAdmin(6, "JÚLIA MENDES", "julia@edu.unifor.br", "2345992"),
-    UsuarioAdmin(7, "PEDRO AUGUSTO", "pedro@edu.unifor.br", "2345993"),
-    UsuarioAdmin(8, "CAIO HENRIQUE", "caio@edu.unifor.br", "2345994")
-)
+import com.bibliotecaunifor.model.UsuarioModel
+import com.bibliotecaunifor.viewmodel.UsuarioAdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,15 +39,27 @@ fun TelaAdminGerenciarUsuarios(
     onNavUsuariosClick: () -> Unit = {},
     onNavPerfilClick: () -> Unit = {},
     onCadastrarUsuarioClick: () -> Unit = {},
-    onEditarUsuarioClick: (UsuarioAdmin) -> Unit = {},
-    onExcluirUsuarioClick: (UsuarioAdmin) -> Unit = {},
+    onEditarUsuarioClick: (String, UsuarioModel) -> Unit = { _, _ -> },
+    onExcluirUsuarioClick: (String, UsuarioModel) -> Unit = { _, _ -> }, // CORREÇÃO: Removido @Composable
     currentRoute: String = ""
 ) {
+    val viewModel: UsuarioAdminViewModel = viewModel()
+    val usuarios by viewModel.usuarios.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensagem by viewModel.mensagem.collectAsState()
+
     var menuLateralAberto by remember { mutableStateOf(false) }
     var textoPesquisa by remember { mutableStateOf("") }
 
-    val usuariosFiltrados = usuariosExemplo.filter { usuario ->
-        usuario.nome.contains(textoPesquisa, ignoreCase = true) ||
+    LaunchedEffect(mensagem) {
+        mensagem?.let {
+            println("MENSAGEM: $it")
+            viewModel.limparMensagem()
+        }
+    }
+
+    val usuariosFiltrados = usuarios.filter { (_, usuario) ->
+        usuario.nomeCompleto.contains(textoPesquisa, ignoreCase = true) ||
                 usuario.email.contains(textoPesquisa, ignoreCase = true) ||
                 usuario.matricula.contains(textoPesquisa, ignoreCase = true)
     }
@@ -102,7 +98,6 @@ fun TelaAdminGerenciarUsuarios(
                     modifier = Modifier.padding(16.dp)
                 )
 
-
                 OutlinedTextField(
                     value = textoPesquisa,
                     onValueChange = { textoPesquisa = it },
@@ -129,8 +124,17 @@ fun TelaAdminGerenciarUsuarios(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-
-                if (usuariosFiltrados.isEmpty()) {
+                if (isLoading) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = Color(0xFF3F4F78))
+                    }
+                } else if (usuariosFiltrados.isEmpty()) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -150,11 +154,11 @@ fun TelaAdminGerenciarUsuarios(
                             .fillMaxWidth()
                             .weight(1f)
                     ) {
-                        items(usuariosFiltrados) { usuario ->
-                            UsuarioItem(
+                        items(usuariosFiltrados) { (uid, usuario) ->
+                            UsuarioRealItem(
                                 usuario = usuario,
-                                onEditarClick = { onEditarUsuarioClick(usuario) },
-                                onExcluirClick = { onExcluirUsuarioClick(usuario) }
+                                onEditarClick = { onEditarUsuarioClick(uid, usuario) },
+                                onExcluirClick = { onExcluirUsuarioClick(uid, usuario) } // CORREÇÃO: Chamada normal
                             )
                             Divider(
                                 color = Color.LightGray.copy(alpha = 0.5f),
@@ -164,7 +168,6 @@ fun TelaAdminGerenciarUsuarios(
                         }
                     }
                 }
-
 
                 Box(
                     modifier = Modifier
@@ -197,8 +200,6 @@ fun TelaAdminGerenciarUsuarios(
             }
         }
 
-
-
         if (menuLateralAberto) {
             Box(
                 modifier = Modifier
@@ -220,10 +221,10 @@ fun TelaAdminGerenciarUsuarios(
 }
 
 @Composable
-fun UsuarioItem(
-    usuario: UsuarioAdmin,
+fun UsuarioRealItem(
+    usuario: UsuarioModel,
     onEditarClick: () -> Unit,
-    onExcluirClick: () -> Unit
+    onExcluirClick: () -> Unit // CORREÇÃO: Removido @Composable
 ) {
     Row(
         modifier = Modifier
@@ -249,12 +250,11 @@ fun UsuarioItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = usuario.nome,
+                text = usuario.nomeCompleto,
                 color = Color.Black,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
@@ -265,12 +265,11 @@ fun UsuarioItem(
                 fontSize = 14.sp
             )
             Text(
-                text = "Matrícula: ${usuario.matricula}",
+                text = "Matrícula: ${usuario.matricula} • ${usuario.curso}",
                 color = Color.Gray,
                 fontSize = 12.sp
             )
         }
-
 
         Row {
             IconButton(
@@ -284,7 +283,7 @@ fun UsuarioItem(
                 )
             }
             IconButton(
-                onClick = onExcluirClick,
+                onClick = onExcluirClick, // CORREÇÃO: Chamada normal
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
@@ -308,14 +307,17 @@ fun TelaAdminGerenciarUsuariosPreview() {
 @Preview(showBackground = true)
 @Composable
 fun UsuarioItemPreview() {
-    val usuarioExemplo = UsuarioAdmin(
-        1,
-        "ISABELLE FEITOSA",
-        "isabelle@edu.unifor.br",
-        "2345987"
+    val usuarioExemplo = UsuarioModel(
+        nomeCompleto = "ISABELLE FEITOSA",
+        email = "isabelle@edu.unifor.br",
+        matricula = "2345987",
+        curso = "Ciência da Computação",
+        cpf = "123.456.789-00",
+        telefone = "(85) 99999-9999",
+        tipo = "usuario"
     )
 
-    UsuarioItem(
+    UsuarioRealItem(
         usuario = usuarioExemplo,
         onEditarClick = {},
         onExcluirClick = {}

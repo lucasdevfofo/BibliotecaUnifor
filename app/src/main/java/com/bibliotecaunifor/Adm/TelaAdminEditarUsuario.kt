@@ -14,45 +14,68 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-
-
+import com.bibliotecaunifor.viewmodel.UsuarioAdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaAdminEditarUsuario(
-
-    nomeUsuario: String,
+    uid: String,
     onVoltarClick: () -> Unit,
-    onNotificacoesClick: () -> Unit,
-    onMenuClick: () -> Unit,
-    onConfirmarEdicao: (
-        novoNome: String,
-        novaMatricula: String,
-        novoEmail: String,
-        novoTelefone: String,
-        novoCpf: String,
-        novoCurso: String
-    ) -> Unit
+    onEdicaoSucesso: () -> Unit
 ) {
+    val viewModel: UsuarioAdminViewModel = viewModel()
+    val usuarios by viewModel.usuarios.collectAsState()
+    val mensagem by viewModel.mensagem.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     val azulPrimario = Color(0xFF3F4F78)
 
-    // 1. Definição dos estados mutáveis para cada campo
-    var nome by remember { mutableStateOf(nomeUsuario) }
-    var matricula by remember { mutableStateOf("2345989") }
-    var email by remember { mutableStateOf("analicecastro@gmail.com") }
-    var telefone by remember { mutableStateOf("82 9 8273-9280") }
-    var cpf by remember { mutableStateOf("888.222.444-99") }
-    var curso by remember { mutableStateOf("Cienc. da Comp.") }
+    // Busca o usuário na lista pelo UID
+    val usuarioPair = usuarios.firstOrNull { it.first == uid }
+    val usuarioData = usuarioPair?.second ?: UsuarioModel(
+        nomeCompleto = "Usuário não encontrado",
+        matricula = "",
+        email = "",
+        telefone = "",
+        cpf = "",
+        curso = "",
+        tipo = "usuario"
+    )
 
+    var nome by remember { mutableStateOf(usuarioData.nomeCompleto) }
+    var matricula by remember { mutableStateOf(usuarioData.matricula) }
+    var email by remember { mutableStateOf(usuarioData.email) }
+    var telefone by remember { mutableStateOf(usuarioData.telefone) }
+    var cpf by remember { mutableStateOf(usuarioData.cpf) }
+    var curso by remember { mutableStateOf(usuarioData.curso) }
+
+    // Atualiza os campos quando o usuárioData muda
+    LaunchedEffect(usuarioData) {
+        nome = usuarioData.nomeCompleto
+        matricula = usuarioData.matricula
+        email = usuarioData.email
+        telefone = usuarioData.telefone
+        cpf = usuarioData.cpf
+        curso = usuarioData.curso
+    }
+
+    LaunchedEffect(mensagem) {
+        mensagem?.let {
+            if (it.contains("sucesso")) {
+                onEdicaoSucesso()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
-
             AdminTopBarUsuarios(
                 onVoltarClick = onVoltarClick,
-                onNotificacoesClick = {   },
-                onMenuClick = {   }
+                onNotificacoesClick = { },
+                onMenuClick = { }
             )
         },
     ) { paddingValues ->
@@ -74,7 +97,6 @@ fun TelaAdminEditarUsuario(
                     .align(Alignment.Start)
             )
 
-
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -85,9 +107,7 @@ fun TelaAdminEditarUsuario(
                 Icon(Icons.Default.Person, contentDescription = "Perfil", modifier = Modifier.size(48.dp), tint = Color.Gray)
             }
 
-
             Spacer(modifier = Modifier.height(8.dp))
-
 
             OutlinedTextField(
                 value = nome,
@@ -98,46 +118,41 @@ fun TelaAdminEditarUsuario(
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-
             OutlinedTextField(
                 value = matricula,
-                onValueChange = { matricula = it }, // Atualiza o estado
+                onValueChange = { matricula = it },
                 label = { Text("Matrícula") },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth().height(55.dp).padding(bottom = 8.dp),
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it }, // Atualiza o estado
+                onValueChange = { email = it },
                 label = { Text("Email") },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth().height(55.dp).padding(bottom = 8.dp),
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-
             OutlinedTextField(
                 value = telefone,
-                onValueChange = { telefone = it }, // Atualiza o estado
+                onValueChange = { telefone = it },
                 label = { Text("Telefone") },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth().height(55.dp).padding(bottom = 8.dp),
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
 
-
             OutlinedTextField(
                 value = cpf,
-                onValueChange = { cpf = it }, // Atualiza o estado
+                onValueChange = { cpf = it },
                 label = { Text("CPF") },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth().height(55.dp).padding(bottom = 8.dp),
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.LightGray, focusedBorderColor = azulPrimario)
             )
-
 
             OutlinedTextField(
                 value = curso,
@@ -150,24 +165,36 @@ fun TelaAdminEditarUsuario(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Button(
                 onClick = {
-
-                    onConfirmarEdicao(nome, matricula, email, telefone, cpf, curso)
+                    val usuarioAtualizado = UsuarioModel(
+                        nomeCompleto = nome,
+                        matricula = matricula,
+                        email = email,
+                        telefone = telefone,
+                        cpf = cpf,
+                        curso = curso,
+                        tipo = usuarioData.tipo
+                    )
+                    viewModel.editarUsuario(uid, usuarioAtualizado)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(55.dp)
+                    .height(55.dp),
+                enabled = !isLoading
             ) {
-                Text(
-                    "CONFIRMAR",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                } else {
+                    Text(
+                        "CONFIRMAR",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -178,11 +205,9 @@ fun TelaAdminEditarUsuario(
 fun TelaAdminEditarUsuarioPreview() {
     BibliotecaUniforTheme {
         TelaAdminEditarUsuario(
-            nomeUsuario = "Analice Castro",
+            uid = "123",
             onVoltarClick = {},
-            onNotificacoesClick = {},
-            onMenuClick = {},
-            onConfirmarEdicao = { a, b, c, d, e, f -> }
+            onEdicaoSucesso = {}
         )
     }
 }
