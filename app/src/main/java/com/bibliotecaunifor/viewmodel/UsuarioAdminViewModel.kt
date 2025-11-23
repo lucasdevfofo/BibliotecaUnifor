@@ -8,6 +8,8 @@ import com.bibliotecaunifor.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class UsuarioAdminViewModel : ViewModel() {
@@ -17,6 +19,18 @@ class UsuarioAdminViewModel : ViewModel() {
 
     private val _usuarios = MutableStateFlow<List<Pair<String, UsuarioModel>>>(emptyList())
     val usuarios: StateFlow<List<Pair<String, UsuarioModel>>> = _usuarios.asStateFlow()
+
+    // CORREÇÃO: Usar stateIn para converter para StateFlow
+    val usuariosSemAdmin: StateFlow<List<Pair<String, UsuarioModel>>> =
+        _usuarios.map { usuariosList ->
+            usuariosList.filter { (_, usuario) ->
+                usuario.tipo != "admin"
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -44,25 +58,18 @@ class UsuarioAdminViewModel : ViewModel() {
 
     fun cadastrarUsuario(usuario: UsuarioModel, senha: String) {
         viewModelScope.launch {
-            println("🔷 DEBUG ViewModel: cadastrarUsuario INICIADO")
             _isLoading.value = true
-
             try {
                 authRepository.adminCadastrarUsuario(usuario, senha) { success, message ->
-                    println("🔶 DEBUG ViewModel: Callback recebido - Success: $success, Message: $message")
-
                     if (success) {
-                        println("✅ DEBUG ViewModel: CADASTRO SUCESSO - Chamando carregarUsuarios()")
                         _mensagem.value = "Usuário cadastrado com sucesso!"
                         carregarUsuarios()
                     } else {
-                        println("❌ DEBUG ViewModel: CADASTRO FALHOU - $message")
                         _mensagem.value = "Erro ao cadastrar: $message"
                     }
                     _isLoading.value = false
                 }
             } catch (e: Exception) {
-                println("💥 DEBUG ViewModel: EXCEPTION - ${e.message}")
                 _mensagem.value = "Erro: ${e.message}"
                 _isLoading.value = false
             }

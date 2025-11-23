@@ -40,11 +40,11 @@ fun TelaAdminGerenciarUsuarios(
     onNavPerfilClick: () -> Unit = {},
     onCadastrarUsuarioClick: () -> Unit = {},
     onEditarUsuarioClick: (String, UsuarioModel) -> Unit = { _, _ -> },
-    onExcluirUsuarioClick: (String, UsuarioModel) -> Unit = { _, _ -> }, // CORREÇÃO: Removido @Composable
+    onExcluirUsuarioClick: (String, UsuarioModel) -> Unit = { _, _ -> },
     currentRoute: String = ""
 ) {
     val viewModel: UsuarioAdminViewModel = viewModel()
-    val usuarios by viewModel.usuarios.collectAsState()
+    val usuarios by viewModel.usuariosSemAdmin.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val mensagem by viewModel.mensagem.collectAsState()
 
@@ -53,7 +53,6 @@ fun TelaAdminGerenciarUsuarios(
 
     LaunchedEffect(mensagem) {
         mensagem?.let {
-            println("MENSAGEM: $it")
             viewModel.limparMensagem()
         }
     }
@@ -158,7 +157,7 @@ fun TelaAdminGerenciarUsuarios(
                             UsuarioRealItem(
                                 usuario = usuario,
                                 onEditarClick = { onEditarUsuarioClick(uid, usuario) },
-                                onExcluirClick = { onExcluirUsuarioClick(uid, usuario) } // CORREÇÃO: Chamada normal
+                                onExcluirClick = { onExcluirUsuarioClick(uid, usuario) }
                             )
                             Divider(
                                 color = Color.LightGray.copy(alpha = 0.5f),
@@ -224,7 +223,7 @@ fun TelaAdminGerenciarUsuarios(
 fun UsuarioRealItem(
     usuario: UsuarioModel,
     onEditarClick: () -> Unit,
-    onExcluirClick: () -> Unit // CORREÇÃO: Removido @Composable
+    onExcluirClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -283,7 +282,7 @@ fun UsuarioRealItem(
                 )
             }
             IconButton(
-                onClick = onExcluirClick, // CORREÇÃO: Chamada normal
+                onClick = onExcluirClick,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(

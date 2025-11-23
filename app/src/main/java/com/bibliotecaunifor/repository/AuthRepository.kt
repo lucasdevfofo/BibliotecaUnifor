@@ -10,7 +10,6 @@ class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
-    // ------------ CADASTRAR ADMIN ---------------
     fun cadastrarAdmin(
         admin: AdminModel,
         senha: String,
@@ -46,7 +45,6 @@ class AuthRepository {
             }
     }
 
-    // ------------ CADASTRAR USUARIO (PARA USUÁRIO COMUM) ---------------
     fun cadastrarUsuario(
         usuario: UsuarioModel,
         senha: String,
@@ -83,23 +81,17 @@ class AuthRepository {
             }
     }
 
-    // ------------ ADMIN CADASTRAR USUARIO ---------------
     fun adminCadastrarUsuario(
         usuario: UsuarioModel,
         senha: String,
         onResult: (Boolean, String?) -> Unit
     ) {
-        println("🟢 DEBUG: adminCadastrarUsuario INICIADO - Email: ${usuario.email}")
-
         val tempAuth = FirebaseAuth.getInstance()
 
         tempAuth.createUserWithEmailAndPassword(usuario.email, senha)
             .addOnCompleteListener { task ->
-                println("🟡 DEBUG: createUserWithEmailAndPassword COMPLETADO - Sucesso: ${task.isSuccessful}")
-
                 if (task.isSuccessful) {
                     val uid = task.result?.user?.uid
-                    println("🔵 DEBUG: UID do novo usuário: $uid")
 
                     if (uid != null) {
                         val usuarioData = hashMapOf(
@@ -112,39 +104,30 @@ class AuthRepository {
                             "tipo" to usuario.tipo
                         )
 
-                        println("🟣 DEBUG: Salvando no Firestore...")
-
                         db.collection("usuarios")
                             .document(uid)
                             .set(usuarioData)
                             .addOnSuccessListener {
-                                println("✅ DEBUG: Firestore SALVO COM SUCESSO!")
                                 tempAuth.signOut()
-                                println("🔴 DEBUG: Logout do usuário criado")
                                 onResult(true, null)
                             }
                             .addOnFailureListener { e ->
-                                println("❌ DEBUG: Firestore FALHOU - ${e.message}")
                                 tempAuth.signOut()
                                 onResult(false, "Erro Firestore: ${e.message}")
                             }
                     } else {
-                        println("❌ DEBUG: UID É NULO")
                         onResult(false, "UID do usuário é nulo")
                     }
                 } else {
                     val error = task.exception?.message ?: "Erro desconhecido"
-                    println("❌ DEBUG: createUser FALHOU - $error")
                     onResult(false, error)
                 }
             }
             .addOnFailureListener { e ->
-                println("❌ DEBUG: addOnFailureListener - ${e.message}")
                 onResult(false, e.message)
             }
     }
 
-    // ------------ LOGIN POR MATRÍCULA ---------------
     fun loginPorMatricula(
         matricula: String,
         senha: String,
