@@ -264,17 +264,21 @@ fun TelaCatalogoLivros(navController: NavController) {
                                     .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
                                     .padding(vertical = 12.dp)
                                     .clickable {
+                                        // 1. CODIFICA O ID TAMBÉM
+                                        val idEncoded = Uri.encode(livro.id) // <--- NOVO: Precisamos do ID!
+
                                         val tituloEncoded = Uri.encode(livro.titulo)
                                         val descricaoEncoded = Uri.encode(livro.descricao)
                                         val generoEncoded = Uri.encode(livro.genero)
                                         val autorEncoded = Uri.encode(livro.autor)
                                         val disponivelEncoded = Uri.encode(livro.disponibilidade)
 
+                                        // 2. ADICIONA O ID NA STRING DA ROTA (Sugerido colocar no começo)
                                         navController.navigate(
-                                            "descricao_livro/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
+                                            "descricao_livro/$idEncoded/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
                                         )
                                     }
-                            ) {
+                            ){
                                 Column(modifier = Modifier.padding(horizontal = 10.dp)) {
                                     Text(
                                         text = livro.titulo,

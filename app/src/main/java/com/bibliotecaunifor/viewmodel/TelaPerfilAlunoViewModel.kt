@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bibliotecaunifor.model.AluguelModel
 import com.bibliotecaunifor.model.Reserva
 import com.bibliotecaunifor.model.UsuarioModel
+import com.bibliotecaunifor.repository.AluguelRepository
 import com.bibliotecaunifor.repository.ReservaRepository
 import com.bibliotecaunifor.repository.UsuarioRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -19,6 +21,7 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
     private val usuarioRepository = UsuarioRepository()
     private val reservaRepository = ReservaRepository()
+    private val aluguelRepository = AluguelRepository()
     private val auth = FirebaseAuth.getInstance()
 
     private val _usuarioState = MutableStateFlow<UsuarioModel?>(null)
@@ -26,6 +29,9 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
     private val _ultimasReservasState = MutableStateFlow<List<Reserva>>(emptyList())
     val ultimasReservasState: StateFlow<List<Reserva>> = _ultimasReservasState.asStateFlow()
+
+    private val _livrosAlugadosState = MutableStateFlow<List<AluguelModel>>(emptyList())
+    val livrosAlugadosState: StateFlow<List<AluguelModel>> = _livrosAlugadosState.asStateFlow()
 
     private val _loadingState = MutableStateFlow(false)
     val loadingState: StateFlow<Boolean> = _loadingState.asStateFlow()
@@ -40,14 +46,21 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                // Busca Usuário
                 val usuarioEncontrado = usuarioRepository.buscarUsuario(uid)
                 if (usuarioEncontrado != null) {
                     _usuarioState.value = usuarioEncontrado
                 }
 
+                // Busca Reservas de Salas
                 val todasReservas = reservaRepository.buscarTodasReservasUsuario(uid)
                 val ultimasReservas = todasReservas.take(3)
                 _ultimasReservasState.value = ultimasReservas
+
+                // --- MUDANÇA AQUI: Passa TRUE para ver SÓ OS ATIVOS ---
+                val alugueisEncontrados = aluguelRepository.buscarAlugueisDoUsuario(uid, somenteAtivos = true)
+                _livrosAlugadosState.value = alugueisEncontrados
+
             } catch (e: Exception) {
                 erro = "Erro ao carregar dados: ${e.message}"
             } finally {
@@ -58,5 +71,20 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
     fun atualizarDados() {
         carregarDados()
+    }
+
+    fun devolverLivro(aluguel: AluguelModel) {
+        viewModelScope.launch {
+            _loadingState.value = true
+            val resultado = aluguelRepository.devolverLivro(aluguel.id, aluguel.livroId)
+
+            if (resultado.isSuccess) {
+                // Recarrega a lista para que o filtro (somenteAtivos=true) faça o livro sumir
+                carregarDados()
+            } else {
+                erro = "Erro ao devolver livro."
+            }
+            _loadingState.value = false
+        }
     }
 }

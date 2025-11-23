@@ -377,9 +377,27 @@ fun AppNavigation() {
             TelaHistoricoReservas(navController = navController)
         }
 
-        composable(Route.TelaRenovarLivro.path) {
-            TelaRenovarLivro(navController = navController)
+        composable(
+            route = "renovar_livro/{id}/{titulo}/{dataAtual}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.StringType },
+                navArgument("titulo") { type = NavType.StringType },
+                navArgument("dataAtual") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+            // Decodifica caso venha com caracteres especiais
+            val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
+            val dataAtual = backStackEntry.arguments?.getLong("dataAtual") ?: 0L
+
+            TelaRenovarLivro(
+                navController = navController,
+                aluguelId = id,
+                tituloLivro = titulo,
+                dataDevolucaoAtualMillis = dataAtual
+            )
         }
+        // ------------------------------------------
 
         composable(Route.Notificacoes.path) {
             TelaNotificacoesUsuario(
@@ -423,8 +441,11 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "descricao_livro/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
+            // 1. Adicionei o {id} logo no começo da rota
+            route = "descricao_livro/{id}/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
             arguments = listOf(
+                // 2. Adicionei o argumento do ID
+                navArgument("id") { type = NavType.StringType },
                 navArgument("titulo") { type = NavType.StringType },
                 navArgument("descricao") { type = NavType.StringType },
                 navArgument("genero") { type = NavType.StringType },
@@ -432,6 +453,9 @@ fun AppNavigation() {
                 navArgument("disponibilidade") { type = NavType.StringType }
             )
         ) { backStackEntry ->
+
+            // 3. Recupera o ID (Geralmente ID do Firebase não precisa de decode, mas se quiser pode usar)
+            val id = backStackEntry.arguments?.getString("id") ?: ""
 
             val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
             val descricao = Uri.decode(backStackEntry.arguments?.getString("descricao") ?: "")
@@ -441,6 +465,7 @@ fun AppNavigation() {
 
             TelaDescricaoLivro(
                 navController = navController,
+                livroId = id, // <--- 4. Passando o ID para a tela!
                 tituloLivro = titulo,
                 descricao = descricao,
                 genero = genero,
@@ -483,6 +508,22 @@ fun AppNavigation() {
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { },
                 onEnviarComunicadoClick = { navController.navigate(Route.Comunicados.path) }
+            )
+        }
+        composable(
+            route = "agendar_aluguel/{id}/{titulo}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.StringType },
+                navArgument("titulo") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+            val titulo = backStackEntry.arguments?.getString("titulo") ?: ""
+
+            TelaAgendarAluguel(
+                navController = navController,
+                livroId = id,
+                tituloLivro = titulo
             )
         }
     }

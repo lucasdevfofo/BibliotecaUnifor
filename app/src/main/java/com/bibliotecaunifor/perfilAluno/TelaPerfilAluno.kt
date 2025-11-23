@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,8 +33,10 @@ import androidx.navigation.NavController
 import com.bibliotecaunifor.MenuLateral
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.Route
-import com.bibliotecaunifor.model.Reserva
 import com.bibliotecaunifor.viewmodel.TelaPerfilAlunoViewModel
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun TelaPerfilAluno(
@@ -48,12 +51,23 @@ fun TelaPerfilAluno(
     var menuAberto by remember { mutableStateOf(false) }
     val scroll = rememberScrollState()
 
+    // Observando os estados do ViewModel
     val usuario by viewModel.usuarioState.collectAsState()
     val ultimasReservas by viewModel.ultimasReservasState.collectAsState()
+
+    // Observando a lista de livros
+    val livrosAlugados by viewModel.livrosAlugadosState.collectAsState()
+
     val loading by viewModel.loadingState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.carregarDados()
+    }
+
+    // Função auxiliar para formatar a data
+    fun formatarData(timestamp: Timestamp): String {
+        val sdf = SimpleDateFormat("dd/MM", Locale("pt", "BR"))
+        return sdf.format(timestamp.toDate())
     }
 
     Box(
@@ -67,6 +81,7 @@ fun TelaPerfilAluno(
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // --- HEADER ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,6 +152,7 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // --- INFO USUÁRIO ---
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -217,21 +233,16 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- ÚLTIMAS RESERVAS ---
             SectionCard(
                 titulo = "ÚLTIMAS RESERVAS",
                 content = {
-                    if (loading) {
+                    if (loading && ultimasReservas.isEmpty()) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = azulUnifor,
-                                strokeWidth = 2.dp
-                            )
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = azulUnifor)
                         }
                     } else if (ultimasReservas.isEmpty()) {
                         Text(
@@ -290,47 +301,96 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            val livrosAlugados = remember {
-                listOf("PEQUENO PRINCIPE 04/09 - 12/09")
-            }
-
+            // --- LIVROS ALUGADOS ---
             SectionCard(
                 titulo = "LIVROS ALUGADOS",
                 content = {
-                    livrosAlugados.forEachIndexed { i, tituloELivro ->
-                        Row(
+                    if (loading && livrosAlugados.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = azulUnifor)
+                        }
+                    } else if (livrosAlugados.isEmpty()) {
+                        Text(
+                            text = "Você não tem livros alugados.",
+                            fontSize = 14.sp,
+                            color = Color.Gray,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
+                                .padding(vertical = 16.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    } else {
+                        // Loop na lista real
+                        livrosAlugados.forEachIndexed { i, aluguel ->
+                            val dataInicio = formatarData(aluguel.dataAluguel)
+                            val dataFim = formatarData(aluguel.dataDevolucaoPrevista)
+                            val textoExibicao = "${aluguel.tituloLivro.uppercase()} $dataInicio - $dataFim"
+
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, cinzaBorda, RoundedCornerShape(8.dp))
-                                    .background(Color.White)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = tituloELivro,
-                                    color = azulUnifor,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(1.dp, cinzaBorda, RoundedCornerShape(8.dp))
+                                        .background(Color.White)
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = textoExibicao,
+                                        color = azulUnifor,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontSize = 13.sp
+                                    )
+                                }
 
-                            Spacer(Modifier.width(8.dp))
+                                Spacer(Modifier.width(6.dp))
 
-                            Button(
-                                onClick = { navController.navigate(Route.TelaRenovarLivro.path) },
-                                colors = ButtonDefaults.buttonColors(containerColor = roxoBotao),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text("RENOVAR", color = Color.White)
+                                // --- BOTÃO CANCELRA ---
+                                Button(
+                                    onClick = { viewModel.devolverLivro(aluguel) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828)), // Vermelho
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp),
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    Text("CANCELAR", color = Color.White, fontSize = 10.sp)
+                                }
+
+                                Spacer(Modifier.width(4.dp))
+
+                                // --- BOTÃO RENOVAR ---
+                                Button(
+                                    onClick = {
+                                        // 1. Prepara os dados
+                                        val tituloEncoded = java.net.URLEncoder.encode(aluguel.tituloLivro, "UTF-8")
+                                        val dataMillis = aluguel.dataDevolucaoPrevista.toDate().time
+
+                                        // 2. Navega para a rota dinâmica
+                                        navController.navigate("renovar_livro/${aluguel.id}/$tituloEncoded/$dataMillis")
+                                    },
+                                    enabled = !aluguel.renovado,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = roxoBotao,
+                                        disabledContainerColor = Color.Gray
+                                    ),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp),
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    Text(if (aluguel.renovado) "JÁ RENOVADO" else "RENOVAR", color = Color.White, fontSize = 10.sp)
+                                }
                             }
+                            if (i < livrosAlugados.lastIndex) Divider(color = cinzaBorda)
                         }
-                        if (i < livrosAlugados.lastIndex) Divider(color = cinzaBorda)
                     }
                 }
             )

@@ -30,15 +30,27 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bibliotecaunifor.viewmodel.TelaHistoricoReservasViewModel
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun TelaHistoricoReservas(navController: NavController) {
     var menuAberto by remember { mutableStateOf(false) }
-    var expandido by remember { mutableStateOf<String?>(null) }
+    var expandidoSala by remember { mutableStateOf<String?>(null) }
+
     val viewModel: TelaHistoricoReservasViewModel = viewModel()
+
+    val listaSalas by viewModel.historicoReservas.collectAsState()
+    val listaLivros by viewModel.historicoLivros.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.carregarHistoricoReservas()
+    }
+
+    fun formatarData(timestamp: Timestamp): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+        return sdf.format(timestamp.toDate())
     }
 
     Box(
@@ -50,6 +62,7 @@ fun TelaHistoricoReservas(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // --- HEADER FIXO (Topo) ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -57,7 +70,7 @@ fun TelaHistoricoReservas(navController: NavController) {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.livros),
-                    contentDescription = "Imagem de fundo biblioteca",
+                    contentDescription = "Imagem de fundo",
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -85,7 +98,7 @@ fun TelaHistoricoReservas(navController: NavController) {
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo UNIFOR",
+                        contentDescription = "Logo",
                         modifier = Modifier.size(40.dp)
                     )
 
@@ -144,148 +157,174 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            when {
-                viewModel.loading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(48.dp),
-                            color = Color(0xFF044EE7)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "Carregando histórico...",
-                            fontSize = 16.sp,
-                            color = Color.Gray
-                        )
+            // --- CONTEÚDO ROLÁVEL (Meio) ---
+            // Usamos Box com weight(1f) para ocupar todo o espaço entre o topo e o fundo
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                when {
+                    viewModel.loading -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(color = Color(0xFF044EE7))
+                            Text("Carregando histórico...", color = Color.Gray, modifier = Modifier.padding(top=8.dp))
+                        }
                     }
-                }
 
-                viewModel.erro != null -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Erro: ${viewModel.erro}",
-                            fontSize = 16.sp,
-                            color = Color.Red
-                        )
+                    viewModel.erro != null -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text("Erro: ${viewModel.erro}", color = Color.Red)
+                        }
                     }
-                }
 
-                viewModel.historicoReservas.isEmpty() -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            "Nenhum histórico encontrado",
-                            fontSize = 18.sp,
-                            color = Color.Gray,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Suas reservas aparecerão aqui",
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
+                    listaSalas.isEmpty() && listaLivros.isEmpty() -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text("Nenhum histórico encontrado", fontSize = 18.sp, color = Color.Gray)
+                        }
                     }
-                }
 
-                else -> {
-                    Text(
-                        text = "Todas as Reservas",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF044EE7),
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .padding(start = 20.dp, bottom = 8.dp)
-                    )
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        items(viewModel.historicoReservas) { reserva ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 4.dp, vertical = 4.dp)
-                                    .clickable {
-                                        expandido = if (expandido == reserva.id) null else reserva.id
-                                    },
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = when (reserva.status) {
-                                        "concluída" -> Color(0xFFE8F5E8)
-                                        "cancelada" -> Color(0xFFFFEBEE)
-                                        else -> Color(0xFFE7EEFF)
-                                    }
-                                )
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            // --- LIVROS ---
+                            if (listaLivros.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = "Livros Alugados",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF044EE7),
+                                        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                                    )
+                                }
+                                items(listaLivros) { aluguel ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (aluguel.status == "ativo") Color(0xFFE7EEFF) else Color(0xFFEEEEEE)
+                                        )
                                     ) {
-                                        Column {
+                                        Column(modifier = Modifier.padding(16.dp)) {
                                             Text(
-                                                text = reserva.salaNome,
+                                                text = aluguel.tituloLivro.uppercase(),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 16.sp,
                                                 color = Color(0xFF044EE7)
                                             )
-                                            Text(
-                                                text = "Data: ${reserva.data}",
-                                                fontSize = 14.sp,
-                                                color = Color.Black
-                                            )
-                                        }
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                text = reserva.status.replaceFirstChar { it.uppercase() },
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = when (reserva.status) {
-                                                    "concluída" -> Color(0xFF2E7D32)
-                                                    "cancelada" -> Color(0xFFC62828)
-                                                    else -> Color(0xFF044EE7)
-                                                }
-                                            )
-                                            Icon(
-                                                imageVector = if (expandido == reserva.id)
-                                                    Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                                                contentDescription = "Expandir",
-                                                tint = Color(0xFF044EE7)
-                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text("Retirada: ${formatarData(aluguel.dataAluguel)}", fontSize = 14.sp)
+                                            Text("Devolução: ${formatarData(aluguel.dataDevolucaoPrevista)}", fontSize = 14.sp)
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Surface(
+                                                color = if (aluguel.status == "ativo") Color(0xFFE7FFE7) else Color(0xFFEEEEEE),
+                                                shape = RoundedCornerShape(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = if (aluguel.status == "ativo") "EM ANDAMENTO" else "CANCELADO",
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                                    color = if (aluguel.status == "ativo") Color(0xFF2E7D32) else Color.Gray,
+                                                    fontSize = 12.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
+                                }
+                                item { Spacer(modifier = Modifier.height(20.dp)) }
+                            }
 
-                                    AnimatedVisibility(visible = expandido == reserva.id) {
-                                        Column(modifier = Modifier.padding(top = 8.dp)) {
-                                            Text("Horário: ${reserva.horarioInicio} - ${reserva.horarioFim}", color = Color.Black)
-                                            if (reserva.usuarioNome.isNotEmpty()) {
-                                                Text("Usuário: ${reserva.usuarioNome}", color = Color.Black)
+                            // --- SALAS ---
+                            if (listaSalas.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = "Histórico de Reservas",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF044EE7),
+                                        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                                    )
+                                }
+                                items(listaSalas) { reserva ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 4.dp, vertical = 4.dp)
+                                            .clickable {
+                                                expandidoSala = if (expandidoSala == reserva.id) null else reserva.id
+                                            },
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = when (reserva.status) {
+                                                "concluída" -> Color(0xFFE8F5E8)
+                                                "cancelada" -> Color(0xFFFFEBEE)
+                                                else -> Color(0xFFE7EEFF)
                                             }
-                                            if (reserva.usuarioMatricula.isNotEmpty()) {
-                                                Text("Matrícula: ${reserva.usuarioMatricula}", color = Color.Black)
+                                        )
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Column {
+                                                    Text(
+                                                        text = reserva.salaNome,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 16.sp,
+                                                        color = Color(0xFF044EE7)
+                                                    )
+                                                    Text(
+                                                        text = "Data: ${reserva.data}",
+                                                        fontSize = 14.sp,
+                                                        color = Color.Black
+                                                    )
+                                                }
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(
+                                                        text = reserva.status.replaceFirstChar { it.uppercase() },
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = when (reserva.status) {
+                                                            "concluída" -> Color(0xFF2E7D32)
+                                                            "cancelada" -> Color(0xFFC62828)
+                                                            else -> Color(0xFF044EE7)
+                                                        }
+                                                    )
+                                                    Icon(
+                                                        imageVector = if (expandidoSala == reserva.id)
+                                                            Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                                        contentDescription = "Expandir",
+                                                        tint = Color(0xFF044EE7)
+                                                    )
+                                                }
+                                            }
+
+                                            AnimatedVisibility(visible = expandidoSala == reserva.id) {
+                                                Column(modifier = Modifier.padding(top = 8.dp)) {
+                                                    Text("Horário: ${reserva.horarioInicio} - ${reserva.horarioFim}", color = Color.Black)
+                                                }
                                             }
                                         }
                                     }
@@ -296,8 +335,8 @@ fun TelaHistoricoReservas(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
+            // --- BOTTOM BAR FIXA (Fundo) ---
+            // Removi o Spacer(weight(1f)) que causava o bug
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -320,7 +359,7 @@ fun TelaHistoricoReservas(navController: NavController) {
                     painter = painterResource(id = R.drawable.ic_calendar),
                     contentDescription = "Histórico",
                     tint = Color.Black,
-                    modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+                    modifier = Modifier.clickable { }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_list),
