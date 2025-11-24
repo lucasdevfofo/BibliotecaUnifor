@@ -51,20 +51,17 @@ fun TelaPerfilAluno(
     var menuAberto by remember { mutableStateOf(false) }
     val scroll = rememberScrollState()
 
-    // Observando os estados do ViewModel
     val usuario by viewModel.usuarioState.collectAsState()
     val ultimasReservas by viewModel.ultimasReservasState.collectAsState()
-
-    // Observando a lista de livros
     val livrosAlugados by viewModel.livrosAlugadosState.collectAsState()
-
+    val reservasAtivas by viewModel.reservasAtivasState.collectAsState()
+    val configuracao by viewModel.configuracaoState.collectAsState()
     val loading by viewModel.loadingState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.carregarDados()
     }
 
-    // Função auxiliar para formatar a data
     fun formatarData(timestamp: Timestamp): String {
         val sdf = SimpleDateFormat("dd/MM", Locale("pt", "BR"))
         return sdf.format(timestamp.toDate())
@@ -81,7 +78,6 @@ fun TelaPerfilAluno(
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- HEADER ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,7 +148,6 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // --- INFO USUÁRIO ---
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -218,10 +213,15 @@ fun TelaPerfilAluno(
                     .padding(horizontal = 16.dp)
             ) {
                 Text("SALAS DISPONÍVEIS PARA O USUÁRIO:", fontSize = 13.sp, color = Color.Black)
-                Text("2/2", fontSize = 12.sp, color = Color.Black)
+
+                val limiteSalas = configuracao?.limiteSalasPorUsuario ?: 2
+                val salasUsadas = reservasAtivas.size
+                val salasDisponiveis = limiteSalas - salasUsadas
+
+                Text("$salasUsadas/$limiteSalas", fontSize = 12.sp, color = Color.Black)
                 Spacer(Modifier.height(6.dp))
                 LinearProgressIndicator(
-                    progress = { 1f },
+                    progress = { if (limiteSalas > 0) salasUsadas.toFloat() / limiteSalas else 0f },
                     color = azulUnifor,
                     trackColor = cinzaBorda,
                     modifier = Modifier
@@ -229,11 +229,26 @@ fun TelaPerfilAluno(
                         .height(6.dp)
                         .clip(RoundedCornerShape(50))
                 )
+
+                if (salasDisponiveis <= 0) {
+                    Text(
+                        "Limite de salas atingido!",
+                        fontSize = 11.sp,
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                } else {
+                    Text(
+                        "$salasDisponiveis sala(s) disponível(eis)",
+                        fontSize = 11.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- ÚLTIMAS RESERVAS ---
             SectionCard(
                 titulo = "ÚLTIMAS RESERVAS",
                 content = {
@@ -301,7 +316,6 @@ fun TelaPerfilAluno(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // --- LIVROS ALUGADOS ---
             SectionCard(
                 titulo = "LIVROS ALUGADOS",
                 content = {
@@ -323,7 +337,6 @@ fun TelaPerfilAluno(
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     } else {
-                        // Loop na lista real
                         livrosAlugados.forEachIndexed { i, aluguel ->
                             val dataInicio = formatarData(aluguel.dataAluguel)
                             val dataFim = formatarData(aluguel.dataDevolucaoPrevista)
@@ -354,10 +367,9 @@ fun TelaPerfilAluno(
 
                                 Spacer(Modifier.width(6.dp))
 
-                                // --- BOTÃO CANCELRA ---
                                 Button(
                                     onClick = { viewModel.devolverLivro(aluguel) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828)), // Vermelho
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828)),
                                     shape = RoundedCornerShape(6.dp),
                                     contentPadding = PaddingValues(horizontal = 8.dp),
                                     modifier = Modifier.height(36.dp)
@@ -367,14 +379,10 @@ fun TelaPerfilAluno(
 
                                 Spacer(Modifier.width(4.dp))
 
-                                // --- BOTÃO RENOVAR ---
                                 Button(
                                     onClick = {
-                                        // 1. Prepara os dados
                                         val tituloEncoded = java.net.URLEncoder.encode(aluguel.tituloLivro, "UTF-8")
                                         val dataMillis = aluguel.dataDevolucaoPrevista.toDate().time
-
-                                        // 2. Navega para a rota dinâmica
                                         navController.navigate("renovar_livro/${aluguel.id}/$tituloEncoded/$dataMillis")
                                     },
                                     enabled = !aluguel.renovado,
