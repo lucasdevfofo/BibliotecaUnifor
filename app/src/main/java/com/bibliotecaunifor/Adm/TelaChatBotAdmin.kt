@@ -28,73 +28,37 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bibliotecaunifor.R
+import com.bibliotecaunifor.model.ChatMessage
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.bibliotecaunifor.viewmodel.ChatBotViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.random.Random
-
-data class ChatMessage(
-    val id: String,
-    val text: String,
-    val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
-)
 
 @Composable
 fun TelaChatBotAdmin(
     onVoltarClick: () -> Unit
 ) {
-    var mensagens by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
+    val viewModel: ChatBotViewModel = viewModel()
+    val chatMessages by viewModel.chatMessages.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     var textoMensagem by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        mensagens = listOf(
-            ChatMessage(
-                id = "1",
-                text = "👋 **Olá, Administrador!** Sou o Unibô Admin. Posso ajudar com relatórios, usuários, acervo e configurações do sistema.",
-                isUser = false
-            )
-        )
-    }
-
-    LaunchedEffect(mensagens.size) {
-        if (mensagens.isNotEmpty()) {
-            lazyListState.animateScrollToItem(mensagens.size - 1)
+    LaunchedEffect(chatMessages.size) {
+        if (chatMessages.isNotEmpty()) {
+            lazyListState.animateScrollToItem(chatMessages.size - 1)
         }
     }
 
     fun enviarMensagem() {
         if (textoMensagem.isBlank() || isLoading) return
-
-        val mensagemUsuario = ChatMessage(
-            id = System.currentTimeMillis().toString(),
-            text = textoMensagem,
-            isUser = true
-        )
-
-        val novasMensagens = mensagens + mensagemUsuario
-        mensagens = novasMensagens
+        viewModel.sendMessage(textoMensagem)
         textoMensagem = ""
-        isLoading = true
-
-        coroutineScope.launch {
-            delay(800 + Random.nextLong(400))
-            val respostaTexto = getRespostaAdminInteligente(mensagemUsuario.text)
-            val respostaBot = ChatMessage(
-                id = (System.currentTimeMillis() + 1).toString(),
-                text = respostaTexto,
-                isUser = false
-            )
-            mensagens = novasMensagens + respostaBot
-            isLoading = false
-        }
+        keyboardController?.hide()
     }
 
     Column(
@@ -102,11 +66,10 @@ fun TelaChatBotAdmin(
             .fillMaxSize()
             .background(Color.White)
     ) {
-
         ChatbotTopBarAdmin(
             onVoltarClick = onVoltarClick,
-            onNotificacoesClick = { /* abre notificações */ },
-            onMenuClick = { /* abre menu */ }
+            onNotificacoesClick = {  },
+            onMenuClick = {  }
         )
 
         Box(
@@ -126,7 +89,7 @@ fun TelaChatBotAdmin(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(mensagens) { mensagem ->
+                items(chatMessages) { mensagem ->
                     MensagemChat(mensagem = mensagem)
                 }
 
@@ -263,61 +226,6 @@ fun MensagemDigitando() {
     }
 }
 
-private fun getRespostaAdminInteligente(mensagem: String): String {
-    val mensagemLower = mensagem.lowercase()
-    val random = Random(System.currentTimeMillis())
-
-    return when {
-        mensagemLower.contains("relatório") || mensagemLower.contains("estatística") -> {
-            val respostas = listOf(
-                "📊 **Relatórios:**\n• 1.245 visitas este mês\n• Livros mais emprestados: Programação (45x), Cálculo (38x)\n• Salas: 89% ocupação\n• Horário de pico: 14h-16h",
-                "📈 **Estatísticas:**\n• Usuários ativos: 2.847\n• Acervo total: 50.328 livros\n• Reservas este mês: 156"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-
-        mensagemLower.contains("usuário") || mensagemLower.contains("aluno") -> {
-            val respostas = listOf(
-                "👥 **Usuários:**\n• Total: 8.452\n• Ativos: 2.847\n• Bloqueados: 18",
-                "🎓 **Controle de Acessos:**\n• Alunos: 7.892\n• Professores: 485\n• Com pendências: 1.8%"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-
-        mensagemLower.contains("livro") || mensagemLower.contains("acervo") -> {
-            val respostas = listOf(
-                "📚 **Acervo:**\n• Total: 50.328 livros\n• Em empréstimo: 3.847\n• Disponíveis: 45.123\n• Em manutenção: 358",
-                "🏛️ **Controle:**\n• Exatas: 15.234\n• Humanas: 18.456\n• Biológicas: 12.678\n• Artes: 3.960"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-
-        mensagemLower.contains("reserva") || mensagemLower.contains("sala") -> {
-            val respostas = listOf(
-                "🏫 **Reservas Hoje:**\n• Confirmadas: 45\n• Canceladas: 2\n• Em andamento: 23\n• Salas mais procuradas: A12, B07",
-                "📅 **Agendamentos:**\n• Salas ocupadas: 18\n• Livres: 12\n• Taxa de ocupação: 72%"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-
-        mensagemLower.contains("configuração") || mensagemLower.contains("sistema") -> {
-            val respostas = listOf(
-                "⚙️ **Sistema:**\n• Backup: Ativo\n• Uptime: 99.8%\n• Última atualização: 2 dias\n• Próxima manutenção: 15/12",
-                "🛠️ **Configurações:**\n• Segurança: 2FA Ativo\n• Logs: 30 dias\n• Disponibilidade: 99.9%\n• Storage: 68%"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-
-        else -> {
-            val respostas = listOf(
-                "🛡️ **Comandos disponíveis:**\n• relatórios\n• usuários\n• acervo\n• reservas\n• configurações",
-                "🎯 **Posso ajudar com:**\n• Relatórios e estatísticas\n• Gestão de usuários\n• Controle do acervo\n• Administração de reservas\n• Configurações do sistema"
-            )
-            respostas[random.nextInt(respostas.size)]
-        }
-    }
-}
-
 @Composable
 fun ChatbotTopBarAdmin(
     onVoltarClick: () -> Unit,
@@ -347,7 +255,6 @@ fun ChatbotTopBarAdmin(
                 .align(Alignment.TopCenter)
         )
 
-
         IconButton(
             onClick = onVoltarClick,
             modifier = Modifier
@@ -362,7 +269,6 @@ fun ChatbotTopBarAdmin(
             )
         }
 
-
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo UNIFOR",
@@ -371,7 +277,6 @@ fun ChatbotTopBarAdmin(
                 .align(Alignment.TopCenter)
                 .offset(y = 8.dp)
         )
-
 
         Row(
             modifier = Modifier
@@ -403,7 +308,6 @@ fun ChatbotTopBarAdmin(
                 )
             }
         }
-
 
         Row(
             modifier = Modifier

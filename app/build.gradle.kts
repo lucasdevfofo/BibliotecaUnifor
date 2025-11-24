@@ -45,6 +45,7 @@ android {
 
 dependencies {
 
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -81,7 +82,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
 
     //CHATBOT
-    implementation("com.google.ai.client.generativeai:generativeai:0.4.0")
+    implementation("com.google.ai.client.generativeai:generativeai:0.3.0")
 
 
 }
