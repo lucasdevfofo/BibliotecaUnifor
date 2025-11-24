@@ -15,7 +15,6 @@ class TelaPerfilAdminViewModel : ViewModel() {
     private val repository = UsuarioRepository()
     private val auth = FirebaseAuth.getInstance()
 
-    // Estado para guardar os dados do Admin
     private val _adminState = MutableStateFlow<UsuarioModel?>(null)
     val adminState: StateFlow<UsuarioModel?> = _adminState.asStateFlow()
 
