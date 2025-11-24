@@ -146,19 +146,13 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "tela_admin_editar_livro/{tituloLivro}",
-            arguments = listOf(navArgument("tituloLivro") { type = NavType.StringType })
+            route = "${Route.TelaAdminEditarLivro.path}/{livroId}",
+            arguments = listOf(navArgument("livroId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val tituloLivro = backStackEntry.arguments?.getString("tituloLivro") ?: ""
+            val livroId = backStackEntry.arguments?.getString("livroId") ?: ""
             TelaAdminEditarLivro(
                 navController = navController,
-                tituloLivro = tituloLivro,
-                onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
-                onMenuClick = {},
-                onSalvarEdicaoClick = { _, _, _, _, _, _ ->
-                    navController.popBackStack()
-                }
+                livroId = livroId
             )
         }
 
@@ -289,15 +283,7 @@ fun AppNavigation() {
                 onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
                 onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
                 onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
-                currentRoute = Route.TelaCatalogoLivrosAdmin.path,
-                onAdicionarLivroClick = { navController.navigate(Route.TelaAdicionarLivroAdmin.path) },
-                onEditarLivroClick = { livro ->
-                    val tituloCodificado = Uri.encode(livro.titulo)
-                    navController.navigate("tela_admin_editar_livro/$tituloCodificado")
-                },
-                onExcluirLivroClick = { livro ->
-                    println("Excluindo livro: ${livro.titulo}")
-                }
+                currentRoute = Route.TelaCatalogoLivrosAdmin.path
             )
         }
 
