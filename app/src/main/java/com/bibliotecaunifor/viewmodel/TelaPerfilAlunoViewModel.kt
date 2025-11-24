@@ -6,9 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bibliotecaunifor.model.AluguelModel
+import com.bibliotecaunifor.model.ConfiguracaoModel
 import com.bibliotecaunifor.model.Reserva
 import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.repository.AluguelRepository
+import com.bibliotecaunifor.repository.ConfiguracaoRepository
 import com.bibliotecaunifor.repository.ReservaRepository
 import com.bibliotecaunifor.repository.UsuarioRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +24,7 @@ class TelaPerfilAlunoViewModel : ViewModel() {
     private val usuarioRepository = UsuarioRepository()
     private val reservaRepository = ReservaRepository()
     private val aluguelRepository = AluguelRepository()
+    private val configuracaoRepository = ConfiguracaoRepository()
     private val auth = FirebaseAuth.getInstance()
 
     private val _usuarioState = MutableStateFlow<UsuarioModel?>(null)
@@ -32,6 +35,12 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
     private val _livrosAlugadosState = MutableStateFlow<List<AluguelModel>>(emptyList())
     val livrosAlugadosState: StateFlow<List<AluguelModel>> = _livrosAlugadosState.asStateFlow()
+
+    private val _reservasAtivasState = MutableStateFlow<List<Reserva>>(emptyList())
+    val reservasAtivasState: StateFlow<List<Reserva>> = _reservasAtivasState.asStateFlow()
+
+    private val _configuracaoState = MutableStateFlow<ConfiguracaoModel?>(null)
+    val configuracaoState: StateFlow<ConfiguracaoModel?> = _configuracaoState.asStateFlow()
 
     private val _loadingState = MutableStateFlow(false)
     val loadingState: StateFlow<Boolean> = _loadingState.asStateFlow()
@@ -46,18 +55,24 @@ class TelaPerfilAlunoViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // Busca Usuário
                 val usuarioEncontrado = usuarioRepository.buscarUsuario(uid)
                 if (usuarioEncontrado != null) {
                     _usuarioState.value = usuarioEncontrado
                 }
 
-                // Busca Reservas de Salas
+                val config = configuracaoRepository.buscarConfiguracoes()
+                _configuracaoState.value = config
+
                 val todasReservas = reservaRepository.buscarTodasReservasUsuario(uid)
+
+                val reservasAtivas = todasReservas.filter {
+                    it.status == "pendente" || it.status == "confirmada"
+                }
+                _reservasAtivasState.value = reservasAtivas
+
                 val ultimasReservas = todasReservas.take(3)
                 _ultimasReservasState.value = ultimasReservas
 
-                // --- MUDANÇA AQUI: Passa TRUE para ver SÓ OS ATIVOS ---
                 val alugueisEncontrados = aluguelRepository.buscarAlugueisDoUsuario(uid, somenteAtivos = true)
                 _livrosAlugadosState.value = alugueisEncontrados
 
@@ -79,7 +94,6 @@ class TelaPerfilAlunoViewModel : ViewModel() {
             val resultado = aluguelRepository.devolverLivro(aluguel.id, aluguel.livroId)
 
             if (resultado.isSuccess) {
-                // Recarrega a lista para que o filtro (somenteAtivos=true) faça o livro sumir
                 carregarDados()
             } else {
                 erro = "Erro ao devolver livro."
