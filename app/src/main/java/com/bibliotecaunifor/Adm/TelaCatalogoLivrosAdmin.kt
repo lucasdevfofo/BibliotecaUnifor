@@ -1,6 +1,5 @@
 package com.bibliotecaunifor.Adm
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,12 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.Route
-
-data class LivroCatalogoAdmin(val titulo: String, val id: Int)
-
+import com.bibliotecaunifor.model.Livro
+import com.bibliotecaunifor.viewmodel.TelaAdminLivrosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,28 +35,35 @@ fun TelaCatalogoLivrosAdmin(
     onNavReservasClick: () -> Unit,
     onNavUsuariosClick: () -> Unit,
     onNavPerfilClick: () -> Unit,
-    currentRoute: String,
-    onAdicionarLivroClick: () -> Unit,
-    onEditarLivroClick: (LivroCatalogoAdmin) -> Unit,
-    onExcluirLivroClick: (LivroCatalogoAdmin) -> Unit
+    currentRoute: String
 ) {
+    val viewModel: TelaAdminLivrosViewModel = viewModel()
     var menuLateralAberto by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var livroParaExcluir by remember { mutableStateOf<Livro?>(null) }
+
     val cinzaFundo = Color(0xFFF0F0F0)
     val roxoBotao = Color(0xFF004AF5)
 
-    val livros = remember {
-        listOf(
-            LivroCatalogoAdmin("PEQUENO PRÍNCIPE", 1),
-            LivroCatalogoAdmin("NOITES BRANCAS", 2),
-            LivroCatalogoAdmin("CÓDIGO LIMPO", 3),
-            LivroCatalogoAdmin("ENTENDENDO ALGORITMOS", 4),
-            LivroCatalogoAdmin("JAVASCRIPT: O GUIA DEFINITIVO", 5)
-        )
+    val livros by viewModel.livros.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensagem by viewModel.mensagem.collectAsState()
+
+    val filteredLivros = if (searchText.isBlank()) {
+        livros
+    } else {
+        livros.filter { it.titulo.contains(searchText, ignoreCase = true) }
     }
 
-    val filteredLivros = livros.filter {
-        it.titulo.contains(searchText, ignoreCase = true)
+    LaunchedEffect(Unit) {
+        viewModel.carregarLivros()
+    }
+
+    LaunchedEffect(mensagem) {
+        if (mensagem?.contains("sucesso") == true) {
+            viewModel.carregarLivros()
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -118,48 +124,95 @@ fun TelaCatalogoLivrosAdmin(
                     )
                 }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(horizontal = 20.dp)
-                ) {
-                    items(filteredLivros) { livro ->
-                        LivroAdminItem(
-                            livro = livro,
-                            onEditarClick = onEditarLivroClick,
-                            onExcluirClick = onExcluirLivroClick,
-                            corEditar = roxoBotao
-                        )
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
-
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(onClick = onAdicionarLivroClick)
-                                .padding(vertical = 8.dp)
-                                .height(40.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "ADICIONAR LIVRO",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.Gray,
-                                modifier = Modifier.weight(1f).padding(start = 6.dp)
-                            )
-                            Icon(
-                                Icons.Default.AddCircle,
-                                contentDescription = "Adicionar Livro",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(20.dp)
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 20.dp)
+                    ) {
+                        items(filteredLivros) { livro ->
+                            LivroAdminItem(
+                                livro = livro,
+                                onEditarClick = {
+                                    navController.navigate("${Route.TelaAdminEditarLivro.path}/${livro.id}")
+                                },
+                                onExcluirClick = {
+                                    livroParaExcluir = livro
+                                    showDeleteDialog = true
+                                },
+                                corEditar = roxoBotao
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(onClick = { navController.navigate(Route.TelaAdicionarLivroAdmin.path) })
+                                    .padding(vertical = 8.dp)
+                                    .height(40.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "ADICIONAR LIVRO",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.Gray,
+                                    modifier = Modifier.weight(1f).padding(start = 6.dp)
+                                )
+                                Icon(
+                                    Icons.Default.AddCircle,
+                                    contentDescription = "Adicionar Livro",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }
+        }
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Excluir Livro") },
+                text = { Text("Tem certeza que deseja excluir o livro \"${livroParaExcluir?.titulo}\"?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            livroParaExcluir?.let { livro ->
+                                viewModel.excluirLivro(livro.id)
+                                showDeleteDialog = false
+                                livroParaExcluir = null
+                            }
+                        }
+                    ) {
+                        Text("Excluir", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                            livroParaExcluir = null
+                        }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
         }
 
         if (menuLateralAberto) {
@@ -182,9 +235,9 @@ fun TelaCatalogoLivrosAdmin(
 
 @Composable
 fun LivroAdminItem(
-    livro: LivroCatalogoAdmin,
-    onEditarClick: (LivroCatalogoAdmin) -> Unit,
-    onExcluirClick: (LivroCatalogoAdmin) -> Unit,
+    livro: Livro,
+    onEditarClick: (Livro) -> Unit,
+    onExcluirClick: (Livro) -> Unit,
     corEditar: Color
 ) {
     val corFundoItem = Color(0xFFE7EEFF)
@@ -206,12 +259,20 @@ fun LivroAdminItem(
             color = corTextoTitulo,
             modifier = Modifier.weight(1f).padding(start = 6.dp)
         )
+
+        Text(
+            text = livro.disponibilidade,
+            fontSize = 12.sp,
+            color = if (livro.disponibilidade == "Disponível") Color.Green else Color.Red,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+
         Spacer(modifier = Modifier.width(8.dp))
 
         Icon(
             Icons.Default.Delete,
             contentDescription = "Excluir Livro",
-            tint = Color.Black,
+            tint = Color.Red,
             modifier = Modifier
                 .size(20.dp)
                 .clickable { onExcluirClick(livro) }
@@ -221,7 +282,7 @@ fun LivroAdminItem(
         Icon(
             Icons.Default.Edit,
             contentDescription = "Editar Livro",
-            tint = Color.Black,
+            tint = corEditar,
             modifier = Modifier
                 .size(20.dp)
                 .clickable { onEditarClick(livro) }
@@ -229,18 +290,9 @@ fun LivroAdminItem(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun TelaCatalogoLivrosAdminPreview() {
-    val roxoBotaoPreview = Color(0xFF004AF5)
-
-    @Composable fun AdminTopBar(onVoltarClick: () -> Unit, onNotificacoesClick: () -> Unit, onMenuClick: () -> Unit) {}
-    @Composable fun AppBottomNavAdminPadrao(onHomeClick: () -> Unit, onHistoricoClick: () -> Unit, onListasClick: () -> Unit, onPerfilClick: () -> Unit, currentRoute: String) {}
-    @Composable fun MenuLateralAdmin(modifier: Modifier, navController: NavController, onLinkClick: () -> Unit) {
-        Box(modifier = modifier.background(Color.Gray.copy(alpha = 0.5f)))
-    }
-
     TelaCatalogoLivrosAdmin(
         navController = rememberNavController(),
         onVoltarClick = { },
@@ -250,9 +302,6 @@ fun TelaCatalogoLivrosAdminPreview() {
         onNavReservasClick = { },
         onNavUsuariosClick = { },
         onNavPerfilClick = { },
-        currentRoute = Route.CatalogoLivros.path,
-        onAdicionarLivroClick = { },
-        onEditarLivroClick = { _: LivroCatalogoAdmin -> },
-        onExcluirLivroClick = { _: LivroCatalogoAdmin -> }
+        currentRoute = Route.TelaCatalogoLivrosAdmin.path
     )
 }
