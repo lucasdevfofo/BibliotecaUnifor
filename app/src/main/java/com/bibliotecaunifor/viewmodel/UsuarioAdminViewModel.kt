@@ -20,7 +20,7 @@ class UsuarioAdminViewModel : ViewModel() {
     private val _usuarios = MutableStateFlow<List<Pair<String, UsuarioModel>>>(emptyList())
     val usuarios: StateFlow<List<Pair<String, UsuarioModel>>> = _usuarios.asStateFlow()
 
-    // CORREÇÃO: Usar stateIn para converter para StateFlow
+
     val usuariosSemAdmin: StateFlow<List<Pair<String, UsuarioModel>>> =
         _usuarios.map { usuariosList ->
             usuariosList.filter { (_, usuario) ->

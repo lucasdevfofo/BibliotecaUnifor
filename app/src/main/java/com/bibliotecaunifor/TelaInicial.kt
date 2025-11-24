@@ -226,12 +226,18 @@ fun AppNavigation() {
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = {},
-                onDownloadRelatorioClick = { println("Baixando relatório...") },
+                onDownloadRelatorioClick = { navController.navigate(Route.TelaRelatorioReservas.path) },
                 onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
                 onNavReservasClick = {},
                 onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
                 onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
                 currentRoute = Route.TelaAdminReservasRealizadas.path
+            )
+        }
+        composable(Route.TelaRelatorioReservas.path) {
+            TelaRelatorioReservas(
+                navController = navController,
+                onVoltarClick = { navController.popBackStack() }
             )
         }
 
