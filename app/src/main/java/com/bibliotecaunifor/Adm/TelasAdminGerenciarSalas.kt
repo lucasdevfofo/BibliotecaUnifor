@@ -34,7 +34,7 @@ import com.bibliotecaunifor.Route
 
 data class SalaAdmin(
     val nome: String,
-    val totalMesas: Int,
+    val capacidade: Int,
     val mesasDisponiveis: Int
 )
 
@@ -59,8 +59,8 @@ fun TelaAdminGerenciarSalas(
     val menuLateralAberto = remember { mutableStateOf(false) }
 
     val salas = listOf(
-        SalaAdmin("SALA 01", 23, 18),
-        SalaAdmin("SALA 02", 23, 12),
+        SalaAdmin("SALA 01", 20, 18),
+        SalaAdmin("SALA 02", 24, 12),
         SalaAdmin("SALA 03", 23, 20),
         SalaAdmin("SALA 04", 23, 18),
         SalaAdmin("SALA 05", 28, 28)
@@ -266,7 +266,7 @@ fun SalaAdminItem(sala: SalaAdmin, azulClaroUnifor: Color, amareloDisponivel: Co
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${sala.totalMesas} MESAS",
+                text = "Capacidade: ${sala.capacidade} pessoas",
                 color = azulClaroUnifor,
                 fontSize = 14.sp
             )
@@ -278,7 +278,7 @@ fun SalaAdminItem(sala: SalaAdmin, azulClaroUnifor: Color, amareloDisponivel: Co
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${sala.mesasDisponiveis} MESAS DISPONÍVEIS",
+                text = "${sala.mesasDisponiveis} mesas disponíveis",
                 color = amareloDisponivel,
                 fontSize = 14.sp
             )

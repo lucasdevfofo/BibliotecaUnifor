@@ -265,19 +265,7 @@ fun AppNavigation() {
             )
         }
 
-        composable(Route.TelaAcessibilidadeAdmin.path) {
-            TelaAcessibilidadeAdmin(
-                navController = navController,
-                onVoltarClick = { navController.popBackStack() },
-                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
-                onMenuClick = {},
-                onNavSalasClick = { navController.navigate(Route.TelaAdminGerenciarSalas.path) },
-                onNavReservasClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
-                onNavUsuariosClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
-                onNavPerfilClick = { navController.navigate(Route.TelaPerfilAdmin.path) },
-                currentRoute = Route.TelaAcessibilidadeAdmin.path
-            )
-        }
+
 
         composable(Route.TelaCatalogoLivrosAdmin.path) {
             TelaCatalogoLivrosAdmin(
@@ -403,19 +391,6 @@ fun AppNavigation() {
             MenuLateral(navController = navController)
         }
 
-        composable(Route.Acessibilidade.path) {
-            TelaAcessibilidadeAluno(
-                navController = navController,
-                onNotificacoesClick = { navController.navigate(Route.Notificacoes.path) },
-                onVoltarClick = { navController.popBackStack() },
-                onMenuClick = {},
-                onNavHomeClick = { navController.navigate(Route.SalasDisponiveis.path) },
-                onNavReservasClick = { navController.navigate(Route.ReservasRealizadas.path) },
-                onNavCatalogoClick = { navController.navigate(Route.CatalogoLivros.path) },
-                onNavPerfilClick = { navController.navigate(Route.PerfilAluno.path) },
-                currentRoute = Route.Acessibilidade.path
-            )
-        }
 
         composable(
             route = "alugar_livro/{livroNome}",

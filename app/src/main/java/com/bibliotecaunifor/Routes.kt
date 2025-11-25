@@ -22,11 +22,9 @@ sealed class Route(val path: String) {
     object TelaRelatorioReservas : Route("relatorio_reservas") // NOVA ROTA
     object TelaAdminEditarPerfil : Route("tela_admin_editar_perfil")
     object TelaPerfilAdmin : Route("tela_admin_perfil")
-    object TelaAcessibilidadeAdmin : Route("acessibilidade_admin")
     object TelaCatalogoLivrosAdmin : Route("catalogo_livros_admin")
     object TelaAdicionarLivroAdmin : Route("adicionar_livro_admin")
     object Comunicados : Route("comunicados")
-
     object ComunicadoEnviado : Route("comunicado_enviado")
     object RegrasDoSistema : Route("regras_do_sistema")
     object TelaAdminCadastrarSala : Route("tela_admin_cadastrar_sala")
@@ -38,7 +36,6 @@ sealed class Route(val path: String) {
     object EditarUsuario : Route("tela_editar_usuario")
     object ReservasRealizadas : Route("tela_reservas_realizadas")
     object HistoricoReservas : Route("tela_historico_reservas")
-    object Acessibilidade : Route("acessibilidade")
     object Notificacoes : Route("tela_notificacoes")
     object MenuLateral : Route("menu_lateral")
     object TelaChatbotAdmin : Route("tela_chatbot")

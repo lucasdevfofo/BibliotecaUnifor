@@ -74,7 +74,6 @@ fun MenuLateralAdmin(
             val linksAdmin = listOf(
                 "PERFIL" to Route.TelaPerfilAdmin.path,
                 "CATÁLOGO DE LIVROS" to Route.TelaCatalogoLivrosAdmin.path,
-                "ACECESSIBILIDADE" to Route.TelaAcessibilidadeAdmin.path,
                 "REGRAS DO SISTEMA" to Route.RegrasDoSistema.path,
                 "GERENCIAR USUÁRIOS" to Route.TelaAdminGerenciarUsuarios.path,
                 "RESERVAS REALIZADAS" to Route.TelaAdminReservasRealizadas.path

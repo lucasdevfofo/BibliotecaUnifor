@@ -56,7 +56,6 @@ fun MenuLateral(
                 val links = listOf(
                     "Perfil",
                     "Catálogo de Livros",
-                    "Acessibilidade",
                     "Lista de Salas",
                     "Reservar Mesa"
                 )
@@ -74,7 +73,6 @@ fun MenuLateral(
                                 when (link) {
                                     "Perfil" -> navController.navigate(Route.PerfilAluno.path)
                                     "Catálogo de Livros" -> navController.navigate(Route.CatalogoLivros.path)
-                                    "Acessibilidade" -> navController.navigate(Route.Acessibilidade.path)
                                     "Lista de Salas" -> navController.navigate(Route.ReservasRealizadas.path)
                                     "Reservar Mesa" -> navController.navigate(Route.SalasDisponiveis.path)
                                 }
