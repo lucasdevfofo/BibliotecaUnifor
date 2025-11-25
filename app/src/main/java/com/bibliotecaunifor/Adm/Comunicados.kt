@@ -1,5 +1,6 @@
 package com.bibliotecaunifor.Adm
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,14 +16,19 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.bibliotecaunifor.viewmodel.TelaComunicadosViewModel
 
 val azulUifrBotao = Color(0xFF044EE7)
 val laranjaBloco = Color(0xFFFFE066)
@@ -30,10 +36,29 @@ val cinzaBordaHeader = Color(0xFFE0E0E0)
 
 @Composable
 fun ComunicadosScreen(
-    onSendMessage: () -> Unit,
-    modifier: Modifier = Modifier
+    navController: NavController, // Adicionei navController
+    onSendMessageSuccess: () -> Unit, // Callback para voltar quando der certo
+    modifier: Modifier = Modifier,
+    viewModel: TelaComunicadosViewModel = viewModel() // Injeção do VM
 ) {
     var inputText by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    // Reage ao estado do envio
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is TelaComunicadosViewModel.UiState.Success -> {
+                Toast.makeText(context, "Comunicado enviado!", Toast.LENGTH_SHORT).show()
+                onSendMessageSuccess()
+            }
+            is TelaComunicadosViewModel.UiState.Error -> {
+                val erro = (uiState as TelaComunicadosViewModel.UiState.Error).message
+                Toast.makeText(context, erro, Toast.LENGTH_LONG).show()
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = modifier
@@ -57,7 +82,7 @@ fun ComunicadosScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = onSendMessage,
+                    onClick = { navController.popBackStack() },
                     modifier = Modifier
                         .size(60.dp)
                         .pointerHoverIcon(PointerIcon.Hand)
@@ -116,12 +141,21 @@ fun ComunicadosScreen(
                     color = Color.Black
                 ),
                 singleLine = false,
-                maxLines = 10
+                maxLines = 10,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = laranjaBloco,
+                    unfocusedContainerColor = laranjaBloco,
+                    disabledContainerColor = laranjaBloco,
+                    cursorColor = Color.Black,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
             )
         }
 
         Button(
-            onClick = onSendMessage,
+            onClick = { viewModel.enviarMensagem(inputText) },
+            enabled = uiState !is TelaComunicadosViewModel.UiState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(57.dp)
@@ -130,7 +164,11 @@ fun ComunicadosScreen(
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(containerColor = azulUifrBotao)
         ) {
-            Text(text = "Enviar", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            if (uiState is TelaComunicadosViewModel.UiState.Loading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+            } else {
+                Text(text = "Enviar", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -139,6 +177,9 @@ fun ComunicadosScreen(
 @Composable
 fun ComunicadosPreview() {
     BibliotecaUniforTheme {
-        ComunicadosScreen(onSendMessage = {})
+        ComunicadosScreen(
+            navController = rememberNavController(),
+            onSendMessageSuccess = {}
+        )
     }
 }

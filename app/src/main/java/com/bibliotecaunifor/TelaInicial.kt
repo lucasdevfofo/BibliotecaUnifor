@@ -299,8 +299,9 @@ fun AppNavigation() {
 
         composable(Route.Comunicados.path) {
             ComunicadosScreen(
-                onSendMessage = {
-                    println("Comunicado enviado!")
+                navController = navController,
+                onSendMessageSuccess = {
+                    // Quando enviar com sucesso, vai para a tela de confirmação
                     navController.navigate(Route.ComunicadoEnviado.path)
                 }
             )

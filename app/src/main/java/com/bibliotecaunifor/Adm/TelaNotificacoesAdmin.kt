@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,15 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
-data class Notificacao(
-    val id: String,
-    val remetente: String,
-    val mensagem: String,
-    val lida: Boolean
-)
+import com.bibliotecaunifor.viewmodel.TelaNotificacoesAdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,31 +30,19 @@ fun TelaNotificacoesAdmin(
     navController: NavController,
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
-    onEnviarComunicadoClick: () -> Unit
+    onEnviarComunicadoClick: () -> Unit,
+    // Injetando o ViewModel
+    viewModel: TelaNotificacoesAdminViewModel = viewModel()
 ) {
     var menuAberto by remember { mutableStateOf(false) }
 
-    val notificacoes = remember {
-        listOf(
-            Notificacao(
-                id = "1",
-                remetente = "PEDRO AUGUSTO",
-                mensagem = "Boa noite Pessoal! Biblioteca estará fechada hoje.",
-                lida = false
-            ),
-            Notificacao(
-                id = "2",
-                remetente = "JOSÉ ALBERTO",
-                mensagem = "Boa noite Pessoal! Hoje chegou novos livros na biblioteca.",
-                lida = true
-            ),
-            Notificacao(
-                id = "3",
-                remetente = "MARIA SILVA",
-                mensagem = "Lembrando que o prazo para renovação é até sexta-feira.",
-                lida = false
-            )
-        )
+    // Pegando os dados do ViewModel
+    val notificacoes = viewModel.listaComunicados
+    val loading = viewModel.loading
+
+    // Carrega os dados ao abrir a tela
+    LaunchedEffect(Unit) {
+        viewModel.carregarComunicados()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -79,7 +63,7 @@ fun TelaNotificacoesAdmin(
                 )
 
                 Text(
-                    text = "NOTIFICAÇÕES",
+                    text = "NOTIFICAÇÕES (Histórico)",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -89,53 +73,61 @@ fun TelaNotificacoesAdmin(
                         .align(Alignment.Start)
                 )
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(notificacoes.size) { index ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.White)
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            if (!notificacoes[index].lida) {
+                // --- LISTA DINÂMICA ---
+                if (loading) {
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.Black)
+                    }
+                } else if (notificacoes.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                        Text("Nenhum comunicado enviado ainda.", color = Color.Gray)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(notificacoes) { notificacao ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.White)
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                // Bolinha azul para indicar que é um comunicado do sistema
                                 Box(
                                     modifier = Modifier
                                         .size(8.dp)
-                                        .background(Color.Red, shape = CircleShape)
+                                        .background(Color(0xFF044EE7), shape = CircleShape) // Azul
                                         .align(Alignment.CenterVertically)
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
-                            } else {
-                                Spacer(modifier = Modifier.width(20.dp))
+
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = notificacao.autorNome.uppercase(), // Nome do Admin que enviou
+                                        color = Color.Black,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    Text(
+                                        text = notificacao.mensagem,
+                                        color = Color.Gray,
+                                        fontSize = 14.sp
+                                    )
+                                }
                             }
-
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = notificacoes[index].remetente,
-                                    color = Color.Black,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                Text(
-                                    text = notificacoes[index].mensagem,
-                                    color = Color.Gray,
-                                    fontSize = 14.sp
-                                )
-                            }
+                            Divider(color = Color.LightGray, thickness = 1.dp)
                         }
-                        Divider(color = Color.LightGray, thickness = 1.dp)
                     }
                 }
 

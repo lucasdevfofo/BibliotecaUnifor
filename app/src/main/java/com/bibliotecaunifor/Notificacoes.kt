@@ -27,51 +27,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.Route
 import com.bibliotecaunifor.MenuLateral
-
-data class NotificacaoUsuario(
-    val id: String,
-    val remetente: String,
-    val mensagem: String,
-    val isAdmin: Boolean = false
-)
+import com.bibliotecaunifor.model.ComunicadoModel
+import com.bibliotecaunifor.viewmodel.TelaNotificacoesUsuarioViewModel
 
 @Composable
 fun TelaNotificacoesUsuario(
     navController: NavController,
-    onVoltarClick: () -> Unit
+    onVoltarClick: () -> Unit,
+    // Injetamos o ViewModel aqui para ter acesso aos dados
+    viewModel: TelaNotificacoesUsuarioViewModel = viewModel()
 ) {
     var menuAberto by remember { mutableStateOf(false) }
 
-    val notificacoes = remember {
-        listOf(
-            NotificacaoUsuario(
-                id = "1",
-                remetente = "ADMINISTRADOR",
-                mensagem = "A renovação de livros por email foi descontinuada. Use o botão RENOVAR na tela de perfil.",
-                isAdmin = true
-            ),
-            NotificacaoUsuario(
-                id = "2",
-                remetente = "PEDRO AUGUSTO",
-                mensagem = "Boa noite! Biblioteca estará fechada hoje para manutenção."
-            ),
-            NotificacaoUsuario(
-                id = "3",
-                remetente = "JOSÉ ALBERTO",
-                mensagem = "Novos livros de tecnologia chegaram hoje na biblioteca."
-            ),
-            NotificacaoUsuario(
-                id = "4",
-                remetente = "RODRIGO SILVA",
-                mensagem = "Mensagem de notificação 1 – texto longo para testar rolagem."
-            )
-        )
+    // --- MUDANÇA AQUI ---
+    // Em vez de criar uma lista falsa fixa, pegamos do ViewModel
+    val notificacoes = viewModel.listaComunicados
+    val loading = viewModel.loading
+
+    // Carrega os dados assim que a tela abre
+    LaunchedEffect(Unit) {
+        viewModel.carregarComunicados()
     }
+    // --------------------
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -90,7 +73,6 @@ fun TelaNotificacoesUsuario(
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop
                 )
-
 
                 Row(
                     modifier = Modifier
@@ -123,11 +105,8 @@ fun TelaNotificacoesUsuario(
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
-
-
                     Spacer(modifier = Modifier.size(40.dp))
                 }
-
 
                 Row(
                     modifier = Modifier
@@ -164,7 +143,6 @@ fun TelaNotificacoesUsuario(
                     }
                 }
 
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,7 +164,6 @@ fun TelaNotificacoesUsuario(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Text(
                 text = "Notificações",
                 fontSize = 20.sp,
@@ -199,20 +176,30 @@ fun TelaNotificacoesUsuario(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                items(notificacoes) { notificacao ->
-                    ItemNotificacaoUsuario(notificacao = notificacao)
-                    Spacer(modifier = Modifier.height(12.dp))
+            // --- LISTA (Agora verifica se está carregando ou vazio) ---
+            if (loading) {
+                Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color(0xFF044EE7))
+                }
+            } else if (notificacoes.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                    Text("Nenhuma notificação recente.", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f) // Importante para o scroll funcionar
+                        .padding(horizontal = 20.dp)
+                ) {
+                    items(notificacoes) { notificacao ->
+                        ItemNotificacaoUsuario(notificacao = notificacao)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
+            Spacer(modifier = Modifier.height(16.dp)) // Pequeno espaço antes do bottom bar
 
             Row(
                 modifier = Modifier
@@ -225,8 +212,8 @@ fun TelaNotificacoesUsuario(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = "Home",
-                    tint = Color.Black,
-                    modifier = Modifier.clickable { /* Navegar para home */ }
+                    tint = Color.Gray, // Ajuste a cor conforme a tela ativa
+                    modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
@@ -248,7 +235,6 @@ fun TelaNotificacoesUsuario(
                 )
             }
         }
-
 
         if (menuAberto) {
             Box(
@@ -275,9 +261,14 @@ fun TelaNotificacoesUsuario(
 }
 
 @Composable
-fun ItemNotificacaoUsuario(notificacao: NotificacaoUsuario) {
-    val corFundo = if (notificacao.isAdmin) Color(0xFFE7EEFF) else Color.Transparent
-    val corTextoRemetente = if (notificacao.isAdmin) Color(0xFF044EE7) else Color.Black
+fun ItemNotificacaoUsuario(notificacao: ComunicadoModel) {
+    // Lógica simples: se o nome tiver "Admin" ou for vazio, trata como Admin
+    // Você pode melhorar isso checando o ID ou um campo booleano no futuro
+    val isAdmin = notificacao.autorNome.contains("Admin", ignoreCase = true) ||
+            notificacao.autorNome.contains("Biblioteca", ignoreCase = true)
+
+    val corFundo = if (isAdmin) Color(0xFFE7EEFF) else Color.Transparent
+    val corTextoRemetente = if (isAdmin) Color(0xFF044EE7) else Color.Black
 
     Box(
         modifier = Modifier
@@ -287,7 +278,7 @@ fun ItemNotificacaoUsuario(notificacao: NotificacaoUsuario) {
     ) {
         Column {
             Text(
-                text = notificacao.remetente,
+                text = notificacao.autorNome.uppercase(),
                 color = corTextoRemetente,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -304,7 +295,6 @@ fun ItemNotificacaoUsuario(notificacao: NotificacaoUsuario) {
             )
         }
     }
-
 
     Divider(
         color = Color.LightGray.copy(alpha = 0.5f),
