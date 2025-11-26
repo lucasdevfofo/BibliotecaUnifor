@@ -264,16 +264,13 @@ fun TelaCatalogoLivros(navController: NavController) {
                                     .background(Color(0xFFE7EEFF), RoundedCornerShape(4.dp))
                                     .padding(vertical = 12.dp)
                                     .clickable {
-                                        // 1. CODIFICA O ID TAMBÉM
-                                        val idEncoded = Uri.encode(livro.id) // <--- NOVO: Precisamos do ID!
-
+                                        val idEncoded = Uri.encode(livro.id)
                                         val tituloEncoded = Uri.encode(livro.titulo)
                                         val descricaoEncoded = Uri.encode(livro.descricao)
                                         val generoEncoded = Uri.encode(livro.genero)
                                         val autorEncoded = Uri.encode(livro.autor)
                                         val disponivelEncoded = Uri.encode(livro.disponibilidade)
 
-                                        // 2. ADICIONA O ID NA STRING DA ROTA (Sugerido colocar no começo)
                                         navController.navigate(
                                             "descricao_livro/$idEncoded/$tituloEncoded/$descricaoEncoded/$generoEncoded/$autorEncoded/$disponivelEncoded"
                                         )
@@ -298,6 +295,47 @@ fun TelaCatalogoLivros(navController: NavController) {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color.White),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_home),
+                contentDescription = "Home",
+                tint = Color.Gray,
+                modifier = Modifier.clickable {
+                    navController.navigate(Route.SalasDisponiveis.path) {
+                        popUpTo(Route.SalasDisponiveis.path) { inclusive = true }
+                    }
+                }
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_calendar),
+                contentDescription = "Histórico",
+                tint = Color.Gray,
+                modifier = Modifier.clickable { navController.navigate(Route.HistoricoReservas.path) }
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_list),
+                contentDescription = "Listas",
+                tint = Color.Gray,
+                modifier = Modifier.clickable { navController.navigate(Route.ReservasRealizadas.path) }
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_user),
+                contentDescription = "Perfil",
+                tint = Color.Gray,
+                modifier = Modifier.clickable { navController.navigate(Route.PerfilAluno.path) }
+            )
         }
 
         if (menuAberto) {
