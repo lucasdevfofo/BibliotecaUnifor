@@ -4,6 +4,7 @@ import com.bibliotecaunifor.model.AdminModel
 import com.bibliotecaunifor.model.UsuarioModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
 
@@ -164,5 +165,29 @@ class AuthRepository {
             .addOnFailureListener { e ->
                 onResult(false, e.message ?: "Erro ao buscar usuário.")
             }
+    }
+
+    suspend fun enviarEmailRedefinicaoSenha(email: String): Result<Boolean> {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun buscarEmailPorMatricula(matricula: String): String? {
+        return try {
+            val result = db.collection("usuarios")
+                .whereEqualTo("matricula", matricula)
+                .limit(1)
+                .get()
+                .await()
+
+            if (result.isEmpty) null
+            else result.documents[0].getString("email")
+        } catch (e: Exception) {
+            null
+        }
     }
 }

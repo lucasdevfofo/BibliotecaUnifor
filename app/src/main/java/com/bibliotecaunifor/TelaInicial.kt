@@ -35,7 +35,9 @@ import com.bibliotecaunifor.cadastro.TelaCadastroAdm
 import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.perfilAluno.TelaEditarUsuario
 import com.bibliotecaunifor.perfilAluno.TelaPerfilAluno
+import com.bibliotecaunifor.repository.AuthRepository
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.bibliotecaunifor.viewmodel.EsqueceuSenhaViewModel
 import com.bibliotecaunifor.viewmodel.UsuarioAdminViewModel
 
 class TelaInicialActivity : ComponentActivity() {
@@ -88,9 +90,11 @@ fun AppNavigation() {
         }
 
         composable(Route.EsqueceuSenha.path) {
+            val viewModel = EsqueceuSenhaViewModel(AuthRepository())
             EsqueceuSenhaScreen(
+                viewModel = viewModel,
                 onNavigateUp = { navController.popBackStack() },
-                onEnviarClick = { email ->
+                onEmailEnviado = {
                     navController.navigate(Route.EmailRedefinicao.path)
                 }
             )

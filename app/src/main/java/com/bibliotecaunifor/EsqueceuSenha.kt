@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,7 +22,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bibliotecaunifor.repository.AuthRepository
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.bibliotecaunifor.viewmodel.EsqueceuSenhaViewModel
+import com.bibliotecaunifor.viewmodel.EsqueceuSenhaUiState
 
 fun validateEmail(email: String): String? {
     if (email.isBlank()) {
@@ -37,10 +39,29 @@ fun validateEmail(email: String): String? {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Unit) {
+fun EsqueceuSenhaScreen(
+    viewModel: EsqueceuSenhaViewModel,
+    onNavigateUp: () -> Unit,
+    onEmailEnviado: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is EsqueceuSenhaUiState.Success -> {
+                Toast.makeText(context, "Link de recuperação enviado para $email!", Toast.LENGTH_LONG).show()
+                onEmailEnviado()
+            }
+            is EsqueceuSenhaUiState.Error -> {
+                val errorState = uiState as EsqueceuSenhaUiState.Error
+                Toast.makeText(context, "Erro: ${errorState.message}", Toast.LENGTH_LONG).show()
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -135,10 +156,7 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                     emailError = validationError
 
                     if (validationError == null) {
-                        onEnviarClick(email)
-                        Toast.makeText(context, "Link de recuperação enviado para $email!", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(context, "Por favor, corrija o email.", Toast.LENGTH_SHORT).show()
+                        viewModel.enviarEmailRedefinicao(email)
                     }
                 },
                 modifier = Modifier
@@ -146,10 +164,25 @@ fun EsqueceuSenhaScreen(onNavigateUp: () -> Unit, onEnviarClick: (String) -> Uni
                     .padding(top = 32.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)),
                 shape = RoundedCornerShape(4.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                contentPadding = PaddingValues(vertical = 12.dp),
+                enabled = uiState !is EsqueceuSenhaUiState.Loading
             ) {
-                Text("Enviar", fontSize = 18.sp)
+                if (uiState is EsqueceuSenhaUiState.Loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text("Enviar", fontSize = 18.sp)
+                }
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.resetState()
         }
     }
 }
@@ -199,6 +232,10 @@ fun EmailRecoveryTextField(
 @Composable
 fun PreviewEsqueceuSenhaScreen() {
     BibliotecaUniforTheme {
-        EsqueceuSenhaScreen(onNavigateUp = {}, onEnviarClick = {})
+        EsqueceuSenhaScreen(
+            viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+            onNavigateUp = {},
+            onEmailEnviado = {}
+        )
     }
 }

@@ -1,4 +1,3 @@
-// Routes.kt
 package com.bibliotecaunifor
 
 sealed class Route(val path: String) {
@@ -8,6 +7,8 @@ sealed class Route(val path: String) {
     object Cadastro : Route("tela_cadastro")
     object EsqueceuSenha : Route("esqueceu_senha")
     object EmailRedefinicao : Route("email_redefinicao")
+
+
 
     // ROTAS DO ADMIN
     object TelaCadastroAdm : Route("tela_cadastro_admin")
@@ -19,7 +20,7 @@ sealed class Route(val path: String) {
     object TelaAdminEditarUsuario : Route("tela_admin_editar_usuario/{nomeUsuario}")
     object TelaAdminCadastrarUsuario : Route("tela_admin_cadastrar_usuario")
     object TelaAdminReservasRealizadas : Route("tela_admin_reservas_realizadas")
-    object TelaRelatorioReservas : Route("relatorio_reservas") // NOVA ROTA
+    object TelaRelatorioReservas : Route("relatorio_reservas")
     object TelaAdminEditarPerfil : Route("tela_admin_editar_perfil")
     object TelaPerfilAdmin : Route("tela_admin_perfil")
     object TelaCatalogoLivrosAdmin : Route("catalogo_livros_admin")
