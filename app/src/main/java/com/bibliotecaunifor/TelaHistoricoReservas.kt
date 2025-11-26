@@ -62,7 +62,6 @@ fun TelaHistoricoReservas(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- HEADER FIXO (Topo) ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,8 +156,6 @@ fun TelaHistoricoReservas(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- CONTEÚDO ROLÁVEL (Meio) ---
-            // Usamos Box com weight(1f) para ocupar todo o espaço entre o topo e o fundo
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -202,7 +199,6 @@ fun TelaHistoricoReservas(navController: NavController) {
                                 .fillMaxSize()
                                 .padding(horizontal = 16.dp)
                         ) {
-                            // --- LIVROS ---
                             if (listaLivros.isNotEmpty()) {
                                 item {
                                     Text(
@@ -254,7 +250,6 @@ fun TelaHistoricoReservas(navController: NavController) {
                                 item { Spacer(modifier = Modifier.height(20.dp)) }
                             }
 
-                            // --- SALAS ---
                             if (listaSalas.isNotEmpty()) {
                                 item {
                                     Text(
@@ -335,8 +330,6 @@ fun TelaHistoricoReservas(navController: NavController) {
                 }
             }
 
-            // --- BOTTOM BAR FIXA (Fundo) ---
-            // Removi o Spacer(weight(1f)) que causava o bug
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
