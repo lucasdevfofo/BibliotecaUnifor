@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.Route
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun TelaAdminCadastrarSala(
@@ -42,12 +43,13 @@ fun TelaAdminCadastrarSala(
 ) {
     var menuAberto by remember { mutableStateOf(false) }
 
-
     var nomeSala by remember { mutableStateOf("") }
-    var quantidadeMesas by remember { mutableStateOf("") }
+    var capacidade by remember { mutableStateOf("") }
 
     val azulPrimario = Color(0xFF3F4F78)
     val cinzaClaro = Color(0xFFF5F5F5)
+
+    val db = FirebaseFirestore.getInstance()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -75,7 +77,6 @@ fun TelaAdminCadastrarSala(
                     onMenuClick = { menuAberto = true }
                 )
 
-
                 Text(
                     text = "Cadastrar Nova Sala",
                     fontSize = 24.sp,
@@ -94,7 +95,6 @@ fun TelaAdminCadastrarSala(
                         .padding(start = 20.dp, bottom = 32.dp)
                         .align(Alignment.Start)
                 )
-
 
                 Column(
                     modifier = Modifier
@@ -134,20 +134,19 @@ fun TelaAdminCadastrarSala(
                         )
                     }
 
-
                     Column {
                         Text(
-                            text = "Quantidade de Mesas *",
+                            text = "Capacidade *",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         OutlinedTextField(
-                            value = quantidadeMesas,
+                            value = capacidade,
                             onValueChange = {
                                 if (it.all { char -> char.isDigit() }) {
-                                    quantidadeMesas = it
+                                    capacidade = it
                                 }
                             },
                             modifier = Modifier
@@ -173,13 +172,23 @@ fun TelaAdminCadastrarSala(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-
                     Button(
                         onClick = {
+                            if (nomeSala.isNotBlank() && capacidade.isNotBlank()) {
+                                val novaSala = hashMapOf(
+                                    "nome" to nomeSala,
+                                    "capacidade" to (capacidade.toIntOrNull() ?: 0),
+                                    "disponivel" to true
+                                )
 
-                            if (nomeSala.isNotBlank() && quantidadeMesas.isNotBlank()) {
-
-                                navController.popBackStack()
+                                db.collection("salas")
+                                    .add(novaSala)
+                                    .addOnSuccessListener {
+                                        navController.popBackStack()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        println("Erro ao cadastrar sala: ${e.message}")
+                                    }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
@@ -187,7 +196,7 @@ fun TelaAdminCadastrarSala(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        enabled = nomeSala.isNotBlank() && quantidadeMesas.isNotBlank()
+                        enabled = nomeSala.isNotBlank() && capacidade.isNotBlank()
                     ) {
                         Text(
                             text = "CADASTRAR SALA",
@@ -196,7 +205,6 @@ fun TelaAdminCadastrarSala(
                             fontWeight = FontWeight.Bold
                         )
                     }
-
 
                     Text(
                         text = "Cancelar",
@@ -215,7 +223,6 @@ fun TelaAdminCadastrarSala(
                 }
             }
         }
-
 
         if (menuAberto) {
             Box(
@@ -254,7 +261,6 @@ fun AdminTopBarCadastro(
             contentScale = androidx.compose.ui.layout.ContentScale.Crop
         )
 
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -262,7 +268,6 @@ fun AdminTopBarCadastro(
                 .background(Color.White)
                 .align(Alignment.TopCenter)
         )
-
 
         IconButton(
             onClick = onVoltarClick,
@@ -274,7 +279,6 @@ fun AdminTopBarCadastro(
             Icon(Icons.Filled.ArrowBack, "Voltar", tint = Color.Black, modifier = Modifier.size(30.dp))
         }
 
-
         androidx.compose.foundation.Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo UNIFOR",
@@ -284,7 +288,6 @@ fun AdminTopBarCadastro(
                 .offset(y = 8.dp)
                 .zIndex(2f)
         )
-
 
         Row(
             modifier = Modifier
@@ -307,7 +310,6 @@ fun AdminTopBarCadastro(
                 Icon(Icons.Outlined.Menu, "Menu", tint = Color.Black, modifier = Modifier.size(30.dp))
             }
         }
-
 
         Box(
             modifier = Modifier

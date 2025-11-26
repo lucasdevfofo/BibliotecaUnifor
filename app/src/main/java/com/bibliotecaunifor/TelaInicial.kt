@@ -36,8 +36,11 @@ import com.bibliotecaunifor.model.UsuarioModel
 import com.bibliotecaunifor.perfilAluno.TelaEditarUsuario
 import com.bibliotecaunifor.perfilAluno.TelaPerfilAluno
 import com.bibliotecaunifor.repository.AuthRepository
+import com.bibliotecaunifor.repository.SalaRepository
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import com.bibliotecaunifor.viewmodel.EsqueceuSenhaViewModel
+import com.bibliotecaunifor.viewmodel.TelaAdminGerenciarSalasViewModel
+import com.bibliotecaunifor.viewmodel.TelaAdminGerenciarSalasViewModelFactory
 import com.bibliotecaunifor.viewmodel.UsuarioAdminViewModel
 
 class TelaInicialActivity : ComponentActivity() {
@@ -119,6 +122,10 @@ fun AppNavigation() {
         }
 
         composable(Route.TelaAdminGerenciarSalas.path) {
+            val viewModel: TelaAdminGerenciarSalasViewModel = viewModel(
+                factory = TelaAdminGerenciarSalasViewModelFactory(SalaRepository())
+            )
+
             TelaAdminGerenciarSalas(
                 navController = navController,
                 onVoltarClick = { navController.popBackStack() },
@@ -204,6 +211,19 @@ fun AppNavigation() {
                 currentRoute = Route.TelaAdminCadastrarSala.path
             )
         }
+        composable(
+            route = "editar_sala/{salaId}",
+            arguments = listOf(navArgument("salaId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val salaId = backStackEntry.arguments?.getString("salaId") ?: ""
+            TelaAdminEditarSala(
+                navController = navController,
+                salaId = salaId,
+                onVoltarClick = { navController.popBackStack() },
+                onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
+                onMenuClick = { }
+            )
+        }
 
         composable(Route.TelaAdminCadastrarUsuario.path) {
             TelaAdminCadastrarUsuario(
@@ -269,8 +289,6 @@ fun AppNavigation() {
             )
         }
 
-
-
         composable(Route.TelaCatalogoLivrosAdmin.path) {
             TelaCatalogoLivrosAdmin(
                 navController = navController,
@@ -293,7 +311,6 @@ fun AppNavigation() {
             ComunicadosScreen(
                 navController = navController,
                 onSendMessageSuccess = {
-                    // Quando enviar com sucesso, vai para a tela de confirmação
                     navController.navigate(Route.ComunicadoEnviado.path)
                 }
             )
@@ -371,7 +388,6 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: ""
-            // Decodifica caso venha com caracteres especiais
             val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
             val dataAtual = backStackEntry.arguments?.getLong("dataAtual") ?: 0L
 
@@ -382,7 +398,6 @@ fun AppNavigation() {
                 dataDevolucaoAtualMillis = dataAtual
             )
         }
-        // ------------------------------------------
 
         composable(Route.Notificacoes.path) {
             TelaNotificacoesUsuario(
@@ -394,7 +409,6 @@ fun AppNavigation() {
         composable(Route.MenuLateral.path) {
             MenuLateral(navController = navController)
         }
-
 
         composable(
             route = "alugar_livro/{livroNome}",
@@ -413,10 +427,8 @@ fun AppNavigation() {
         }
 
         composable(
-            // 1. Adicionei o {id} logo no começo da rota
             route = "descricao_livro/{id}/{titulo}/{descricao}/{genero}/{autor}/{disponibilidade}",
             arguments = listOf(
-                // 2. Adicionei o argumento do ID
                 navArgument("id") { type = NavType.StringType },
                 navArgument("titulo") { type = NavType.StringType },
                 navArgument("descricao") { type = NavType.StringType },
@@ -425,10 +437,7 @@ fun AppNavigation() {
                 navArgument("disponibilidade") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-
-            // 3. Recupera o ID (Geralmente ID do Firebase não precisa de decode, mas se quiser pode usar)
             val id = backStackEntry.arguments?.getString("id") ?: ""
-
             val titulo = Uri.decode(backStackEntry.arguments?.getString("titulo") ?: "")
             val descricao = Uri.decode(backStackEntry.arguments?.getString("descricao") ?: "")
             val genero = Uri.decode(backStackEntry.arguments?.getString("genero") ?: "")
@@ -437,7 +446,7 @@ fun AppNavigation() {
 
             TelaDescricaoLivro(
                 navController = navController,
-                livroId = id, // <--- 4. Passando o ID para a tela!
+                livroId = id,
                 tituloLivro = titulo,
                 descricao = descricao,
                 genero = genero,

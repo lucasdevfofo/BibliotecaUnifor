@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
@@ -26,45 +26,84 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.R
 import com.bibliotecaunifor.ui.theme.BibliotecaUniforTheme
 import com.bibliotecaunifor.Route
-
-data class SalaAdmin(
-    val nome: String,
-    val capacidade: Int,
-    val mesasDisponiveis: Int
-)
+import com.bibliotecaunifor.repository.SalaRepository
+import com.bibliotecaunifor.viewmodel.TelaAdminGerenciarSalasViewModel
+import com.bibliotecaunifor.viewmodel.TelaAdminGerenciarSalasViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaAdminGerenciarSalas(
     navController: NavController,
-    onVoltarClick: () -> Unit,
-    onNotificacoesClick: () -> Unit,
-    onMenuClick: () -> Unit,
-    onGerenciarSalaClick: (String) -> Unit,
-    onNavHomeClick: () -> Unit,
-    onNavHistoricoClick: () -> Unit,
-    onNavListasClick: () -> Unit,
-    onNavPerfilClick: () -> Unit,
-    currentRoute: String
+    onVoltarClick: () -> Unit = {},
+    onNotificacoesClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
+    onGerenciarSalaClick: (String) -> Unit = { _ -> },
+    onNavHomeClick: () -> Unit = {},
+    onNavHistoricoClick: () -> Unit = {},
+    onNavListasClick: () -> Unit = {},
+    onNavPerfilClick: () -> Unit = {},
+    currentRoute: String = ""
 ) {
     val azulPrimario = Color(0xFF3F4F78)
     val azulClaroUnifor = Color(0xFF044EE7)
     val amareloDisponivel = Color(0xFFD3A82C)
 
     val menuLateralAberto = remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var salaParaExcluir by remember { mutableStateOf<String?>(null) }
 
-    val salas = listOf(
-        SalaAdmin("SALA 01", 20, 18),
-        SalaAdmin("SALA 02", 24, 12),
-        SalaAdmin("SALA 03", 23, 20),
-        SalaAdmin("SALA 04", 23, 18),
-        SalaAdmin("SALA 05", 28, 28)
+    val viewModel: TelaAdminGerenciarSalasViewModel = viewModel(
+        factory = TelaAdminGerenciarSalasViewModelFactory(SalaRepository())
     )
+    val salas by viewModel.salas.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(error) {
+        error?.let {
+            println("Erro: $it")
+        }
+    }
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showConfirmDialog = false
+                salaParaExcluir = null
+            },
+            title = { Text("Confirmar Exclusão") },
+            text = { Text("Tem certeza que deseja excluir esta sala?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        salaParaExcluir?.let { salaId ->
+                            viewModel.excluirSala(salaId)
+                        }
+                        showConfirmDialog = false
+                        salaParaExcluir = null
+                    }
+                ) {
+                    Text("Excluir", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showConfirmDialog = false
+                        salaParaExcluir = null
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -106,7 +145,6 @@ fun TelaAdminGerenciarSalas(
                             .background(Color.White)
                             .align(Alignment.TopCenter)
                     )
-
 
                     Image(
                         painter = painterResource(id = R.drawable.logo),
@@ -167,40 +205,83 @@ fun TelaAdminGerenciarSalas(
                     color = Color.Black
                 )
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(salas) { sala ->
-                        SalaAdminItem(
-                            sala = sala,
-                            azulClaroUnifor = azulClaroUnifor,
-                            amareloDisponivel = amareloDisponivel,
-                            onClick = { onGerenciarSalaClick(sala.nome) }
+                if (loading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = azulPrimario)
+                    }
+                } else if (salas.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "Nenhuma sala encontrada",
+                            color = Color.Gray,
+                            fontSize = 16.sp
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(salas) { sala ->
+                            SalaAdminItem(
+                                sala = sala,
+                                azulClaroUnifor = azulClaroUnifor,
+                                amareloDisponivel = amareloDisponivel,
+                                onClick = { onGerenciarSalaClick(sala.nome) },
+                                onEditarClick = { salaParaEditar ->
+                                    navController.navigate("editar_sala/${salaParaEditar.id}")
+                                },
+                                onExcluirClick = { salaId ->
+                                    salaParaExcluir = salaId
+                                    showConfirmDialog = true
+                                }
+                            )
+                        }
                     }
                 }
 
-                Button(
-                    onClick = {
-                        navController.navigate(Route.TelaAdminCadastrarSala.path)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = azulPrimario),
-                    shape = RoundedCornerShape(8.dp),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(55.dp)
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        "CADASTRAR NOVA MESA/SALA",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Button(
+                        onClick = {
+                            navController.navigate(Route.TelaAdminCadastrarSala.path)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = azulPrimario
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp,
+                            pressedElevation = 4.dp
+                        )
+                    ) {
+                        Text(
+                            text = "CADASTRAR NOVA MESA/SALA",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
                 }
             }
 
@@ -234,11 +315,13 @@ fun TelaAdminGerenciarSalas(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.2f))
-                    .clickable { menuLateralAberto.value = false },
-                contentAlignment = Alignment.TopEnd
+                    .clickable { menuLateralAberto.value = false }
             ) {
                 MenuLateralAdmin(
-                    modifier = Modifier.fillMaxHeight().fillMaxWidth(0.75f),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.75f),
                     navController = navController,
                     onLinkClick = { menuLateralAberto.value = false }
                 )
@@ -248,79 +331,110 @@ fun TelaAdminGerenciarSalas(
 }
 
 @Composable
-fun SalaAdminItem(sala: SalaAdmin, azulClaroUnifor: Color, amareloDisponivel: Color, onClick: () -> Unit) {
-    Column(
+fun SalaAdminItem(
+    sala: com.bibliotecaunifor.model.Sala,
+    azulClaroUnifor: Color,
+    amareloDisponivel: Color,
+    onClick: () -> Unit,
+    onEditarClick: (com.bibliotecaunifor.model.Sala) -> Unit,
+    onExcluirClick: (String) -> Unit
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp, horizontal = 4.dp)
+            .padding(vertical = 4.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = sala.nome,
-            color = azulClaroUnifor,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Capacidade: ${sala.capacidade} pessoas",
+                text = sala.nome,
                 color = azulClaroUnifor,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "•",
-                color = amareloDisponivel,
-                fontSize = 14.sp
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "${sala.mesasDisponiveis} mesas disponíveis",
-                color = amareloDisponivel,
-                fontSize = 14.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Capacidade: ${sala.capacidade} pessoas",
+                    color = azulClaroUnifor,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "•",
+                    color = amareloDisponivel,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (sala.disponivel) "Disponível" else "Indisponível",
+                    color = if (sala.disponivel) amareloDisponivel else Color.Red,
+                    fontSize = 14.sp
+                )
+            }
+
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            IconButton(
+                onClick = { onEditarClick(sala) },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = "Editar",
+                    tint = Color.Black
+                )
+            }
+            IconButton(
+                onClick = { onExcluirClick(sala.id) },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Excluir",
+                    tint = Color.Black
+                )
+            }
         }
     }
-    Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 1.dp, modifier = Modifier.padding(top = 4.dp))
+    Divider(
+        color = Color.LightGray.copy(alpha = 0.5f),
+        thickness = 1.dp,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun TelaAdminGerenciarSalasPreview() {
+    TelaAdminGerenciarSalas(
+        navController = rememberNavController()
+    )
+}
 
-    @Composable fun AppBottomNavAdminPadrao(onHomeClick: () -> Unit, onHistoricoClick: () -> Unit, onListasClick: () -> Unit, onPerfilClick: () -> Unit, currentRoute: String) {
-        NavigationBar(containerColor = Color.White) {
-            NavigationBarItem(selected = currentRoute == Route.TelaAdminGerenciarSalas.path, onClick = onHomeClick, icon = { Icon(Icons.Filled.Home, "Salas") })
-            NavigationBarItem(selected = currentRoute == Route.TelaAdminReservasRealizadas.path, onClick = onHistoricoClick, icon = { Icon(Icons.Filled.Home, "Reservas") })
-            NavigationBarItem(selected = currentRoute == Route.TelaAdminGerenciarUsuarios.path, onClick = onListasClick, icon = { Icon(Icons.Filled.Home, "Usuários") })
-            NavigationBarItem(selected = currentRoute == Route.PerfilAluno.path, onClick = onPerfilClick, icon = { Icon(Icons.Filled.Home, "Perfil") })
-        }
-    }
+@Preview(showBackground = true)
+@Composable
+fun SalaAdminItemPreview() {
+    val salaExemplo = com.bibliotecaunifor.model.Sala(
+        id = "sala001",
+        nome = "Sala 01",
+        capacidade = 24,
+        disponivel = true
+    )
 
-
-    @Composable fun MenuLateralAdmin(modifier: Modifier, navController: NavController, onLinkClick: () -> Unit) {
-        Box(modifier.background(Color.Black.copy(alpha = 0.5f)).clickable(onClick = onLinkClick)) {
-            Text("MENU ADMIN", color = Color.White, modifier = Modifier.padding(30.dp))
-        }
-    }
-
-    BibliotecaUniforTheme {
-        TelaAdminGerenciarSalas(
-            navController = rememberNavController(),
-            onVoltarClick = {},
-            onNotificacoesClick = {},
-            onMenuClick = {},
-            onGerenciarSalaClick = {},
-            onNavHomeClick = {},
-            onNavHistoricoClick = {},
-            onNavListasClick = {},
-            onNavPerfilClick = {},
-            currentRoute = Route.TelaAdminGerenciarSalas.path
-        )
-    }
-
+    SalaAdminItem(
+        sala = salaExemplo,
+        azulClaroUnifor = Color(0xFF044EE7),
+        amareloDisponivel = Color(0xFFD3A82C),
+        onClick = {},
+        onEditarClick = {},
+        onExcluirClick = {}
+    )
 }

@@ -17,8 +17,7 @@ class SalaRepository {
                     id = doc.id,
                     nome = doc.getString("nome") ?: "",
                     capacidade = doc.getLong("capacidade")?.toInt() ?: 0,
-                    localizacao = doc.getString("localizacao") ?: "",
-                    recursos = parseRecursos(doc.getString("recursos")),
+                    tipo = doc.getString("tipo") ?: "",
                     disponivel = doc.getBoolean("disponivel") ?: true
                 )
             }
@@ -27,11 +26,27 @@ class SalaRepository {
         }
     }
 
-    private fun parseRecursos(recursosString: String?): List<String> {
+    suspend fun atualizarSala(sala: Sala): Boolean {
         return try {
-            recursosString?.removeSurrounding("\"")?.split("\", \"") ?: emptyList()
+            val salaData = hashMapOf(
+                "nome" to sala.nome,
+                "capacidade" to sala.capacidade,
+                "tipo" to sala.tipo,
+                "disponivel" to sala.disponivel
+            )
+            collection.document(sala.id).update(salaData as Map<String, Any>).await()
+            true
         } catch (e: Exception) {
-            emptyList()
+            false
+        }
+    }
+
+    suspend fun excluirSala(salaId: String): Boolean {
+        return try {
+            collection.document(salaId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }
