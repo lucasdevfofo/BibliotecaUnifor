@@ -66,8 +66,6 @@ fun TelaReservasRealizadas(navController: NavController) {
     }
 
     val reservasPendentes = reservas.filter { it.status == "pendente" }
-    val reservasConcluidas = reservas.filter { it.status == "concluída" }
-    val reservasCanceladas = reservas.filter { it.status == "cancelada" }
 
     Box(
         modifier = Modifier
@@ -190,27 +188,6 @@ fun TelaReservasRealizadas(navController: NavController) {
                             .padding(horizontal = 20.dp, vertical = 8.dp)
                     )
                     reservasPendentes.forEach { reserva ->
-                        CardReserva(
-                            reserva = reserva,
-                            reservaExpandida = reservaExpandida,
-                            onExpandir = { id -> reservaExpandida = if (reservaExpandida == id) null else id },
-                            onCancelar = { id -> cancelarReserva(id) },
-                            navController = navController
-                        )
-                    }
-                }
-
-                if (reservasConcluidas.isNotEmpty() || reservasCanceladas.isNotEmpty()) {
-                    Text(
-                        text = "Histórico",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF044EE7),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 8.dp)
-                    )
-                    (reservasConcluidas + reservasCanceladas).forEach { reserva ->
                         CardReserva(
                             reserva = reserva,
                             reservaExpandida = reservaExpandida,

@@ -2,10 +2,12 @@ package com.bibliotecaunifor.Adm
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
@@ -19,10 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bibliotecaunifor.viewmodel.TelaNotificacoesAdminViewModel
+import com.bibliotecaunifor.model.ComunicadoModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,16 +35,14 @@ fun TelaNotificacoesAdmin(
     onVoltarClick: () -> Unit,
     onNotificacoesClick: () -> Unit,
     onEnviarComunicadoClick: () -> Unit,
-    // Injetando o ViewModel
     viewModel: TelaNotificacoesAdminViewModel = viewModel()
 ) {
     var menuAberto by remember { mutableStateOf(false) }
+    var notificacaoPopup by remember { mutableStateOf<ComunicadoModel?>(null) }
 
-    // Pegando os dados do ViewModel
     val notificacoes = viewModel.listaComunicados
     val loading = viewModel.loading
 
-    // Carrega os dados ao abrir a tela
     LaunchedEffect(Unit) {
         viewModel.carregarComunicados()
     }
@@ -73,7 +75,6 @@ fun TelaNotificacoesAdmin(
                         .align(Alignment.Start)
                 )
 
-                // --- LISTA DINÂMICA ---
                 if (loading) {
                     Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = Color.Black)
@@ -95,14 +96,14 @@ fun TelaNotificacoesAdmin(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(Color.White)
+                                    .clickable { notificacaoPopup = notificacao }
                                     .padding(vertical = 8.dp),
                                 verticalAlignment = Alignment.Top
                             ) {
-                                // Bolinha azul para indicar que é um comunicado do sistema
                                 Box(
                                     modifier = Modifier
                                         .size(8.dp)
-                                        .background(Color(0xFF044EE7), shape = CircleShape) // Azul
+                                        .background(Color(0xFF044EE7), shape = CircleShape)
                                         .align(Alignment.CenterVertically)
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
@@ -111,7 +112,7 @@ fun TelaNotificacoesAdmin(
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = notificacao.autorNome.uppercase(), // Nome do Admin que enviou
+                                        text = notificacao.autorNome.uppercase(),
                                         color = Color.Black,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold
@@ -120,7 +121,7 @@ fun TelaNotificacoesAdmin(
                                     Spacer(modifier = Modifier.height(4.dp))
 
                                     Text(
-                                        text = notificacao.mensagem,
+                                        text = notificacao.mensagem.take(80) + if (notificacao.mensagem.length > 80) "..." else "",
                                         color = Color.Gray,
                                         fontSize = 14.sp
                                     )
@@ -165,11 +166,66 @@ fun TelaNotificacoesAdmin(
             }
         }
 
+        // Popup de Notificação
+        if (notificacaoPopup != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .zIndex(3f)
+                    .clickable(
+                        onClick = { notificacaoPopup = null },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Text(
+                            text = notificacaoPopup!!.autorNome.uppercase(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF044EE7),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Text(
+                            text = notificacaoPopup!!.mensagem,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(bottom = 20.dp)
+                        )
+
+                        Button(
+                            onClick = { notificacaoPopup = null },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Fechar", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
+
         if (menuAberto) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f))
+                    .zIndex(2f)
                     .clickable {
                         menuAberto = false
                     }

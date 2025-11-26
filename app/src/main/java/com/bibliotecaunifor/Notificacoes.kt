@@ -40,21 +40,17 @@ import com.bibliotecaunifor.viewmodel.TelaNotificacoesUsuarioViewModel
 fun TelaNotificacoesUsuario(
     navController: NavController,
     onVoltarClick: () -> Unit,
-    // Injetamos o ViewModel aqui para ter acesso aos dados
     viewModel: TelaNotificacoesUsuarioViewModel = viewModel()
 ) {
     var menuAberto by remember { mutableStateOf(false) }
+    var notificacaoPopup by remember { mutableStateOf<ComunicadoModel?>(null) }
 
-    // --- MUDANÇA AQUI ---
-    // Em vez de criar uma lista falsa fixa, pegamos do ViewModel
     val notificacoes = viewModel.listaComunicados
     val loading = viewModel.loading
 
-    // Carrega os dados assim que a tela abre
     LaunchedEffect(Unit) {
         viewModel.carregarComunicados()
     }
-    // --------------------
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -115,7 +111,7 @@ fun TelaNotificacoesUsuario(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     IconButton(
-                        onClick = {   },
+                        onClick = { /* Já estamos na tela de notificações */ },
                         modifier = Modifier
                             .size(40.dp)
                             .pointerHoverIcon(PointerIcon.Hand)
@@ -176,7 +172,6 @@ fun TelaNotificacoesUsuario(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // --- LISTA (Agora verifica se está carregando ou vazio) ---
             if (loading) {
                 Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Color(0xFF044EE7))
@@ -189,17 +184,20 @@ fun TelaNotificacoesUsuario(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f) // Importante para o scroll funcionar
+                        .weight(1f)
                         .padding(horizontal = 20.dp)
                 ) {
                     items(notificacoes) { notificacao ->
-                        ItemNotificacaoUsuario(notificacao = notificacao)
+                        ItemNotificacaoUsuario(
+                            notificacao = notificacao,
+                            onClick = { notificacaoPopup = notificacao }
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Pequeno espaço antes do bottom bar
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier
@@ -212,7 +210,7 @@ fun TelaNotificacoesUsuario(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = "Home",
-                    tint = Color.Gray, // Ajuste a cor conforme a tela ativa
+                    tint = Color.Gray,
                     modifier = Modifier.clickable { navController.navigate(Route.SalasDisponiveis.path) }
                 )
                 Icon(
@@ -236,12 +234,66 @@ fun TelaNotificacoesUsuario(
             }
         }
 
+        // Popup de Notificação
+        if (notificacaoPopup != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .zIndex(2f)
+                    .clickable(
+                        onClick = { notificacaoPopup = null },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Text(
+                            text = notificacaoPopup!!.autorNome.uppercase(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF044EE7),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Text(
+                            text = notificacaoPopup!!.mensagem,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(bottom = 20.dp)
+                        )
+
+                        Button(
+                            onClick = { notificacaoPopup = null },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF044EE7)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Fechar", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        }
+                    }
+                }
+            }
+        }
+
         if (menuAberto) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.4f))
-                    .zIndex(0.5f)
+                    .zIndex(1f)
                     .clickable(
                         onClick = { menuAberto = false },
                         indication = null,
@@ -252,7 +304,7 @@ fun TelaNotificacoesUsuario(
             MenuLateral(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .zIndex(1f)
+                    .zIndex(2f)
                     .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp)),
                 navController = navController
             )
@@ -261,9 +313,10 @@ fun TelaNotificacoesUsuario(
 }
 
 @Composable
-fun ItemNotificacaoUsuario(notificacao: ComunicadoModel) {
-    // Lógica simples: se o nome tiver "Admin" ou for vazio, trata como Admin
-    // Você pode melhorar isso checando o ID ou um campo booleano no futuro
+fun ItemNotificacaoUsuario(
+    notificacao: ComunicadoModel,
+    onClick: () -> Unit
+) {
     val isAdmin = notificacao.autorNome.contains("Admin", ignoreCase = true) ||
             notificacao.autorNome.contains("Biblioteca", ignoreCase = true)
 
@@ -274,6 +327,7 @@ fun ItemNotificacaoUsuario(notificacao: ComunicadoModel) {
         modifier = Modifier
             .fillMaxWidth()
             .background(corFundo, RoundedCornerShape(4.dp))
+            .clickable(onClick = onClick)
             .padding(vertical = 12.dp)
     ) {
         Column {
@@ -288,7 +342,7 @@ fun ItemNotificacaoUsuario(notificacao: ComunicadoModel) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = notificacao.mensagem,
+                text = notificacao.mensagem.take(80) + if (notificacao.mensagem.length > 80) "..." else "",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(start = 10.dp)
