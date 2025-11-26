@@ -131,9 +131,6 @@ fun AppNavigation() {
                 onVoltarClick = { navController.popBackStack() },
                 onNotificacoesClick = { navController.navigate(Route.TelaNotificacoesAdmin.path) },
                 onMenuClick = { },
-                onGerenciarSalaClick = { salaNome ->
-                    navController.navigate(Route.adminGerenciarMesas(salaNome))
-                },
                 onNavHomeClick = {},
                 onNavHistoricoClick = { navController.navigate(Route.TelaAdminReservasRealizadas.path) },
                 onNavListasClick = { navController.navigate(Route.TelaAdminGerenciarUsuarios.path) },
@@ -142,19 +139,6 @@ fun AppNavigation() {
             )
         }
 
-        composable(
-            route = Route.TelaAdminGerenciarMesas.path,
-            arguments = listOf(navArgument("salaNome") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val salaNome = backStackEntry.arguments?.getString("salaNome") ?: ""
-            TelaAdminGerenciarMesas(
-                salaNome = salaNome,
-                onVoltarClick = { navController.popBackStack() },
-                onEditarMesaClick = { mesaNome -> },
-                onExcluirMesaClick = { mesaNome -> },
-                onCadastrarNovaMesaClick = { mesaNome -> }
-            )
-        }
 
         composable(
             route = "${Route.TelaAdminEditarLivro.path}/{livroId}",

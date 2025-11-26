@@ -43,7 +43,6 @@ fun TelaAdminGerenciarSalas(
     onVoltarClick: () -> Unit = {},
     onNotificacoesClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    onGerenciarSalaClick: (String) -> Unit = { _ -> },
     onNavHomeClick: () -> Unit = {},
     onNavHistoricoClick: () -> Unit = {},
     onNavListasClick: () -> Unit = {},
@@ -52,11 +51,12 @@ fun TelaAdminGerenciarSalas(
 ) {
     val azulPrimario = Color(0xFF3F4F78)
     val azulClaroUnifor = Color(0xFF044EE7)
-    val amareloDisponivel = Color(0xFFD3A82C)
+    val amareloDisponivel = Color(0xFF66BB6A)
 
     val menuLateralAberto = remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
     var salaParaExcluir by remember { mutableStateOf<String?>(null) }
+    var salaSelecionada by remember { mutableStateOf<com.bibliotecaunifor.model.Sala?>(null) }
 
     val viewModel: TelaAdminGerenciarSalasViewModel = viewModel(
         factory = TelaAdminGerenciarSalasViewModelFactory(SalaRepository())
@@ -100,6 +100,73 @@ fun TelaAdminGerenciarSalas(
                     }
                 ) {
                     Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (salaSelecionada != null) {
+        AlertDialog(
+            onDismissRequest = { salaSelecionada = null },
+            title = {
+                Text(
+                    "Detalhes da Sala",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = azulPrimario
+                )
+            },
+            text = {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Nome:", fontWeight = FontWeight.Medium)
+                        Text(salaSelecionada!!.nome, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Capacidade:", fontWeight = FontWeight.Medium)
+                        Text("${salaSelecionada!!.capacidade} pessoas", fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Status:", fontWeight = FontWeight.Medium)
+                        Text(
+                            if (salaSelecionada!!.disponivel) "Disponível" else "Indisponível",
+                            color = if (salaSelecionada!!.disponivel) amareloDisponivel else Color.Red,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("ID:", fontWeight = FontWeight.Medium)
+                        Text(salaSelecionada!!.id, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { salaSelecionada = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = azulPrimario)
+                ) {
+                    Text("Fechar")
                 }
             }
         )
@@ -240,7 +307,7 @@ fun TelaAdminGerenciarSalas(
                                 sala = sala,
                                 azulClaroUnifor = azulClaroUnifor,
                                 amareloDisponivel = amareloDisponivel,
-                                onClick = { onGerenciarSalaClick(sala.nome) },
+                                onClick = { salaSelecionada = sala },
                                 onEditarClick = { salaParaEditar ->
                                     navController.navigate("editar_sala/${salaParaEditar.id}")
                                 },
@@ -376,7 +443,6 @@ fun SalaAdminItem(
                     fontSize = 14.sp
                 )
             }
-
         }
 
         Row(
@@ -432,7 +498,7 @@ fun SalaAdminItemPreview() {
     SalaAdminItem(
         sala = salaExemplo,
         azulClaroUnifor = Color(0xFF044EE7),
-        amareloDisponivel = Color(0xFFD3A82C),
+        amareloDisponivel = Color(0xFF4CAF50),
         onClick = {},
         onEditarClick = {},
         onExcluirClick = {}

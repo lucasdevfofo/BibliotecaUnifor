@@ -14,7 +14,6 @@ sealed class Route(val path: String) {
     object TelaCadastroAdm : Route("tela_cadastro_admin")
     object TelaInicialAdmin : Route("tela_inicial_admin")
     object TelaAdminGerenciarSalas : Route("tela_admin_gerenciar_salas")
-    object TelaAdminGerenciarMesas : Route("tela_admin_gerenciar_mesas/{salaNome}")
     object TelaAdminEditarLivro : Route("tela_admin_editar_livro")
     object TelaAdminGerenciarUsuarios : Route("tela_admin_gerenciar_usuarios")
     object TelaAdminEditarUsuario : Route("tela_admin_editar_usuario/{nomeUsuario}")
