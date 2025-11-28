@@ -42,6 +42,13 @@ class TelaReservaSalaViewModel : ViewModel() {
             _uiState.value = UiState.Loading
 
             try {
+                // Validar duração máxima de 2 horas
+                val duracao = calcularDuracao(horarioInicio, horarioFim)
+                if (duracao > 2) {
+                    _uiState.value = UiState.Error("Duração máxima permitida é de 2 horas. Você selecionou ${duracao} horas.")
+                    return@launch
+                }
+
                 val config = configuracaoRepository.buscarConfiguracoes()
 
                 val reservasAtivas = reservaRepository.getMinhasReservas(user.uid)
@@ -118,6 +125,23 @@ class TelaReservaSalaViewModel : ViewModel() {
 
     private fun getDataAtual(): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+    }
+
+    private fun calcularDuracao(horarioInicio: String, horarioFim: String): Int {
+        return try {
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val inicio = sdf.parse(horarioInicio)?.time ?: 0
+            val fim = sdf.parse(horarioFim)?.time ?: 0
+
+            if (fim < inicio) {
+                // Se fim < inicio, significa que passou para o próximo dia
+                ((fim - inicio + 24 * 60 * 60 * 1000) / (60 * 60 * 1000)).toInt()
+            } else {
+                ((fim - inicio) / (60 * 60 * 1000)).toInt()
+            }
+        } catch (e: Exception) {
+            0
+        }
     }
 
     sealed class UiState {

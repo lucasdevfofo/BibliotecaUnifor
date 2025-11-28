@@ -101,6 +101,14 @@ class ReservaRepository {
 
     suspend fun verificarDisponibilidade(salaId: String, data: String, horarioInicio: String, horarioFim: String): Boolean {
         return try {
+            // Buscar capacidade da sala
+            val salaDoc = db.collection("salas").document(salaId).get().await()
+            if (!salaDoc.exists()) return false
+
+            val capacidade = salaDoc.getLong("capacidade")?.toInt() ?: 0
+            if (capacidade <= 0) return false
+
+            // Buscar todas as reservas confirmadas ou pendentes na mesma sala, mesmo dia, mesmo horário
             val result = collection
                 .whereEqualTo("salaId", salaId)
                 .whereEqualTo("data", data)
@@ -108,11 +116,15 @@ class ReservaRepository {
                 .get()
                 .await()
 
-            result.documents.none { doc ->
+            // Contar quantas reservas ocupam este horário
+            val reservasNoHorario = result.documents.count { doc ->
                 val reservaInicio = doc.getString("horarioInicio") ?: ""
                 val reservaFim = doc.getString("horarioFim") ?: ""
                 conflitoHorario(horarioInicio, horarioFim, reservaInicio, reservaFim)
             }
+
+            // Se o número de reservas < capacidade, há espaço disponível
+            reservasNoHorario < capacidade
         } catch (e: Exception) {
             false
         }
